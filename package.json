@@ -1,0 +1,29 @@
+{
+  "name": "im-an-introvert",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Make social media a little less social. Hides distracting and accidentally-clickable UI on Facebook and Messenger.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --watch",
+    "icons": "node scripts/make-icons.mjs",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.0"
+  }
+}
