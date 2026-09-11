@@ -26,9 +26,10 @@ const dist = path.join(root, 'dist');
 const watch = process.argv.includes('--watch');
 
 /** Content scripts and the service worker share these settings. */
-const scriptBuild = (entry, outFile, format) => ({
+const scriptBuild = (entry, outFile, format, globalName) => ({
   configFile: false,
   root,
+  resolve: { alias: { '@': path.join(root, 'src') } },
   define: { 'process.env.NODE_ENV': JSON.stringify('production') },
   build: {
     outDir: dist,
@@ -41,8 +42,10 @@ const scriptBuild = (entry, outFile, format) => ({
       entry: path.join(root, entry),
       formats: [format],
       fileName: () => outFile,
+      // Only meaningful for the iife content scripts; they export nothing, so
+      // this just names the wrapper.
+      name: globalName,
     },
-    rollupOptions: { output: { extend: true } },
   },
 });
 
@@ -50,6 +53,7 @@ const popupBuild = () => ({
   configFile: false,
   root: path.join(root, 'src/popup'),
   base: './',
+  resolve: { alias: { '@': path.join(root, 'src') } },
   plugins: [react(), tailwindcss()],
   build: {
     outDir: path.join(dist, 'popup'),
@@ -65,9 +69,10 @@ const popupBuild = () => ({
 
 const targets = [
   popupBuild(),
-  scriptBuild('src/background/index.ts', 'background.js', 'es'),
-  scriptBuild('src/content/facebook.ts', 'content/facebook.js', 'iife'),
-  scriptBuild('src/content/messenger.ts', 'content/messenger.js', 'iife'),
+  scriptBuild('src/background/index.ts', 'background.js', 'es', 'introvertBackground'),
+  scriptBuild('src/content/facebook.ts', 'content/facebook.js', 'iife', 'introvertFacebook'),
+  scriptBuild('src/content/messenger.ts', 'content/messenger.js', 'iife', 'introvertMessenger'),
+  scriptBuild('src/content/instagram.ts', 'content/instagram.js', 'iife', 'introvertInstagram'),
 ];
 
 async function copyStatic() {

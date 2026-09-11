@@ -1,0 +1,115 @@
+import { ArrowLeft, EllipsisVertical, Plus, RotateCcw, Settings, Shield } from 'lucide-react';
+import logo from '@/assets/logo.png';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/popup/components/ui/dropdown-menu';
+import { cn } from '@/popup/lib/utils';
+
+interface AppHeaderProps {
+  /** Shows a back button and shrinks the mark. */
+  onBack?: () => void;
+  /** Omitted on sub-pages, where the gear would be a dead end. */
+  onOpenSettings?: () => void;
+  onAddChat: () => void;
+  onResetStats: () => void;
+  onAbout: () => void;
+}
+
+function IconButton({
+  label,
+  onClick,
+  children,
+  className,
+}: {
+  label: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className={cn(
+        'flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors',
+        'hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none',
+        className,
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** The title bar: brand mark, name, tagline, and the two menus. */
+export function AppHeader({
+  onBack,
+  onOpenSettings,
+  onAddChat,
+  onResetStats,
+  onAbout,
+}: AppHeaderProps) {
+  return (
+    <header className="flex items-center gap-2 px-0.5 pt-0.5 pb-3">
+      {onBack ? (
+        <IconButton label="Back" onClick={onBack}>
+          <ArrowLeft className="size-[18px]" />
+        </IconButton>
+      ) : null}
+
+      <img
+        src={logo}
+        alt=""
+        className={cn('shrink-0 rounded-xl bg-secondary', onBack ? 'size-9' : 'size-11')}
+      />
+
+      <div className="min-w-0 flex-1">
+        <h1
+          className={cn(
+            'leading-tight font-semibold tracking-tight',
+            onBack ? 'text-[15px]' : 'text-[19px]',
+          )}
+        >
+          I&apos;m an Introvert
+        </h1>
+        <p className="truncate text-[11.5px] leading-snug text-muted-foreground">
+          Make social media a little less social.
+        </p>
+      </div>
+
+      {onOpenSettings ? (
+        <IconButton label="Settings and privacy" onClick={onOpenSettings}>
+          <Settings className="size-[18px]" />
+        </IconButton>
+      ) : null}
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <IconButton label="More options">
+            <EllipsisVertical className="size-[18px]" />
+          </IconButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuItem onSelect={onAddChat}>
+            <Plus />
+            Add chat manually
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={onResetStats}>
+            <RotateCcw />
+            Reset today&apos;s stats
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={onAbout}>
+            <Shield />
+            Settings and privacy
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </header>
+  );
+}

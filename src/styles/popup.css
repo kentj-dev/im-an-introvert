@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* Inter, self-hosted through @fontsource so the popup never calls out to a
+ * font CDN. Latin subsets only — the popup ships no other scripts. */
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+
+/* Tailwind v4 scans sources relative to this file; src/ covers the popup. */
+@source '../';
+
+/*
+ * This is a light-only design. shadcn components carry `dark:` classes, and in
+ * Tailwind v4 that variant follows prefers-color-scheme by default — which
+ * would apply dark rules against a light palette (a black switch thumb, for
+ * one). Binding the variant to a `.dark` class that is never set keeps the
+ * popup consistent no matter what the OS theme is.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * shadcn/ui tokens, tuned to a calm light palette: near-white page, white
+ * cards, hairline borders, green reserved for "on" and "enabled".
+ */
+:root {
+  color-scheme: light;
+  --radius: 0.875rem;
+
+  --background: #f5f5f7;
+  --foreground: #15161a;
+
+  --card: #ffffff;
+  --card-foreground: #15161a;
+
+  --popover: #ffffff;
+  --popover-foreground: #15161a;
+
+  --primary: #16a34a;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f2f3f5;
+  --secondary-foreground: #2b2d33;
+
+  --muted: #f2f3f5;
+  --muted-foreground: #71747d;
+
+  --accent: #f2f3f5;
+  --accent-foreground: #15161a;
+
+  --destructive: #d4432e;
+
+  --border: #ebebef;
+  --input: #dfe0e5;
+  --ring: #16a34a;
+
+  /* Brand extras the mockup uses for tinted cards and badges. */
+  --tint-night: #eef0fb;
+  --tint-night-foreground: #4b52a8;
+  --tint-site: #eaf2fe;
+  --tint-site-foreground: #1d4ed8;
+  --tint-success: #e7f7ee;
+  --tint-success-foreground: #15803d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-tint-night: var(--tint-night);
+  --color-tint-night-foreground: var(--tint-night-foreground);
+  --color-tint-site: var(--tint-site);
+  --color-tint-site-foreground: var(--tint-site-foreground);
+  --color-tint-success: var(--tint-success);
+  --color-tint-success-foreground: var(--tint-success-foreground);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --shadow-card: 0 1px 2px rgb(18 20 26 / 0.04), 0 1px 3px rgb(18 20 26 / 0.03);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+}
+
+/*
+ * Deliberately NOT inside @layer.
+ *
+ * Chrome injects its own author stylesheet into every extension page:
+ *   body { font-family: "Segoe UI", Tahoma, sans-serif; font-size: 75%; }
+ * Unlayered rules beat every cascade layer, so the same declarations sitting
+ * in Tailwind's `base` layer lose and the popup renders in Segoe UI at 12px.
+ * Keeping these unlayered — and using `html body`, which also outranks the
+ * injected `body` selector on specificity — wins regardless of source order.
+ */
+html,
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+html body {
+  /* Chrome sizes the popup from the document. */
+  width: 384px;
+  font-family: var(--font-sans);
+  /* Explicit, so the injected 75% cannot change what unsized text inherits. */
+  font-size: 14px;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+}

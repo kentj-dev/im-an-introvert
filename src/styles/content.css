@@ -1,0 +1,29 @@
+/*
+ * Injected into Facebook and Messenger.
+ *
+ * Intentionally tiny: the extension hides things by marking them, so this file
+ * is the entire mechanism. Removing a marker restores the element on the next
+ * frame, which is why no setting needs a page reload.
+ */
+
+[data-introvert-hidden='true'] {
+  display: none !important;
+}
+
+/*
+ * One-line note where a hidden Messenger composer used to be. Drawn as a
+ * pseudo-element on the composer's parent so no node is inserted into a
+ * React-managed child list.
+ */
+[data-introvert-notice='true']::after {
+  content: '🛡 Messaging disabled by I’m an Introvert';
+  display: block;
+  padding: 10px 16px;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  color: #6b7280;
+  opacity: 0.85;
+  pointer-events: none;
+  user-select: none;
+}

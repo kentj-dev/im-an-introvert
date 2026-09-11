@@ -1,0 +1,129 @@
+import {
+  CHAT_RULE_KEYS,
+  type ChatRules,
+  type ExtensionSettings,
+  type ProtectedChat,
+} from '../shared/types';
+import { DEFAULT_CHAT_RULES, DEFAULT_SETTINGS, NO_CHAT_RULES } from './defaults';
+
+export const CURRENT_VERSION = 2 as const;
+
+const bool = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback;
+
+const record = (value: unknown): Record<string, unknown> =>
+  typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+
+/** Reads the nine shared Messenger rules out of an unknown object. */
+function readChatRules(source: Record<string, unknown>, fallback: ChatRules): ChatRules {
+  return Object.fromEntries(
+    CHAT_RULE_KEYS.map((key) => [key, bool(source[key], fallback[key])]),
+  ) as ChatRules;
+}
+
+function normaliseChat(id: string, raw: unknown): ProtectedChat | null {
+  if (!id) return null;
+  const source = record(raw);
+  const chat: ProtectedChat = {
+    id,
+    addedAt: typeof source.addedAt === 'number' ? source.addedAt : Date.now(),
+    ...readChatRules(source, DEFAULT_CHAT_RULES),
+  };
+  if (typeof source.name === 'string' && source.name.trim()) chat.name = source.name.trim();
+  if (typeof source.subtitle === 'string' && source.subtitle.trim()) {
+    chat.subtitle = source.subtitle.trim();
+  }
+  return chat;
+}
+
+/**
+ * Version 1 kept Messenger's only global under a top-level `messenger` key and
+ * had no platforms. Moving it under `facebook.messenger` is the whole
+ * migration; every other v1 field already sits where v2 expects it, and the
+ * normaliser below fills in what v1 never had.
+ */
+function migrateV1(source: Record<string, unknown>): Record<string, unknown> {
+  const facebook = record(source.facebook);
+  const legacyMessenger = record(source.messenger);
+  return {
+    ...source,
+    version: CURRENT_VERSION,
+    facebook: {
+      ...facebook,
+      messenger: {
+        ...record(facebook.messenger),
+        showDisabledNotice: bool(legacyMessenger.showDisabledNotice, true),
+      },
+    },
+  };
+}
+
+/**
+ * Turns whatever is in storage into a valid settings object.
+ *
+ * This is the migration seam: older versions are upgraded here before being
+ * normalised. Unknown keys are dropped and missing keys fall back to
+ * defaults, so a partially written or older object can never crash the popup
+ * or a content script.
+ */
+export function parseSettings(raw: unknown): ExtensionSettings {
+  let source = record(raw);
+  if (source.version === 1) source = migrateV1(source);
+
+  const defaults = DEFAULT_SETTINGS;
+
+  const facebook = record(source.facebook);
+  const facebookPosts = record(facebook.posts);
+  const messenger = record(facebook.messenger);
+
+  const instagram = record(source.instagram);
+  const instagramPosts = record(instagram.posts);
+
+  const protectedChats: Record<string, ProtectedChat> = {};
+  for (const [id, value] of Object.entries(record(source.protectedChats))) {
+    const chat = normaliseChat(id, value);
+    if (chat) protectedChats[id] = chat;
+  }
+
+  return {
+    version: CURRENT_VERSION,
+    facebook: {
+      enabled: bool(facebook.enabled, defaults.facebook.enabled),
+      hideStoryActions: bool(facebook.hideStoryActions, defaults.facebook.hideStoryActions),
+      posts: {
+        hideLike: bool(facebookPosts.hideLike, defaults.facebook.posts.hideLike),
+        hideComment: bool(facebookPosts.hideComment, defaults.facebook.posts.hideComment),
+        hideShare: bool(facebookPosts.hideShare, defaults.facebook.posts.hideShare),
+        hideSend: bool(facebookPosts.hideSend, defaults.facebook.posts.hideSend),
+        hideReactions: bool(facebookPosts.hideReactions, defaults.facebook.posts.hideReactions),
+        hideEntireActionBar: bool(
+          facebookPosts.hideEntireActionBar,
+          defaults.facebook.posts.hideEntireActionBar,
+        ),
+      },
+      messenger: {
+        ...readChatRules(messenger, NO_CHAT_RULES),
+        showDisabledNotice: bool(
+          messenger.showDisabledNotice,
+          defaults.facebook.messenger.showDisabledNotice,
+        ),
+      },
+    },
+    instagram: {
+      enabled: bool(instagram.enabled, defaults.instagram.enabled),
+      hideStoryActions: bool(instagram.hideStoryActions, defaults.instagram.hideStoryActions),
+      posts: {
+        hideLike: bool(instagramPosts.hideLike, defaults.instagram.posts.hideLike),
+        hideComment: bool(instagramPosts.hideComment, defaults.instagram.posts.hideComment),
+        hideShare: bool(instagramPosts.hideShare, defaults.instagram.posts.hideShare),
+        hideSave: bool(instagramPosts.hideSave, defaults.instagram.posts.hideSave),
+        hideEntireActionBar: bool(
+          instagramPosts.hideEntireActionBar,
+          defaults.instagram.posts.hideEntireActionBar,
+        ),
+      },
+    },
+    protectedChats,
+    leaveMeAloneMode: bool(source.leaveMeAloneMode, defaults.leaveMeAloneMode),
+  };
+}
