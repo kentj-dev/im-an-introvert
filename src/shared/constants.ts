@@ -1,5 +1,11 @@
 /** Constants shared by the content scripts, popup and background worker. */
 
+/**
+ * Public source. Surfaced in the popup so anyone can audit what the extension
+ * does rather than taking the privacy claims on trust.
+ */
+export const REPO_URL = 'https://github.com/kentj-dev/im-an-introvert';
+
 /** Single `chrome.storage.sync` key holding the whole settings object. */
 export const STORAGE_KEY = 'introvertSettings';
 

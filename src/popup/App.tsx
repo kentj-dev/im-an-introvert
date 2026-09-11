@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { AppHeader } from '@/popup/components/AppHeader';
 import { AboutView } from '@/popup/components/views/AboutView';
 import { AddChatView } from '@/popup/components/views/AddChatView';
@@ -21,6 +20,7 @@ import {
   resetPlatform,
   setLeaveMeAloneMode,
 } from '@/storage/storage';
+import { useState } from 'react';
 
 type View =
   | { kind: 'home' }
@@ -31,7 +31,7 @@ type View =
   | { kind: 'about' };
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="max-h-[580px] w-96 overflow-y-auto p-3">{children}</div>;
+  return <div className="max-h-[580px] w-96 overflow-y-auto p-3 pe-2">{children}</div>;
 }
 
 export function App() {
@@ -51,9 +51,6 @@ export function App() {
     <AppHeader
       {...(view.kind === 'home' ? {} : { onBack: back })}
       {...(view.kind === 'home' ? { onOpenSettings: () => push({ kind: 'about' }) } : {})}
-      onAddChat={() => push({ kind: 'add' })}
-      onResetStats={() => void resetStats()}
-      onAbout={() => push({ kind: 'about' })}
     />
   );
 
@@ -69,11 +66,7 @@ export function App() {
   const protectCurrentChat = (): void => {
     const id = current?.conversationId;
     if (!id) return;
-    run(() =>
-      addProtectedChat(
-        createProtectedChat(id, { name: current?.chatName, subtitle: current?.chatSubtitle }),
-      ),
-    );
+    run(() => addProtectedChat(createProtectedChat(id, { name: current?.chatName, subtitle: current?.chatSubtitle })));
     push({ kind: 'chat', id });
   };
 

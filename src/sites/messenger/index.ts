@@ -7,9 +7,11 @@
  */
 import { RULES, type RuleKey } from '../../shared/constants';
 import type { ExtensionSettings } from '../../shared/types';
+import { clearCosmeticRules, applyCosmeticRules } from '../shared/cosmetic';
 import { restoreRules } from '../shared/hider';
 import type { SiteModule } from '../shared/runtime';
 import { resolveMessengerContext } from './context';
+import { messengerCosmeticSelectors } from './cosmetic';
 import { applyMessengerCallCleanup } from './cleaners/calls';
 import { applyMessengerChatFieldCleanup, clearComposerNotice } from './cleaners/chatField';
 import { applyMessengerGroupCleanup } from './cleaners/groupActions';
@@ -31,6 +33,7 @@ export const MESSENGER_RULES: readonly RuleKey[] = [
 function reset(): void {
   restoreRules(MESSENGER_RULES);
   clearComposerNotice();
+  clearCosmeticRules();
 }
 
 export const messengerSite: SiteModule = {
@@ -49,12 +52,28 @@ export const messengerSite: SiteModule = {
     }
 
     const context = resolveMessengerContext(settings);
+    applyCosmeticRules(messengerCosmeticSelectors(context));
     applyMessengerCallCleanup(context);
     applyMessengerGroupCleanup(context);
     applyMessengerChatFieldCleanup(context);
   },
 
-  // Switching conversation must not leave the previous chat's rules behind:
-  // an unprotected chat has to look completely untouched.
-  onRouteChange: reset,
+  /**
+   * Switching conversation must not leave the previous chat's rules behind: an
+   * unprotected chat has to look completely untouched.
+   *
+   * The stylesheet is rewritten here rather than in the pass that follows,
+   * because at this point the new conversation has not been mounted yet. That
+   * is what stops a protected chat's call buttons from appearing for a frame
+   * before they are hidden. Markers need no reset: every rule diffs what it
+   * has claimed against what it now matches, and the pass runs immediately
+   * after this.
+   */
+  onRouteChange(settings: ExtensionSettings) {
+    if (!isMessengerRoute(location)) {
+      reset();
+      return;
+    }
+    applyCosmeticRules(messengerCosmeticSelectors(resolveMessengerContext(settings)));
+  },
 };

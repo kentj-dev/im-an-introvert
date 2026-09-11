@@ -124,6 +124,47 @@ body {
   color: var(--color-foreground);
 }
 
+/*
+ * Scrollbars: thin, quiet, no arrow buttons.
+ *
+ * The popup is Chromium-only, so the -webkit pseudo-elements are the right
+ * tool here. Do not also set the standard `scrollbar-width` /
+ * `scrollbar-color` properties: when those are present Chrome ignores these
+ * rules entirely, and the chunky default comes back.
+ *
+ * The thumb is drawn inside a transparent border so it reads as a 4px pill
+ * with breathing room rather than a bar wedged against the edge.
+ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-foreground) 14%, transparent);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-foreground) 26%, transparent);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: color-mix(in srgb, var(--color-foreground) 34%, transparent);
+}
+
+/* Arrow buttons and the corner square are pure noise at this size. */
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner {
+  display: none;
+}
+
 html body {
   /* Chrome sizes the popup from the document. */
   width: 384px;

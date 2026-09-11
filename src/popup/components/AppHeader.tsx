@@ -1,22 +1,12 @@
-import { ArrowLeft, EllipsisVertical, Plus, RotateCcw, Settings, Shield } from 'lucide-react';
 import logo from '@/assets/logo.png';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/popup/components/ui/dropdown-menu';
 import { cn } from '@/popup/lib/utils';
+import { ArrowLeft, Settings } from 'lucide-react';
 
 interface AppHeaderProps {
   /** Shows a back button and shrinks the mark. */
   onBack?: () => void;
   /** Omitted on sub-pages, where the gear would be a dead end. */
   onOpenSettings?: () => void;
-  onAddChat: () => void;
-  onResetStats: () => void;
-  onAbout: () => void;
 }
 
 function IconButton({
@@ -46,14 +36,8 @@ function IconButton({
   );
 }
 
-/** The title bar: brand mark, name, tagline, and the two menus. */
-export function AppHeader({
-  onBack,
-  onOpenSettings,
-  onAddChat,
-  onResetStats,
-  onAbout,
-}: AppHeaderProps) {
+/** The title bar: brand mark, name, tagline, and the settings button. */
+export function AppHeader({ onBack, onOpenSettings }: AppHeaderProps) {
   return (
     <header className="flex items-center gap-2 px-0.5 pt-0.5 pb-3">
       {onBack ? (
@@ -62,19 +46,10 @@ export function AppHeader({
         </IconButton>
       ) : null}
 
-      <img
-        src={logo}
-        alt=""
-        className={cn('shrink-0 rounded-xl bg-secondary', onBack ? 'size-9' : 'size-11')}
-      />
+      <img src={logo} alt="" className={cn('shrink-0 rounded-xl bg-secondary', onBack ? 'size-9' : 'size-11')} />
 
       <div className="min-w-0 flex-1">
-        <h1
-          className={cn(
-            'leading-tight font-semibold tracking-tight',
-            onBack ? 'text-[15px]' : 'text-[19px]',
-          )}
-        >
+        <h1 className={cn('leading-tight font-semibold tracking-tight', onBack ? 'text-[15px]' : 'text-[19px]')}>
           I&apos;m an Introvert
         </h1>
         <p className="truncate text-[11.5px] leading-snug text-muted-foreground">
@@ -87,29 +62,6 @@ export function AppHeader({
           <Settings className="size-[18px]" />
         </IconButton>
       ) : null}
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <IconButton label="More options">
-            <EllipsisVertical className="size-[18px]" />
-          </IconButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52">
-          <DropdownMenuItem onSelect={onAddChat}>
-            <Plus />
-            Add chat manually
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={onResetStats}>
-            <RotateCcw />
-            Reset today&apos;s stats
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={onAbout}>
-            <Shield />
-            Settings and privacy
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }

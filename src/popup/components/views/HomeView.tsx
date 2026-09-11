@@ -24,19 +24,18 @@ export function HomeView({
   onOpenProtectedChats,
 }: HomeViewProps) {
   const conversationId = current?.conversationId ?? null;
-  const currentChatProtected =
-    conversationId !== null && settings.protectedChats[conversationId] !== undefined;
+  const currentChatProtected = conversationId !== null && settings.protectedChats[conversationId] !== undefined;
 
   return (
     <div className="space-y-3.5">
       <LeaveMeAloneCard enabled={settings.leaveMeAloneMode} onChange={onToggleLeaveMeAlone} />
-      <PlatformList settings={settings} onOpen={onOpenPlatform} />
       <CurrentSiteCard
         current={current}
         currentChatProtected={currentChatProtected}
         onOpenPlatform={onOpenPlatform}
         onOpenProtectedChats={onOpenProtectedChats}
       />
+      <PlatformList settings={settings} onOpen={onOpenPlatform} />
       <QuickStats stats={stats} />
       <FooterNote />
     </div>

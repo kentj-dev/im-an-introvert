@@ -85,6 +85,22 @@ export const messengerSelectors = {
    * button lookup is scoped inside it.
    * TODO: Verify the composer aria-label ("Message", "Aa", localized).
    */
+  /**
+   * The whole composer, including the button rows either side of the text box.
+   *
+   * This is the preferred target for "hide chat field": ascending from the
+   * textbox stops at whichever wrapper holds the input, which leaves the
+   * attachment, sticker and GIF buttons sitting there on their own.
+   *
+   * Confirmed against a live Messenger DOM: the region carries both a role and
+   * an aria-label, which is about as stable as Facebook markup gets.
+   */
+  composerRegion: [
+    'div[role="region"][aria-label="Thread composer"]',
+    'div[role="region"][aria-label*="composer" i]',
+    'div[aria-label="Thread composer"]',
+  ],
+
   composerTextbox: [
     // Messenger's composer is a Lexical editor; that attribute has outlived
     // several redesigns. Every candidate here is deliberately an editable
@@ -137,4 +153,47 @@ export const messengerSelectors = {
     'div[role="main"] h2',
     'div[role="main"] [role="heading"]',
   ],
+} as const satisfies Record<string, readonly string[]>;
+
+/** Scopes the cosmetic rules below; both are stable landmarks. */
+export const messengerScopes = {
+  /** The open conversation, never the chat list. */
+  thread: 'div[role="main"]',
+  composer: 'div[role="region"][aria-label="Thread composer"]',
+} as const;
+
+/**
+ * Selectors for the pre-paint stylesheet (see sites/shared/cosmetic.ts).
+ *
+ * These are deliberately a tight subset of the candidate lists above: a
+ * cosmetic rule runs with no scoping logic and no guards, so only exact,
+ * high-confidence selectors belong here. Everything fuzzy stays in the
+ * candidate lists and is handled by the JS pass, which can scope and verify.
+ * A label that is missing here still gets hidden, just one frame later.
+ */
+export const messengerCosmetic = {
+  voiceCall: [
+    '[aria-label="Start a voice call"]',
+    '[aria-label="Voice call"]',
+    '[aria-label="Audio call"]',
+  ],
+  videoCall: ['[aria-label="Start a video call"]', '[aria-label="Video call"]'],
+  groupActions: [
+    '[aria-label="Add people"]',
+    '[aria-label="Add people to conversation"]',
+    '[aria-label="Add members"]',
+    '[aria-label="Create a group"]',
+    '[aria-label="Start a group call"]',
+  ],
+  attachments: [
+    '[aria-label="Attach a file"]',
+    '[aria-label="Attach files"]',
+    '[aria-label="Attach a photo or video"]',
+    '[aria-label="Choose a file to upload"]',
+    '[aria-label="Open photos and videos"]',
+  ],
+  emoji: ['[aria-label="Choose an emoji"]', '[aria-label="Open emoji keyboard"]'],
+  gif: ['[aria-label="Choose a GIF"]', '[aria-label="Choose a GIF or sticker"]'],
+  sticker: ['[aria-label="Choose a sticker"]', '[aria-label="Open stickers"]'],
+  like: ['[aria-label="Send a like"]', '[aria-label="Send a thumbs up"]'],
 } as const satisfies Record<string, readonly string[]>;

@@ -45,6 +45,10 @@ Messenger rules exist at two levels, and a control is hidden if either says so:
 A row that a global rule already covers shows as locked on in the per-chat view, with the
 reason, so the two layers can never disagree silently.
 
+"Hide chat field" hides the composer *region*, so the attachment, GIF, sticker, emoji and
+quick-like buttons go with it rather than being left stranded around an empty gap. Reading,
+scrolling and opening media are untouched.
+
 ### Leave me alone mode
 
 One switch that applies the recommended noise cleanup across every platform: Story actions
@@ -202,9 +206,10 @@ src/
 │   ├── shared/                  Reusable machinery, no site knowledge
 │   │   ├── runtime.ts           Lifecycle: settings, observers, routes, stats
 │   │   ├── hider.ts             Mark/restore elements, reference counted by rule
+│   │   ├── cosmetic.ts          Pre-paint stylesheet, so nothing flashes
 │   │   ├── query.ts             Selector candidates, safe queries, DOM ascent
 │   │   ├── observer.ts          MutationObserver with a trivial callback
-│   │   ├── scheduler.ts         Debounce with a ceiling
+│   │   ├── scheduler.ts         Leading edge, trailing debounce, ceiling
 │   │   └── route.ts             SPA route detection
 │   ├── facebook/
 │   │   ├── cleaners/{stories,posts}.ts
@@ -216,6 +221,7 @@ src/
 │   │   ├── router.ts            The only place Messenger URLs are parsed
 │   │   ├── selectors.ts         All Messenger selectors
 │   │   ├── context.ts           Conversation + effective rules (global | per-chat)
+│   │   ├── cosmetic.ts          Builds that stylesheet for the current chat
 │   │   ├── chatInfo.ts          Conversation label for the popup
 │   │   ├── observer.ts
 │   │   └── index.ts
@@ -400,6 +406,38 @@ accessible name, so its selectors reach the button *through* its icon with
 `button:has(svg[aria-label="Like"])`. Hiding the svg alone would leave an invisible but
 clickable button — exactly the accident this extension exists to prevent.
 
+### Two layers: one fast, one careful
+
+Marking elements can only happen after a pass has found them, which means the browser
+paints the control and the extension removes it a frame later. That visible twitch is why
+there is a second layer.
+
+| Layer                                                        | When it acts                          | What belongs in it                                                        |
+| ------------------------------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------- |
+| [cosmetic.ts](src/sites/shared/cosmetic.ts) stylesheet        | As the element is created, before paint | Exact, high-confidence selectors under a stable scope                     |
+| [hider.ts](src/sites/shared/hider.ts) markers                 | On the next cleanup pass               | Everything else: derived containers, fuzzy labels, portals, guarded ascents |
+
+The cosmetic layer keeps one `display: none` rule in a constructed `CSSStyleSheet` adopted
+by the document, built from the `messengerCosmetic` lists and scoped by `messengerScopes`
+(the open conversation, `div[role="main"]`, and the composer region). Because it depends
+only on the settings and the conversation ID, it is rewritten the moment the route changes,
+*before* Messenger mounts the new conversation, so a protected chat's controls are never
+painted at all.
+
+A constructed sheet rather than a `<style>` element for one specific reason: a `<style>`
+appended by a content script belongs to the page, so a site sending `style-src` without
+`'unsafe-inline'` blocks it outright. That is verified rather than assumed — one browser
+check serves the harness under exactly that policy and asserts the controls still never
+paint. CSSOM is not governed by CSP, so the constructed sheet survives it. The `<style>`
+path remains as a fallback, and if both fail the marker layer still hides everything one
+frame later.
+
+The layers are complements, not duplicates. A label missing from a cosmetic list still gets
+hidden, one frame later, by the JS pass. A selector too fuzzy to trust unscoped stays out of
+the cosmetic list entirely. When adding a selector, the rule of thumb is: exact
+`aria-label` match plus a scope you can name, put it in both; anything else, candidate list
+only.
+
 Three patterns matter more than any single selector:
 
 **Anchor, then ascend.** Containers are never guessed. The story cleaners find the reply box
@@ -496,7 +534,7 @@ development, not only type-checked:
 | Check                                                | Result |
 | ---------------------------------------------------- | ------ |
 | URL parser cases                                     | 21/21  |
-| Content-script behaviour in headless Chrome          | 89/89  |
+| Content-script behaviour in headless Chrome          | 133/133 |
 
 The browser checks drive the **built** content scripts against a synthetic
 Facebook/Messenger/Instagram DOM and assert on what ends up hidden: story strips hidden
@@ -508,6 +546,12 @@ chat while leaving their neighbours alone; a platform master switch restoring ev
 instant restore when any setting flips; full release when a chat is unprotected; and correct
 behaviour across SPA navigation between a protected and an unprotected conversation, on
 `facebook.com/messages/t/...`, `messenger.com/t/...`, and Instagram's feed and story routes.
+
+Some of those assert computed style and box generation rather than the marker attribute,
+which is what proves the pre-paint layer. One scenario navigates first and mounts the
+conversation afterwards, exactly as Messenger does, then checks in the same tick as the
+insertion that the call buttons and composer generate no boxes at all: no observer callback
+or debounce can have run by then, so only the stylesheet can be responsible.
 
 Those checks validate the mechanism against a stand-in DOM. They cannot validate that a
 given `aria-label` is what your account actually renders — that is what the selector-update

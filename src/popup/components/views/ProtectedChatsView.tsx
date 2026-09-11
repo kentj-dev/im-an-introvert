@@ -59,7 +59,7 @@ export function ProtectedChatsView({
       {conversationId ? (
         <section className="space-y-1.5">
           <h3 className="px-0.5 text-[14.5px] leading-tight font-semibold tracking-tight">Current chat</h3>
-          <Card className="gap-0 px-3 py-3 shadow-card">
+          <Card className="gap-0 px-3 py-3 shadow-none border-gray-400 rounded-md">
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate text-[14px] font-medium">
                 {currentChat?.name ?? current?.chatName ?? 'Messenger chat'}
@@ -99,13 +99,13 @@ export function ProtectedChatsView({
             </p>
           </Card>
         ) : (
-          <Card className="gap-0 divide-y divide-border py-0 shadow-none rounded-md border-gray-400">
+          <Card className="gap-0 py-0 shadow-none rounded-md border-gray-400">
             {chats.map((chat) => (
               <button
                 key={chat.id}
                 type="button"
                 onClick={() => onOpenChat(chat.id)}
-                className="group flex cursor-pointer items-center gap-2 px-3 py-2.5 text-left transition-colors first:rounded-t-md border last:rounded-b-md hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                className="group flex cursor-pointer items-center gap-2 px-3 py-2.5 text-left transition-colors first:rounded-t-md last:rounded-b-md hover:bg-accent focus-visible:outline-none"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13.5px] leading-tight font-medium">

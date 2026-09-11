@@ -32,14 +32,22 @@ function isSafeComposerAncestor(candidate: HTMLElement): boolean {
   );
 }
 
-/** The composer row: the wrapper holding the textbox and its buttons. */
+/** The composer: the text box plus the button rows on either side of it. */
 function findComposer(context: MessengerContext): HTMLElement | null {
   const scope = context.threadRoot;
   if (!scope) return null;
 
+  // Preferred: the composer region itself. Ascending from the text box stops
+  // at whichever wrapper holds the input, which leaves the attachment, GIF and
+  // sticker buttons behind as orphans.
+  const region = queryOne(scope, messengerSelectors.composerRegion);
+  if (region && !containsAny(region, messengerSelectors.messageList)) return region;
+
+  // Fallback for a build without that landmark: anchor on the text box and
+  // ascend only as far as is provably safe.
   const textbox = queryOne(scope, messengerSelectors.composerTextbox);
   if (!textbox) {
-    debugOnce('messenger:no-composer', 'composer textbox not found');
+    debugOnce('messenger:no-composer', 'composer region and textbox not found');
     return null;
   }
   return ascendWhileSafe(textbox, isSafeComposerAncestor, COMPOSER_ASCENT_DEPTH);
