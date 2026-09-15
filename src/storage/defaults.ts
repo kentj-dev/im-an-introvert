@@ -1,11 +1,11 @@
-import { FREE_LIMITS } from '../shared/constants';
+import { FREE_LIMITS } from "../shared/constants";
 import {
   CHAT_RULE_KEYS,
   type ChatRules,
   type ExtensionSettings,
   type LeaveMeAloneSnapshot,
   type ProtectedChat,
-} from '../shared/types';
+} from "../shared/types";
 
 const chatRules = (value: boolean): ChatRules =>
   Object.fromEntries(CHAT_RULE_KEYS.map((key) => [key, value])) as ChatRules;
@@ -104,7 +104,10 @@ function readLeaveMeAlone(settings: ExtensionSettings): LeaveMeAloneSnapshot {
   };
 }
 
-function writeLeaveMeAlone(draft: ExtensionSettings, values: LeaveMeAloneSnapshot): void {
+function writeLeaveMeAlone(
+  draft: ExtensionSettings,
+  values: LeaveMeAloneSnapshot,
+): void {
   draft.facebook.hideStoryActions = values.hideStoryActions;
   draft.facebook.posts.hideEntireActionBar = values.hideEntireActionBar;
   draft.facebook.hideChatWidgets = values.hideChatWidgets;
@@ -128,17 +131,26 @@ export function matchesLeaveMeAlone(settings: ExtensionSettings): boolean {
   return Object.values(readLeaveMeAlone(settings)).every(Boolean);
 }
 
-export function isLeaveMeAloneRunning(settings: ExtensionSettings, now = Date.now()): boolean {
+export function isLeaveMeAloneRunning(
+  settings: ExtensionSettings,
+  now = Date.now(),
+): boolean {
   const { until } = settings.leaveMeAlone;
   return until !== null && until > now;
 }
 
 /** What the popup switch shows: a running session whose settings are all on. */
-export function isLeaveMeAloneMode(settings: ExtensionSettings, now = Date.now()): boolean {
+export function isLeaveMeAloneMode(
+  settings: ExtensionSettings,
+  now = Date.now(),
+): boolean {
   return isLeaveMeAloneRunning(settings, now) && matchesLeaveMeAlone(settings);
 }
 
-export function startLeaveMeAlone(draft: ExtensionSettings, now = Date.now()): void {
+export function startLeaveMeAlone(
+  draft: ExtensionSettings,
+  now = Date.now(),
+): void {
   // Already on: keep the original snapshot and the original end time.
   if (isLeaveMeAloneRunning(draft, now)) return;
   draft.leaveMeAlone = {
@@ -160,7 +172,10 @@ export function endLeaveMeAlone(draft: ExtensionSettings): void {
  * Ends a session whose time is up. Runs on every settings read, so the mode
  * switches off even if nothing was open when the hour ran out.
  */
-export function expireLeaveMeAlone(settings: ExtensionSettings, now = Date.now()): void {
+export function expireLeaveMeAlone(
+  settings: ExtensionSettings,
+  now = Date.now(),
+): void {
   const { until } = settings.leaveMeAlone;
   if (until !== null && until <= now) endLeaveMeAlone(settings);
 }

@@ -7,7 +7,7 @@
  */
 export const DEBUG = false;
 
-const PREFIX = '[introvert]';
+const PREFIX = "[introvert]";
 const seen = new Set<string>();
 
 export function debug(...args: unknown[]): void {

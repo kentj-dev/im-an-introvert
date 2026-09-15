@@ -1,8 +1,8 @@
-import { NavCard } from '@/popup/components/NavCard';
-import type { CurrentTabInfo } from '@/popup/hooks/useCurrentTab';
-import { getPlatform } from '@/popup/platforms';
-import type { PlatformId } from '@/shared/types';
-import { Globe } from 'lucide-react';
+import { NavCard } from "@/popup/components/NavCard";
+import type { CurrentTabInfo } from "@/popup/hooks/useCurrentTab";
+import { getPlatform } from "@/popup/platforms";
+import type { PlatformId } from "@/shared/types";
+import { Globe } from "lucide-react";
 
 interface CurrentSiteCardProps {
   current: CurrentTabInfo | null;
@@ -25,7 +25,9 @@ export function CurrentSiteCard({
 }: CurrentSiteCardProps) {
   return (
     <section className="space-y-1.5">
-      <h2 className="px-0.5 text-[15px] leading-tight font-semibold tracking-tight">Current Site</h2>
+      <h2 className="px-0.5 text-[15px] leading-tight font-semibold tracking-tight">
+        Current Site
+      </h2>
 
       {!current?.platform ? (
         <NavCard
@@ -37,12 +39,12 @@ export function CurrentSiteCard({
       ) : current.conversationId ? (
         <NavCard
           tone="site"
-          image={getPlatform('messenger').icon}
+          image={getPlatform("messenger").icon}
           title={current.chatName ?? "You're on Messenger"}
           description={
             currentChatProtected
-              ? 'Protected chat. Open its settings'
-              : 'Open Protected Chats to protect this conversation'
+              ? "Protected chat. Open its settings"
+              : "Open Protected Chats to protect this conversation"
           }
           onClick={onOpenProtectedChats}
         />

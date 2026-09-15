@@ -6,16 +6,22 @@
  * exactly where they were. Comment actions are left alone: nested
  * `role="article"` elements (comments) never count as posts.
  */
-import { POST_NOTICE_ATTR, RULES } from '../../../shared/constants';
-import { safely } from '../../../shared/debug';
-import type { ExtensionSettings } from '../../../shared/types';
-import { applyRule } from '../../shared/hider';
-import { ascendUntil, containsAny, queryAll, type SelectorCandidates } from '../../shared/query';
-import { isInsideFloatingChat as isInsideMessengerWidget } from '../../messenger/floating';
-import { facebookSelectors, isStoryRoute } from '../selectors';
+import { POST_NOTICE_ATTR, RULES } from "../../../shared/constants";
+import { safely } from "../../../shared/debug";
+import type { ExtensionSettings } from "../../../shared/types";
+import { applyRule } from "../../shared/hider";
+import {
+  ascendUntil,
+  containsAny,
+  queryAll,
+  type SelectorCandidates,
+} from "../../shared/query";
+import { isInsideFloatingChat as isInsideMessengerWidget } from "../../messenger/floating";
+import { facebookSelectors, isStoryRoute } from "../selectors";
 
 const POST_ROOT_SELECTOR = '[aria-posinset], div[role="article"]';
-const BUTTON_SELECTOR = 'button, a[role="button"], div[role="button"], [role="button"]';
+const BUTTON_SELECTOR =
+  'button, a[role="button"], div[role="button"], [role="button"]';
 const RENDERED_POST_ACTION_SELECTOR = [
   '[data-ad-rendering-role="like_button"]',
   '[data-ad-rendering-role="comment_button"]',
@@ -44,7 +50,10 @@ function physicalAction(element: HTMLElement): HTMLElement | null {
   return descendant instanceof HTMLElement ? descendant : null;
 }
 
-function physicalActionsIn(root: ParentNode, candidates: SelectorCandidates): HTMLElement[] {
+function physicalActionsIn(
+  root: ParentNode,
+  candidates: SelectorCandidates,
+): HTMLElement[] {
   return [
     ...new Set(
       queryAll(root, candidates)
@@ -55,24 +64,43 @@ function physicalActionsIn(root: ParentNode, candidates: SelectorCandidates): HT
 }
 
 function facebookPostActions(candidates: SelectorCandidates): HTMLElement[] {
-  return physicalActionsIn(document, candidates).filter((element) => !isInsideMessengerWidget(element));
+  return physicalActionsIn(document, candidates).filter(
+    (element) => !isInsideMessengerWidget(element),
+  );
 }
 
-function physicalActionsInPost(post: HTMLElement, candidates: SelectorCandidates): HTMLElement[] {
-  return physicalActionsIn(post, candidates).filter((element) => belongsToPost(element, post));
+function physicalActionsInPost(
+  post: HTMLElement,
+  candidates: SelectorCandidates,
+): HTMLElement[] {
+  return physicalActionsIn(post, candidates).filter((element) =>
+    belongsToPost(element, post),
+  );
 }
 
-function distinctActionKindsWithin(candidate: HTMLElement, groups: readonly HTMLElement[][]): number {
-  return groups.filter((group) => group.some((action) => candidate.contains(action))).length;
+function distinctActionKindsWithin(
+  candidate: HTMLElement,
+  groups: readonly HTMLElement[][],
+): number {
+  return groups.filter((group) =>
+    group.some((action) => candidate.contains(action)),
+  ).length;
 }
 
 /** Collapse a labelled child and its matching wrapper into one physical control. */
-function outermostActionControls(actions: readonly HTMLElement[]): HTMLElement[] {
-  return actions.filter((action) => !actions.some((other) => other !== action && other.contains(action)));
+function outermostActionControls(
+  actions: readonly HTMLElement[],
+): HTMLElement[] {
+  return actions.filter(
+    (action) =>
+      !actions.some((other) => other !== action && other.contains(action)),
+  );
 }
 
 function hasCompactButtonRow(candidate: HTMLElement): boolean {
-  const controls = outermostActionControls(queryAll(candidate, [BUTTON_SELECTOR]));
+  const controls = outermostActionControls(
+    queryAll(candidate, [BUTTON_SELECTOR]),
+  );
   return controls.length >= 3;
 }
 
@@ -90,7 +118,10 @@ function hasRenderedPostAction(candidate: HTMLElement): boolean {
  * Those two nodes represent one action and previously caused us to stop at the
  * individual button wrapper instead of reaching the shared action row.
  */
-function sharedRows(groups: HTMLElement[][], boundary?: HTMLElement): HTMLElement[] {
+function sharedRows(
+  groups: HTMLElement[][],
+  boundary?: HTMLElement,
+): HTMLElement[] {
   const actions = outermostActionControls([...new Set(groups.flat())]);
   const candidates = new Set<HTMLElement>();
 
@@ -98,9 +129,11 @@ function sharedRows(groups: HTMLElement[][], boundary?: HTMLElement): HTMLElemen
     const bar = ascendUntil(
       action,
       (candidate) =>
-        ((actions.filter((control) => candidate.contains(control)).length >= 2 &&
+        ((actions.filter((control) => candidate.contains(control)).length >=
+          2 &&
           distinctActionKindsWithin(candidate, groups) >= 2) ||
-          ((boundary !== undefined || hasRenderedPostAction(candidate)) && hasCompactButtonRow(candidate))) &&
+          ((boundary !== undefined || hasRenderedPostAction(candidate)) &&
+            hasCompactButtonRow(candidate))) &&
         !containsAny(candidate, facebookSelectors.postContent),
       8,
     );
@@ -110,7 +143,10 @@ function sharedRows(groups: HTMLElement[][], boundary?: HTMLElement): HTMLElemen
   // A match from the reaction summary can point at a larger footer. Keep the
   // deepest shared rows so reaction counts and comment areas remain visible.
   return [...candidates].filter(
-    (candidate) => ![...candidates].some((other) => other !== candidate && candidate.contains(other)),
+    (candidate) =>
+      ![...candidates].some(
+        (other) => other !== candidate && candidate.contains(other),
+      ),
   );
 }
 
@@ -165,7 +201,7 @@ function applyPostNotice(rows: readonly HTMLElement[]): void {
   for (const element of document.querySelectorAll(`[${POST_NOTICE_ATTR}]`)) {
     if (!targets.has(element)) element.removeAttribute(POST_NOTICE_ATTR);
   }
-  for (const row of rows) row.setAttribute(POST_NOTICE_ATTR, 'true');
+  for (const row of rows) row.setAttribute(POST_NOTICE_ATTR, "true");
 }
 
 /** Drops every note, used when Facebook cleanup is released. */
@@ -175,8 +211,13 @@ export function clearPostNotice(): void {
 
 export function applyPostCleanup(settings: ExtensionSettings): void {
   const enabled = settings.facebook.posts.hideEntireActionBar;
-  const bars = enabled ? (safely(`find:${RULES.postActionBar}`, findActionBars) ?? NO_BARS) : NO_BARS;
+  const bars = enabled
+    ? (safely(`find:${RULES.postActionBar}`, findActionBars) ?? NO_BARS)
+    : NO_BARS;
 
-  applyRule(RULES.postActionBar, enabled, () => [...bars.rows, ...bars.controls]);
+  applyRule(RULES.postActionBar, enabled, () => [
+    ...bars.rows,
+    ...bars.controls,
+  ]);
   applyPostNotice(bars.rows);
 }

@@ -15,10 +15,10 @@ platforms as coming soon.
 
 ### Facebook
 
-| Tab     | Options                                                                                   |
-| ------- | ----------------------------------------------------------------------------------------- |
+| Tab     | Options                                                                                             |
+| ------- | --------------------------------------------------------------------------------------------------- |
 | General | Hide Story actions, hide the entire post action bar (Like, Comment, Share, Send), hide chat widgets |
-| Other   | A reset for this platform                                                                 |
+| Other   | A reset for this platform                                                                           |
 
 Stories stay watchable: navigation, playback, closing and the author link are never
 hidden. Posts keep their text, media and reaction counts, and actions inside comments are
@@ -29,11 +29,11 @@ left alone.
 Its own platform with its own master switch, covering messenger.com, facebook.com/messages
 and the floating chat tabs on facebook.com.
 
-| Tab        | Options                                                                  |
-| ---------- | ------------------------------------------------------------------------ |
-| General    | Protected Chats, plus global rules for calls and group actions           |
+| Tab        | Options                                                                     |
+| ---------- | --------------------------------------------------------------------------- |
+| General    | Protected Chats, plus global rules for calls and group actions              |
 | Chat Field | The whole composer, or its attachment, emoji, GIF, sticker and like buttons |
-| Other      | The "messaging disabled" note, and a reset for this platform             |
+| Other      | The "messaging disabled" note, and a reset for this platform                |
 
 ### Instagram
 
@@ -51,7 +51,7 @@ Messenger rules exist at two levels, and a control is hidden if either says so:
 A row that a global rule already covers shows as locked on in the per-chat view, with the
 reason, so the two layers can never disagree silently.
 
-"Hide chat field" hides the composer *region*, so the attachment, GIF, sticker, emoji and
+"Hide chat field" hides the composer _region_, so the attachment, GIF, sticker, emoji and
 quick-like buttons go with it rather than being left stranded around an empty gap. Reading,
 scrolling and opening media are untouched.
 
@@ -100,11 +100,11 @@ immediately. The code is [src/storage/stats.ts](src/storage/stats.ts).
 
 ### Permissions, and why each one is needed
 
-| Permission                                                    | Why                                                                                                                                                        |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `storage`                                                     | Save settings and protected chats in `chrome.storage.sync`, and the daily counters in `chrome.storage.local`.                                                |
-| `host_permissions` for facebook.com and messenger.com        | Lets the popup read the active tab's URL so it can tell which site and conversation you are on, and ask that tab's content script for the chat's title.     |
-| `content_scripts` matches for the same sites                  | The cleaners have to run on the page to hide anything.                                                                                                     |
+| Permission                                            | Why                                                                                                                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage`                                             | Save settings and protected chats in `chrome.storage.sync`, and the daily counters in `chrome.storage.local`.                                           |
+| `host_permissions` for facebook.com and messenger.com | Lets the popup read the active tab's URL so it can tell which site and conversation you are on, and ask that tab's content script for the chat's title. |
+| `content_scripts` matches for the same sites          | The cleaners have to run on the page to hide anything.                                                                                                  |
 
 There is deliberately no `tabs` permission: a host permission is enough to read `tab.url`
 for those sites and nothing else. No `activeTab`, no `scripting`, no `webNavigation`, no
@@ -181,12 +181,12 @@ Two Tailwind notes worth knowing before editing the popup:
 There is no `vite.config.ts`; [scripts/build.mjs](scripts/build.mjs) runs four small Vite
 builds, because MV3 wants a different module format per target:
 
-| Target                   | Output                       | Format                                            |
-| ------------------------ | ---------------------------- | ------------------------------------------------- |
-| Popup (React + Tailwind) | `dist/popup/`                | ES modules, fine inside an extension page         |
-| Service worker           | `dist/background.js`         | ES module (`"type": "module"` in the manifest)    |
-| Facebook content script  | `dist/content/facebook.js`   | IIFE — classic content scripts cannot use imports |
-| Messenger content script | `dist/content/messenger.js`  | IIFE                                              |
+| Target                   | Output                      | Format                                            |
+| ------------------------ | --------------------------- | ------------------------------------------------- |
+| Popup (React + Tailwind) | `dist/popup/`               | ES modules, fine inside an extension page         |
+| Service worker           | `dist/background.js`        | ES module (`"type": "module"` in the manifest)    |
+| Facebook content script  | `dist/content/facebook.js`  | IIFE — classic content scripts cannot use imports |
+| Messenger content script | `dist/content/messenger.js` | IIFE                                              |
 
 The script also copies `src/manifest.json`, `src/styles/content.css` (as
 `content/introvert.css`) and `src/icons/`. Content scripts are not minified on purpose:
@@ -271,9 +271,9 @@ A protected chat is one record keyed by conversation ID:
 
 ```ts
 interface ProtectedChat extends ChatRules {
-  id: string;          // from the URL — the real identifier
-  name?: string;       // cosmetic label, yours to rename
-  subtitle?: string;   // cosmetic, e.g. "6 members"
+  id: string; // from the URL — the real identifier
+  name?: string; // cosmetic label, yours to rename
+  subtitle?: string; // cosmetic, e.g. "6 members"
   addedAt: number;
 }
 
@@ -345,15 +345,15 @@ One `chrome.storage.sync` key, `introvertSettings`:
 interface ExtensionSettings {
   version: 3;
   facebook: {
-    enabled: boolean;              // the platform master switch
+    enabled: boolean; // the platform master switch
     hideStoryActions: boolean;
-    hideChatWidgets: boolean;      // floating chat tabs, not full Messenger
+    hideChatWidgets: boolean; // floating chat tabs, not full Messenger
     posts: {
       hideEntireActionBar: boolean; // the Like, Comment, Share and Send row
     };
   };
   messenger: ChatRules & {
-    enabled: boolean;              // Messenger's own master switch
+    enabled: boolean; // Messenger's own master switch
     showDisabledNotice: boolean;
   };
   instagram: {
@@ -369,7 +369,7 @@ interface ExtensionSettings {
   };
   protectedChats: Record<string, ProtectedChat>;
   leaveMeAlone: {
-    until: number | null;          // when the running session ends, epoch ms
+    until: number | null; // when the running session ends, epoch ms
     previous: LeaveMeAloneSnapshot | null; // the preset's settings before it started
   };
   leaveMeAloneMode: boolean;
@@ -429,7 +429,7 @@ and never throw:
   that contains at least two post action buttons"
 
 The draft Instagram implementation needs one extra trick: its controls are buttons wrapping an `svg` that carries the
-accessible name, so its selectors reach the button *through* its icon with
+accessible name, so its selectors reach the button _through_ its icon with
 `button:has(svg[aria-label="Like"])`. Hiding the svg alone would leave an invisible but
 clickable button — exactly the accident this extension exists to prevent.
 
@@ -439,16 +439,16 @@ Marking elements can only happen after a pass has found them, which means the br
 paints the control and the extension removes it a frame later. That visible twitch is why
 there is a second layer.
 
-| Layer                                                        | When it acts                          | What belongs in it                                                        |
-| ------------------------------------------------------------ | ------------------------------------- | ------------------------------------------------------------------------- |
-| [cosmetic.ts](src/sites/shared/cosmetic.ts) stylesheet        | As the element is created, before paint | Exact, high-confidence selectors under a stable scope                     |
-| [hider.ts](src/sites/shared/hider.ts) markers                 | On the next cleanup pass               | Everything else: derived containers, fuzzy labels, portals, guarded ascents |
+| Layer                                                  | When it acts                            | What belongs in it                                                          |
+| ------------------------------------------------------ | --------------------------------------- | --------------------------------------------------------------------------- |
+| [cosmetic.ts](src/sites/shared/cosmetic.ts) stylesheet | As the element is created, before paint | Exact, high-confidence selectors under a stable scope                       |
+| [hider.ts](src/sites/shared/hider.ts) markers          | On the next cleanup pass                | Everything else: derived containers, fuzzy labels, portals, guarded ascents |
 
 The cosmetic layer keeps one `display: none` rule in a constructed `CSSStyleSheet` adopted
 by the document, built from the `messengerCosmetic` lists and scoped by `messengerScopes`
 (the open conversation, `div[role="main"]`, and the composer region). Because it depends
 only on the settings and the conversation ID, it is rewritten the moment the route changes,
-*before* Messenger mounts the new conversation, so a protected chat's controls are never
+_before_ Messenger mounts the new conversation, so a protected chat's controls are never
 painted at all.
 
 A constructed sheet rather than a `<style>` element for one specific reason: a `<style>`
@@ -500,7 +500,7 @@ visible, never a broken page.
    candidates: they cost nothing and may still be right for other accounts or locales.
 4. Rebuild, reload, confirm. Set `DEBUG` back to `false`.
 
-If what changed is a *container* rather than a button, check the guard lists instead
+If what changed is a _container_ rather than a button, check the guard lists instead
 (`storyProtected`, `postContent`, `messageList`) — an ascent that stops too early usually
 means a guard is matching something new.
 

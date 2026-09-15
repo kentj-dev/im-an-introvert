@@ -9,22 +9,22 @@
  * single writer for the local Quick Stats counters so reports from several
  * tabs cannot clobber each other.
  */
-import { debug } from '../shared/debug';
-import { MESSAGES, type UsageReport } from '../shared/types';
-import { addUsage } from '../storage/stats';
-import { loadSettings, saveSettings } from '../storage/storage';
+import { debug } from "../shared/debug";
+import { MESSAGES, type UsageReport } from "../shared/types";
+import { addUsage } from "../storage/stats";
+import { loadSettings, saveSettings } from "../storage/storage";
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   // parseSettings() fills in anything missing and upgrades older versions, so
   // writing the parsed result back is also the migration step.
   const settings = await loadSettings();
   await saveSettings(settings);
-  debug('installed', details.reason, settings.version);
+  debug("installed", details.reason, settings.version);
 });
 
 function isUsageReport(message: unknown): message is UsageReport {
   return (
-    typeof message === 'object' &&
+    typeof message === "object" &&
     message !== null &&
     (message as { type?: unknown }).type === MESSAGES.reportUsage
   );

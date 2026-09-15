@@ -6,7 +6,7 @@
  * frame, which is why no setting needs a page reload.
  */
 
-[data-introvert-hidden='true'] {
+[data-introvert-hidden="true"] {
   display: none !important;
 }
 
@@ -22,16 +22,16 @@
  * Both attributes are required: a stale note flag on a restored bar does
  * nothing. The doubled attribute selector outranks the plain hidden rule.
  */
-[data-introvert-hidden='true'][data-introvert-post-notice='true'] {
+[data-introvert-hidden="true"][data-introvert-post-notice="true"] {
   display: block !important;
 }
 
-[data-introvert-hidden='true'][data-introvert-post-notice='true'] > * {
+[data-introvert-hidden="true"][data-introvert-post-notice="true"] > * {
   display: none !important;
 }
 
-[data-introvert-hidden='true'][data-introvert-post-notice='true']::after {
-  content: '🛡 Interactions disabled by I’m an Introvert';
+[data-introvert-hidden="true"][data-introvert-post-notice="true"]::after {
+  content: "🛡 Interactions disabled by I’m an Introvert";
   display: block;
   padding: 8px 16px;
   font-size: 12px;
@@ -43,8 +43,8 @@
   user-select: none;
 }
 
-[data-introvert-notice='true']::after {
-  content: '🛡 Messaging disabled by I’m an Introvert';
+[data-introvert-notice="true"]::after {
+  content: "🛡 Messaging disabled by I’m an Introvert";
   display: block;
   padding: 10px 16px;
   font-size: 12px;

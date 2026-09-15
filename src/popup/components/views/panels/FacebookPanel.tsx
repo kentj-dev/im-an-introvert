@@ -1,22 +1,27 @@
-import { SettingRow } from '@/popup/components/SettingRow';
-import { SettingSection } from '@/popup/components/SettingSection';
-import { MaintenanceSection } from '@/popup/components/views/panels/MaintenanceSection';
-import type { PanelProps } from '@/popup/components/views/PlatformView';
+import { SettingRow } from "@/popup/components/SettingRow";
+import { SettingSection } from "@/popup/components/SettingSection";
+import { MaintenanceSection } from "@/popup/components/views/panels/MaintenanceSection";
+import type { PanelProps } from "@/popup/components/views/PlatformView";
 import {
   CHAT_WIDGETS_ROW,
   POST_ACTION_BAR_ROW,
   STORY_ROW,
   type PlatformTabId,
-} from '@/popup/platforms';
+} from "@/popup/platforms";
 
 interface FacebookPanelProps extends PanelProps {
   tab: PlatformTabId;
 }
 
-export function FacebookPanel({ tab, settings, update, resetPlatform }: FacebookPanelProps) {
+export function FacebookPanel({
+  tab,
+  settings,
+  update,
+  resetPlatform,
+}: FacebookPanelProps) {
   const facebook = settings.facebook;
 
-  if (tab === 'general') {
+  if (tab === "general") {
     return (
       <>
         <SettingSection

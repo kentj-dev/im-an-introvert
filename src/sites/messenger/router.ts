@@ -29,15 +29,15 @@ const CONVERSATION_PATTERNS: readonly RegExp[] = [
 
 /** Path segments that look like an id but are really Messenger sub-pages. */
 const RESERVED_IDS = new Set([
-  'new',
-  'requests',
-  'archived',
-  'spam',
-  'pending',
-  'filtered',
-  'marketplace',
-  'e2ee',
-  't',
+  "new",
+  "requests",
+  "archived",
+  "spam",
+  "pending",
+  "filtered",
+  "marketplace",
+  "e2ee",
+  "t",
 ]);
 
 /** Conversation ids are numeric thread ids, usernames, or "cid.g.xxx" forms. */
@@ -54,14 +54,19 @@ export function isFacebookHost(hostname: string): boolean {
 /** True when this URL is a Messenger surface rather than ordinary Facebook. */
 export function isMessengerRoute(location: MessengerLocation): boolean {
   if (isMessengerHost(location.hostname)) return true;
-  return isFacebookHost(location.hostname) && location.pathname.startsWith('/messages');
+  return (
+    isFacebookHost(location.hostname) &&
+    location.pathname.startsWith("/messages")
+  );
 }
 
 /**
  * Reads the conversation id out of the URL, or null when the user is not
  * looking at a single conversation (inbox root, requests, a Facebook page).
  */
-export function getMessengerConversationId(location: MessengerLocation): string | null {
+export function getMessengerConversationId(
+  location: MessengerLocation,
+): string | null {
   if (!isMessengerRoute(location)) return null;
 
   for (const pattern of CONVERSATION_PATTERNS) {
@@ -86,16 +91,22 @@ export function parseConversationIdInput(input: string): string | null {
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const url = new URL(trimmed);
-      return getMessengerConversationId({ hostname: url.hostname, pathname: url.pathname });
+      return getMessengerConversationId({
+        hostname: url.hostname,
+        pathname: url.pathname,
+      });
     } catch {
       return null;
     }
   }
 
   // A pasted path, e.g. "/messages/t/123" or "t/123".
-  if (trimmed.includes('/')) {
-    const pathname = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-    return getMessengerConversationId({ hostname: 'www.messenger.com', pathname });
+  if (trimmed.includes("/")) {
+    const pathname = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    return getMessengerConversationId({
+      hostname: "www.messenger.com",
+      pathname,
+    });
   }
 
   if (RESERVED_IDS.has(trimmed.toLowerCase())) return null;

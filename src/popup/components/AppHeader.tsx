@@ -1,6 +1,6 @@
-import logo from '@/assets/logo.png';
-import { cn } from '@/popup/lib/utils';
-import { ArrowLeft, Settings } from 'lucide-react';
+import logo from "@/assets/logo.png";
+import { cn } from "@/popup/lib/utils";
+import { ArrowLeft, Settings } from "lucide-react";
 
 interface AppHeaderProps {
   /** Shows a back button and shrinks the mark. */
@@ -26,8 +26,8 @@ function IconButton({
       aria-label={label}
       onClick={onClick}
       className={cn(
-        'flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors',
-        'hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none',
+        "flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors",
+        "hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
         className,
       )}
     >
@@ -46,10 +46,22 @@ export function AppHeader({ onBack, onOpenSettings }: AppHeaderProps) {
         </IconButton>
       ) : null}
 
-      <img src={logo} alt="" className={cn('shrink-0 rounded-xl bg-secondary', onBack ? 'size-9' : 'size-11')} />
+      <img
+        src={logo}
+        alt=""
+        className={cn(
+          "shrink-0 rounded-xl bg-secondary",
+          onBack ? "size-9" : "size-11",
+        )}
+      />
 
       <div className="min-w-0 flex-1">
-        <h1 className={cn('leading-tight font-semibold tracking-tight', onBack ? 'text-[15px]' : 'text-[19px]')}>
+        <h1
+          className={cn(
+            "leading-tight font-semibold tracking-tight",
+            onBack ? "text-[15px]" : "text-[19px]",
+          )}
+        >
           I&apos;m an Introvert
         </h1>
         <p className="truncate text-[11.5px] leading-snug text-muted-foreground">

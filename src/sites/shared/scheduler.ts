@@ -11,7 +11,7 @@
  *   ceiling — a page that never goes quiet would otherwise starve the trailing
  *     run forever, so a pass is forced once the burst has lasted long enough.
  */
-import { CLEANUP_DEBOUNCE_MS } from '../../shared/constants';
+import { CLEANUP_DEBOUNCE_MS } from "../../shared/constants";
 
 export interface Scheduler {
   /** Request a run; coalesces bursts of calls into one. */
@@ -21,7 +21,10 @@ export interface Scheduler {
   cancel(): void;
 }
 
-export function createScheduler(task: () => void, wait = CLEANUP_DEBOUNCE_MS): Scheduler {
+export function createScheduler(
+  task: () => void,
+  wait = CLEANUP_DEBOUNCE_MS,
+): Scheduler {
   const maxWait = wait * 8;
   const idleGap = wait * 4;
 

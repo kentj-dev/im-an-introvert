@@ -7,7 +7,7 @@
  * messenger.com) and by rollout, so each entry lists several accessible names.
  * Anything that fails to match simply results in no change.
  */
-import { byAriaLabel, byAriaLabelButton } from '../shared/query';
+import { byAriaLabel, byAriaLabelButton } from "../shared/query";
 
 export const messengerSelectors = {
   /**
@@ -39,7 +39,7 @@ export const messengerSelectors = {
     'div[role="grid"]',
     'div[role="log"]',
     'div[role="list"]',
-    ...byAriaLabel(['Messages', 'Message list', 'Conversation']),
+    ...byAriaLabel(["Messages", "Message list", "Conversation"]),
   ],
 
   /* --------------------------------------------------------------- calls */
@@ -47,25 +47,24 @@ export const messengerSelectors = {
   /** TODO: Verify voice call labels against the current Messenger header. */
   voiceCallButton: [
     ...byAriaLabelButton([
-      'Start a voice call',
-      'Start voice call',
-      'Voice call',
-      'Audio call',
-      'Start a call',
+      "Start a voice call",
+      "Start voice call",
+      "Voice call",
+      "Audio call",
+      "Start a call",
     ]),
     // Note: a bare "Call" is deliberately not listed. As a substring it also
     // matches "Video call", which would hide the video button when only the
     // voice rule is on.
-
   ],
 
   /** TODO: Verify video call labels against the current Messenger header. */
   videoCallButton: [
     ...byAriaLabelButton([
-      'Start a video call',
-      'Start video call',
-      'Video call',
-      'Video chat',
+      "Start a video call",
+      "Start video call",
+      "Video call",
+      "Video chat",
     ]),
   ],
 
@@ -78,18 +77,18 @@ export const messengerSelectors = {
    */
   groupActions: [
     ...byAriaLabelButton([
-      'Add people',
-      'Add people to conversation',
-      'Add members',
-      'Add to group',
-      'Create a group',
-      'Create group chat',
-      'Start a group call',
-      'Manage members',
-      'Remove member',
-      'Make admin',
-      'Leave chat',
-      'Leave group',
+      "Add people",
+      "Add people to conversation",
+      "Add members",
+      "Add to group",
+      "Create a group",
+      "Create group chat",
+      "Start a group call",
+      "Manage members",
+      "Remove member",
+      "Make admin",
+      "Leave chat",
+      "Leave group",
     ]),
   ],
 
@@ -134,8 +133,8 @@ export const messengerSelectors = {
    * buttons, a chat tab's window controls, message rows, or the whole pane.
    */
   composerStops: [
-    'h1',
-    'h2',
+    "h1",
+    "h2",
     '[role="heading"]',
     '[role="row"]',
     '[role="gridcell"]',
@@ -151,31 +150,44 @@ export const messengerSelectors = {
   /** TODO: Verify attachment / photo / file button labels. */
   attachmentButtons: [
     ...byAriaLabelButton([
-      'Attach a file',
-      'Attach files',
-      'Attach a photo or video',
-      'Choose a file to upload',
-      'Open photos and videos',
-      'Add files',
-      'Attach',
-      'Upload',
+      "Attach a file",
+      "Attach files",
+      "Attach a photo or video",
+      "Choose a file to upload",
+      "Open photos and videos",
+      "Add files",
+      "Attach",
+      "Upload",
     ]),
   ],
 
   /** TODO: Verify emoji button label. */
-  emojiButton: [...byAriaLabelButton(['Choose an emoji', 'Open emoji keyboard', 'Emoji'])],
+  emojiButton: [
+    ...byAriaLabelButton(["Choose an emoji", "Open emoji keyboard", "Emoji"]),
+  ],
 
   /** TODO: Verify GIF button label. */
-  gifButton: [...byAriaLabelButton(['Choose a GIF', 'Choose a GIF or sticker', 'GIF'])],
+  gifButton: [
+    ...byAriaLabelButton(["Choose a GIF", "Choose a GIF or sticker", "GIF"]),
+  ],
 
   /** TODO: Verify sticker button label. */
-  stickerButton: [...byAriaLabelButton(['Choose a sticker', 'Open stickers', 'Sticker'])],
+  stickerButton: [
+    ...byAriaLabelButton(["Choose a sticker", "Open stickers", "Sticker"]),
+  ],
 
   /**
    * The one-tap thumbs up next to the composer.
    * TODO: Verify quick-like label; it is "Send a like" on most builds.
    */
-  likeButton: [...byAriaLabelButton(['Send a like', 'Send a thumbs up', 'Like', 'Thumbs up'])],
+  likeButton: [
+    ...byAriaLabelButton([
+      "Send a like",
+      "Send a thumbs up",
+      "Like",
+      "Thumbs up",
+    ]),
+  ],
 
   /* -------------------------------------------------------------- labels */
 
@@ -228,8 +240,14 @@ export const messengerCosmetic = {
     '[aria-label="Choose a file to upload"]',
     '[aria-label="Open photos and videos"]',
   ],
-  emoji: ['[aria-label="Choose an emoji"]', '[aria-label="Open emoji keyboard"]'],
-  gif: ['[aria-label="Choose a GIF"]', '[aria-label="Choose a GIF or sticker"]'],
+  emoji: [
+    '[aria-label="Choose an emoji"]',
+    '[aria-label="Open emoji keyboard"]',
+  ],
+  gif: [
+    '[aria-label="Choose a GIF"]',
+    '[aria-label="Choose a GIF or sticker"]',
+  ],
   sticker: ['[aria-label="Choose a sticker"]', '[aria-label="Open stickers"]'],
   like: ['[aria-label="Send a like"]', '[aria-label="Send a thumbs up"]'],
 } as const satisfies Record<string, readonly string[]>;

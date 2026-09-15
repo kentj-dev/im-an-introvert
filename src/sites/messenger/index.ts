@@ -5,18 +5,21 @@
  * conversation id from the URL and the matching protected chat, and the
  * cleaners hide nothing at all when the conversation is not protected.
  */
-import { RULES, type RuleKey } from '../../shared/constants';
-import type { ExtensionSettings } from '../../shared/types';
-import { clearCosmeticRules, applyCosmeticRules } from '../shared/cosmetic';
-import { restoreRules } from '../shared/hider';
-import type { SiteModule } from '../shared/runtime';
-import { resolveMessengerContext } from './context';
-import { messengerCosmeticSelectors } from './cosmetic';
-import { applyMessengerCallCleanup } from './cleaners/calls';
-import { applyMessengerChatFieldCleanup, clearComposerNotice } from './cleaners/chatField';
-import { applyMessengerGroupCleanup } from './cleaners/groupActions';
-import { messengerObserveRoot } from './observer';
-import { isFacebookHost, isMessengerRoute } from './router';
+import { RULES, type RuleKey } from "../../shared/constants";
+import type { ExtensionSettings } from "../../shared/types";
+import { clearCosmeticRules, applyCosmeticRules } from "../shared/cosmetic";
+import { restoreRules } from "../shared/hider";
+import type { SiteModule } from "../shared/runtime";
+import { resolveMessengerContext } from "./context";
+import { messengerCosmeticSelectors } from "./cosmetic";
+import { applyMessengerCallCleanup } from "./cleaners/calls";
+import {
+  applyMessengerChatFieldCleanup,
+  clearComposerNotice,
+} from "./cleaners/chatField";
+import { applyMessengerGroupCleanup } from "./cleaners/groupActions";
+import { messengerObserveRoot } from "./observer";
+import { isFacebookHost, isMessengerRoute } from "./router";
 
 export const MESSENGER_RULES: readonly RuleKey[] = [
   RULES.messengerVoiceCall,
@@ -37,7 +40,7 @@ function reset(): void {
 }
 
 export const messengerSite: SiteModule = {
-  name: 'messenger',
+  name: "messenger",
   observeRoot: messengerObserveRoot,
 
   isActive: (settings) => settings.messenger.enabled,
@@ -86,6 +89,8 @@ export const messengerSite: SiteModule = {
       reset();
       return;
     }
-    applyCosmeticRules(messengerCosmeticSelectors(resolveMessengerContext(settings)));
+    applyCosmeticRules(
+      messengerCosmeticSelectors(resolveMessengerContext(settings)),
+    );
   },
 };

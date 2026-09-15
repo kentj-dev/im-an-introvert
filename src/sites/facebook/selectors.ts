@@ -19,7 +19,7 @@
  * by locale and A/B test. They fail closed — when nothing matches, the cleaner
  * does nothing at all.
  */
-import { byAriaLabel, byAriaLabelButton } from '../shared/query';
+import { byAriaLabel, byAriaLabelButton } from "../shared/query";
 
 export const facebookSelectors = {
   /* ------------------------------------------------------------- stories */
@@ -55,7 +55,7 @@ export const facebookSelectors = {
     'div[contenteditable="true"][aria-label*="Reply" i]',
     'textarea[placeholder*="Reply" i]',
     'form [role="textbox"]',
-    ...byAriaLabel(['Write a reply', 'Reply to story', 'Send message']),
+    ...byAriaLabel(["Write a reply", "Reply to story", "Send message"]),
   ],
 
   /**
@@ -65,12 +65,12 @@ export const facebookSelectors = {
    */
   storyQuickActions: [
     ...byAriaLabelButton([
-      'Send a like',
-      'Quick reactions',
-      'React',
-      'Send in Messenger',
-      'Share',
-      'Send',
+      "Send a like",
+      "Quick reactions",
+      "React",
+      "Send in Messenger",
+      "Share",
+      "Send",
     ]),
     'div[aria-label*="reaction" i][role="button"]',
   ],
@@ -112,7 +112,7 @@ export const facebookSelectors = {
     '[role="navigation"]',
     '[role="complementary"]',
     '[role="feed"]',
-    '[aria-posinset]',
+    "[aria-posinset]",
     'div[role="dialog"][aria-label="Reactions"]',
     '[aria-label="Next card"]',
     '[aria-label="Previous card"]',
@@ -126,19 +126,19 @@ export const facebookSelectors = {
    */
   storyProtected: [
     ...byAriaLabel([
-      'Next card',
-      'Previous card',
-      'Next',
-      'Previous',
-      'Close',
-      'Pause',
-      'Play',
-      'Mute',
-      'Unmute',
-      'Sound',
-      'Seek',
+      "Next card",
+      "Previous card",
+      "Next",
+      "Previous",
+      "Close",
+      "Pause",
+      "Play",
+      "Mute",
+      "Unmute",
+      "Sound",
+      "Seek",
     ]),
-    'video',
+    "video",
     'img[data-visualcompletion="media-vc-image"]',
     '[data-visualcompletion="media-vc-image"]',
     'a[href*="/stories/"]',
@@ -151,24 +151,29 @@ export const facebookSelectors = {
    * Feed post container. Current feeds use aria-posinset; role="article" is
    * retained for older layouts and post dialogs.
    */
-  postRoot: ['[aria-posinset]', 'div[role="article"]'],
+  postRoot: ["[aria-posinset]", 'div[role="article"]'],
 
   postLike: [
     '[data-ad-rendering-role="like_button"]',
-    ...byAriaLabelButton(['Like', 'Remove Like', 'React']),
+    ...byAriaLabelButton(["Like", "Remove Like", "React"]),
   ],
 
   postComment: [
     '[data-ad-rendering-role="comment_button"]',
-    ...byAriaLabelButton(['Comment', 'Leave a comment', 'Write a comment']),
+    ...byAriaLabelButton(["Comment", "Leave a comment", "Write a comment"]),
   ],
 
   postShare: [
     '[data-ad-rendering-role="share_button"]',
-    ...byAriaLabelButton(['Share', 'Send this to friends or post it on your profile']),
+    ...byAriaLabelButton([
+      "Share",
+      "Send this to friends or post it on your profile",
+    ]),
   ],
 
-  postSend: [...byAriaLabelButton(['Send', 'Send in Messenger', 'Share in Messenger'])],
+  postSend: [
+    ...byAriaLabelButton(["Send", "Send in Messenger", "Share in Messenger"]),
+  ],
 
   /**
    * Post content that must stay visible. Used as the guard when locating the
@@ -179,11 +184,11 @@ export const facebookSelectors = {
     '[data-ad-comet-preview="message"]',
     'div[role="article"] [role="article"]',
     'img[data-visualcompletion="media-vc-image"]',
-    'video',
+    "video",
   ],
 } as const satisfies Record<string, readonly string[]>;
 
 /** Story routes are a dedicated URL, which is cheaper to test than the DOM. */
 export function isStoryRoute(pathname: string): boolean {
-  return pathname.startsWith('/stories/') || pathname.startsWith('/story.php');
+  return pathname.startsWith("/stories/") || pathname.startsWith("/story.php");
 }

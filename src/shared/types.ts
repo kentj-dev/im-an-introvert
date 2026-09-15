@@ -1,7 +1,7 @@
 /** Shared types for settings, protected chats and extension messaging. */
 
 /** Sites the extension knows how to clean. Add one here and in PLATFORMS. */
-export type PlatformId = 'facebook' | 'messenger' | 'instagram';
+export type PlatformId = "facebook" | "messenger" | "instagram";
 
 /**
  * The Messenger rules that exist both globally and per conversation.
@@ -11,15 +11,15 @@ export type PlatformId = 'facebook' | 'messenger' | 'instagram';
  * effective value is `global || perChat`.
  */
 export const CHAT_RULE_KEYS = [
-  'hideVoiceCall',
-  'hideVideoCall',
-  'hideGroupActions',
-  'hideChatField',
-  'hideAttachments',
-  'hideEmojiButton',
-  'hideGifButton',
-  'hideStickerButton',
-  'hideLikeButton',
+  "hideVoiceCall",
+  "hideVideoCall",
+  "hideGroupActions",
+  "hideChatField",
+  "hideAttachments",
+  "hideEmojiButton",
+  "hideGifButton",
+  "hideStickerButton",
+  "hideLikeButton",
 ] as const;
 
 export type ChatRuleKey = (typeof CHAT_RULE_KEYS)[number];
@@ -122,9 +122,9 @@ export interface UsageStats {
 /** Messages between content scripts, the popup and the service worker. */
 export const MESSAGES = {
   /** Popup -> content script: which conversation are you showing? */
-  getChatInfo: 'introvert:get-chat-info',
+  getChatInfo: "introvert:get-chat-info",
   /** Content script -> worker: counters to fold into today's stats. */
-  reportUsage: 'introvert:report-usage',
+  reportUsage: "introvert:report-usage",
 } as const;
 
 export interface ChatInfoResponse {

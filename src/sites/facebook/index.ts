@@ -4,16 +4,16 @@
  * Adding another site means writing one of these plus a content entry — see
  * the README section "How to add another supported website".
  */
-import { RULES, type RuleKey } from '../../shared/constants';
-import type { ExtensionSettings } from '../../shared/types';
-import { restoreRules } from '../shared/hider';
-import type { SiteModule } from '../shared/runtime';
-import { isMessengerRoute } from '../messenger/router';
-import { applyChatWidgetCleanup } from './cleaners/chatWidgets';
-import { applyPostCleanup, clearPostNotice } from './cleaners/posts';
-import { applyStoryCleanup } from './cleaners/stories';
-import { facebookObserveRoot } from './observer';
-import { isStoryRoute } from './selectors';
+import { RULES, type RuleKey } from "../../shared/constants";
+import type { ExtensionSettings } from "../../shared/types";
+import { restoreRules } from "../shared/hider";
+import type { SiteModule } from "../shared/runtime";
+import { isMessengerRoute } from "../messenger/router";
+import { applyChatWidgetCleanup } from "./cleaners/chatWidgets";
+import { applyPostCleanup, clearPostNotice } from "./cleaners/posts";
+import { applyStoryCleanup } from "./cleaners/stories";
+import { facebookObserveRoot } from "./observer";
+import { isStoryRoute } from "./selectors";
 
 /** Every rule this site owns, so a route change can release all of them. */
 export const FACEBOOK_RULES: readonly RuleKey[] = [
@@ -23,7 +23,7 @@ export const FACEBOOK_RULES: readonly RuleKey[] = [
 ];
 
 export const facebookSite: SiteModule = {
-  name: 'facebook',
+  name: "facebook",
   observeRoot: facebookObserveRoot,
   // Facebook changes the URL before its Story viewer footer is fully mounted.
   // Recheck across that short transition so SPA navigation behaves like a
@@ -37,7 +37,9 @@ export const facebookSite: SiteModule = {
 
   // facebook.com/messages is Messenger time, which follows Messenger's switch.
   isActive: (settings) =>
-    isMessengerRoute(location) ? settings.messenger.enabled : settings.facebook.enabled,
+    isMessengerRoute(location)
+      ? settings.messenger.enabled
+      : settings.facebook.enabled,
   // Two content scripts run on facebook.com; this one keeps the usage clock.
   ownsUsageClock: () => true,
 

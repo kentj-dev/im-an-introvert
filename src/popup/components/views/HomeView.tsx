@@ -1,10 +1,10 @@
-import { CurrentSiteCard } from '@/popup/components/CurrentSiteCard';
-import { FooterNote } from '@/popup/components/FooterNote';
-import { LeaveMeAloneCard } from '@/popup/components/LeaveMeAloneCard';
-import { PlatformList } from '@/popup/components/PlatformList';
-import { QuickStats } from '@/popup/components/QuickStats';
-import type { CurrentTabInfo } from '@/popup/hooks/useCurrentTab';
-import type { ExtensionSettings, PlatformId, UsageStats } from '@/shared/types';
+import { CurrentSiteCard } from "@/popup/components/CurrentSiteCard";
+import { FooterNote } from "@/popup/components/FooterNote";
+import { LeaveMeAloneCard } from "@/popup/components/LeaveMeAloneCard";
+import { PlatformList } from "@/popup/components/PlatformList";
+import { QuickStats } from "@/popup/components/QuickStats";
+import type { CurrentTabInfo } from "@/popup/hooks/useCurrentTab";
+import type { ExtensionSettings, PlatformId, UsageStats } from "@/shared/types";
 
 interface HomeViewProps {
   settings: ExtensionSettings;
@@ -24,7 +24,9 @@ export function HomeView({
   onOpenProtectedChats,
 }: HomeViewProps) {
   const conversationId = current?.conversationId ?? null;
-  const currentChatProtected = conversationId !== null && settings.protectedChats[conversationId] !== undefined;
+  const currentChatProtected =
+    conversationId !== null &&
+    settings.protectedChats[conversationId] !== undefined;
 
   return (
     <div className="space-y-3.5">
@@ -41,7 +43,9 @@ export function HomeView({
         onOpenPlatform={onOpenPlatform}
         onOpenProtectedChats={onOpenProtectedChats}
       />
-      {current?.platform && <PlatformList settings={settings} onOpen={onOpenPlatform} />}
+      {current?.platform && (
+        <PlatformList settings={settings} onOpen={onOpenPlatform} />
+      )}
       <QuickStats stats={stats} />
       <FooterNote />
     </div>

@@ -1,19 +1,24 @@
-import { Heart } from 'lucide-react';
+import { Heart } from "lucide-react";
 
 /** Version comes from the manifest, so it can never drift from the build. */
 function version(): string {
   try {
     return `v${chrome.runtime.getManifest().version}`;
   } catch {
-    return '';
+    return "";
   }
 }
 
 export function FooterNote() {
   return (
     <div className="flex items-center gap-2 rounded-md border border-gray-400 bg-card px-3 py-2.5 shadow-none">
-      <Heart className="size-3.75 shrink-0 text-muted-foreground" strokeWidth={1.9} />
-      <p className="flex-1 text-[12px] text-muted-foreground">A calmer internet for a quieter you.</p>
+      <Heart
+        className="size-3.75 shrink-0 text-muted-foreground"
+        strokeWidth={1.9}
+      />
+      <p className="flex-1 text-[12px] text-muted-foreground">
+        A calmer internet for a quieter you.
+      </p>
       <span className="text-[11px] text-muted-foreground">{version()}</span>
     </div>
   );

@@ -1,11 +1,11 @@
-import hamikenLogo from '@/assets/hamiken.png';
-import { SettingSection } from '@/popup/components/SettingSection';
-import { Button } from '@/popup/components/ui/button';
-import { MAKER_URL } from '@/shared/constants';
-import type { UsageStats } from '@/shared/types';
-import { formatDuration } from '@/storage/stats';
-import { ExternalLink, Lock } from 'lucide-react';
-import { useState } from 'react';
+import hamikenLogo from "@/assets/hamiken.png";
+import { SettingSection } from "@/popup/components/SettingSection";
+import { Button } from "@/popup/components/ui/button";
+import { MAKER_URL } from "@/shared/constants";
+import type { UsageStats } from "@/shared/types";
+import { formatDuration } from "@/storage/stats";
+import { ExternalLink, Lock } from "lucide-react";
+import { useState } from "react";
 
 interface AboutViewProps {
   stats: UsageStats;
@@ -13,12 +13,22 @@ interface AboutViewProps {
   onResetAll: () => void;
 }
 
-function ActionRow({ title, description, action }: { title: string; description: string; action: React.ReactNode }) {
+function ActionRow({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description: string;
+  action: React.ReactNode;
+}) {
   return (
     <div className="flex items-center gap-3 px-3 py-2.5">
       <div className="min-w-0 flex-1">
         <p className="text-[13.5px] leading-tight">{title}</p>
-        <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{description}</p>
+        <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">
+          {description}
+        </p>
       </div>
       <div className="shrink-0">{action}</div>
     </div>
@@ -31,21 +41,30 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
   return (
     <div className="space-y-3.5">
       <div className="px-0.5">
-        <h2 className="text-[19px] leading-tight font-semibold tracking-tight">Settings and privacy</h2>
+        <h2 className="text-[19px] leading-tight font-semibold tracking-tight">
+          Settings and privacy
+        </h2>
         <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
           What this extension keeps, and how to clear it.
         </p>
       </div>
 
       <div className="flex gap-3 rounded-sm shadow-none border border-gray-400 bg-tint-night px-3 py-3">
-        <Lock className="mt-0.5 size-[16px] shrink-0 text-tint-night-foreground" strokeWidth={1.9} />
+        <Lock
+          className="mt-0.5 size-[16px] shrink-0 text-tint-night-foreground"
+          strokeWidth={1.9}
+        />
         <p className="text-[12px] leading-snug">
-          Everything runs on this device. No accounts, no analytics, no servers, and no network requests of any kind.
-          Your settings and protected chat IDs live in Chrome storage; message content is never read or stored.
+          Everything runs on this device. No accounts, no analytics, no servers,
+          and no network requests of any kind. Your settings and protected chat
+          IDs live in Chrome storage; message content is never read or stored.
         </p>
       </div>
 
-      <SettingSection title="Quick Stats" description="Two counters for today, stored locally and never synced.">
+      <SettingSection
+        title="Quick Stats"
+        description="Two counters for today, stored locally and never synced."
+      >
         <ActionRow
           title={`${stats.hiddenCount.toLocaleString()} elements hidden`}
           description={`${formatDuration(stats.activeSeconds)} of distraction-free browsing today.`}
@@ -62,13 +81,17 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
           title="Reset all settings"
           description={
             confirming
-              ? 'This also removes every protected chat.'
-              : 'Puts every platform and protected chat back to defaults.'
+              ? "This also removes every protected chat."
+              : "Puts every platform and protected chat back to defaults."
           }
           action={
             confirming ? (
               <div className="flex gap-1.5">
-                <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirming(false)}
+                >
                   Cancel
                 </Button>
                 <Button
@@ -84,7 +107,11 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
                 </Button>
               </div>
             ) : (
-              <Button variant="outline" size="sm" onClick={() => setConfirming(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirming(true)}
+              >
                 Reset
               </Button>
             )
@@ -100,12 +127,21 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
           rel="noreferrer"
           className="flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
         >
-          <img src={hamikenLogo} alt="" className="size-9 shrink-0 object-contain" />
+          <img
+            src={hamikenLogo}
+            alt=""
+            className="size-9 shrink-0 object-contain"
+          />
           <div className="min-w-0 flex-1">
             <p className="text-[13.5px] leading-tight font-medium">Hamiken</p>
-            <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">apps.hamiken.com</p>
+            <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">
+              apps.hamiken.com
+            </p>
           </div>
-          <ExternalLink className="size-4 shrink-0 text-muted-foreground" strokeWidth={2} />
+          <ExternalLink
+            className="size-4 shrink-0 text-muted-foreground"
+            strokeWidth={2}
+          />
         </a>
       </SettingSection>
     </div>

@@ -6,10 +6,10 @@
  * changes, before Messenger has mounted the new conversation. The controls for
  * a protected chat are then never painted, rather than painted and removed.
  */
-import type { ChatRules } from '../../shared/types';
-import { scoped } from '../shared/cosmetic';
-import { messengerCosmetic, messengerScopes } from './selectors';
-import type { MessengerContext } from './context';
+import type { ChatRules } from "../../shared/types";
+import { scoped } from "../shared/cosmetic";
+import { messengerCosmetic, messengerScopes } from "./selectors";
+import type { MessengerContext } from "./context";
 
 type RuleSelectors = Partial<Record<keyof ChatRules, readonly string[]>>;
 
@@ -29,7 +29,9 @@ const COMPOSER_RULES: RuleSelectors = {
   hideLikeButton: messengerCosmetic.like,
 };
 
-export function messengerCosmeticSelectors(context: MessengerContext): string[] {
+export function messengerCosmeticSelectors(
+  context: MessengerContext,
+): string[] {
   const rules = context.rules;
   const selectors: string[] = [];
 

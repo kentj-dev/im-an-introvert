@@ -1,18 +1,18 @@
-import { FREE_LIMITS } from '../shared/constants';
+import { FREE_LIMITS } from "../shared/constants";
 import {
   CHAT_RULE_KEYS,
   type ChatRules,
   type ExtensionSettings,
   type LeaveMeAloneSnapshot,
   type ProtectedChat,
-} from '../shared/types';
+} from "../shared/types";
 import {
   DEFAULT_CHAT_RULES,
   DEFAULT_SETTINGS,
   NO_CHAT_RULES,
   expireLeaveMeAlone,
   isLeaveMeAloneMode,
-} from './defaults';
+} from "./defaults";
 
 export const CURRENT_VERSION = 3 as const;
 
@@ -20,13 +20,18 @@ export const CURRENT_VERSION = 3 as const;
 const CLOCK_SKEW_MS = 5 * 60 * 1000;
 
 const bool = (value: unknown, fallback: boolean): boolean =>
-  typeof value === 'boolean' ? value : fallback;
+  typeof value === "boolean" ? value : fallback;
 
 const record = (value: unknown): Record<string, unknown> =>
-  typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+  typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : {};
 
 /** Reads the nine shared Messenger rules out of an unknown object. */
-function readChatRules(source: Record<string, unknown>, fallback: ChatRules): ChatRules {
+function readChatRules(
+  source: Record<string, unknown>,
+  fallback: ChatRules,
+): ChatRules {
   return Object.fromEntries(
     CHAT_RULE_KEYS.map((key) => [key, bool(source[key], fallback[key])]),
   ) as ChatRules;
@@ -37,11 +42,12 @@ function normaliseChat(id: string, raw: unknown): ProtectedChat | null {
   const source = record(raw);
   const chat: ProtectedChat = {
     id,
-    addedAt: typeof source.addedAt === 'number' ? source.addedAt : Date.now(),
+    addedAt: typeof source.addedAt === "number" ? source.addedAt : Date.now(),
     ...readChatRules(source, DEFAULT_CHAT_RULES),
   };
-  if (typeof source.name === 'string' && source.name.trim()) chat.name = source.name.trim();
-  if (typeof source.subtitle === 'string' && source.subtitle.trim()) {
+  if (typeof source.name === "string" && source.name.trim())
+    chat.name = source.name.trim();
+  if (typeof source.subtitle === "string" && source.subtitle.trim()) {
     chat.subtitle = source.subtitle.trim();
   }
   return chat;
@@ -52,12 +58,12 @@ function normaliseChat(id: string, raw: unknown): ProtectedChat | null {
  * not written by this extension, so it counts as already over.
  */
 function readSessionEnd(raw: unknown, now: number): number | null {
-  if (typeof raw !== 'number' || !Number.isFinite(raw)) return null;
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return null;
   return raw > now + FREE_LIMITS.leaveMeAloneMs + CLOCK_SKEW_MS ? now : raw;
 }
 
 function readSnapshot(raw: unknown): LeaveMeAloneSnapshot | null {
-  if (typeof raw !== 'object' || raw === null) return null;
+  if (typeof raw !== "object" || raw === null) return null;
   const source = record(raw);
   return {
     hideStoryActions: bool(source.hideStoryActions, false),
@@ -145,8 +151,14 @@ export function parseSettings(raw: unknown): ExtensionSettings {
     version: CURRENT_VERSION,
     facebook: {
       enabled: bool(facebook.enabled, defaults.facebook.enabled),
-      hideStoryActions: bool(facebook.hideStoryActions, defaults.facebook.hideStoryActions),
-      hideChatWidgets: bool(facebook.hideChatWidgets, defaults.facebook.hideChatWidgets),
+      hideStoryActions: bool(
+        facebook.hideStoryActions,
+        defaults.facebook.hideStoryActions,
+      ),
+      hideChatWidgets: bool(
+        facebook.hideChatWidgets,
+        defaults.facebook.hideChatWidgets,
+      ),
       // The individual Like/Comment/Share/Send/reaction switches were removed;
       // their stored keys are dropped here like any other unknown key.
       posts: {
@@ -159,16 +171,34 @@ export function parseSettings(raw: unknown): ExtensionSettings {
     messenger: {
       enabled: bool(messenger.enabled, defaults.messenger.enabled),
       ...readChatRules(messenger, NO_CHAT_RULES),
-      showDisabledNotice: bool(messenger.showDisabledNotice, defaults.messenger.showDisabledNotice),
+      showDisabledNotice: bool(
+        messenger.showDisabledNotice,
+        defaults.messenger.showDisabledNotice,
+      ),
     },
     instagram: {
       enabled: bool(instagram.enabled, defaults.instagram.enabled),
-      hideStoryActions: bool(instagram.hideStoryActions, defaults.instagram.hideStoryActions),
+      hideStoryActions: bool(
+        instagram.hideStoryActions,
+        defaults.instagram.hideStoryActions,
+      ),
       posts: {
-        hideLike: bool(instagramPosts.hideLike, defaults.instagram.posts.hideLike),
-        hideComment: bool(instagramPosts.hideComment, defaults.instagram.posts.hideComment),
-        hideShare: bool(instagramPosts.hideShare, defaults.instagram.posts.hideShare),
-        hideSave: bool(instagramPosts.hideSave, defaults.instagram.posts.hideSave),
+        hideLike: bool(
+          instagramPosts.hideLike,
+          defaults.instagram.posts.hideLike,
+        ),
+        hideComment: bool(
+          instagramPosts.hideComment,
+          defaults.instagram.posts.hideComment,
+        ),
+        hideShare: bool(
+          instagramPosts.hideShare,
+          defaults.instagram.posts.hideShare,
+        ),
+        hideSave: bool(
+          instagramPosts.hideSave,
+          defaults.instagram.posts.hideSave,
+        ),
         hideEntireActionBar: bool(
           instagramPosts.hideEntireActionBar,
           defaults.instagram.posts.hideEntireActionBar,

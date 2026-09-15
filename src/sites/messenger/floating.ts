@@ -8,9 +8,9 @@
  * unfiltered, the whole viewer counts as a chat widget: the Story cleaner
  * skips its reply bar and the Messenger cleaners claim it instead.
  */
-import { facebookSelectors, isStoryRoute } from '../facebook/selectors';
-import { containsAny, queryAll } from '../shared/query';
-import { messengerSelectors } from './selectors';
+import { facebookSelectors, isStoryRoute } from "../facebook/selectors";
+import { containsAny, queryAll } from "../shared/query";
+import { messengerSelectors } from "./selectors";
 
 /** Markers only the Story viewer carries, never a chat tab. */
 const STORY_VIEWER_MARKERS = [
@@ -41,11 +41,17 @@ const MAX_CHAT_TAB_DEPTH = 25;
  */
 export function isInsideChatTab(element: HTMLElement): boolean {
   const dialog = element.closest('[role="dialog"]');
-  if (dialog && !containsAny(dialog, facebookSelectors.chatWidgetAnchors)) return false;
+  if (dialog && !containsAny(dialog, facebookSelectors.chatWidgetAnchors))
+    return false;
 
   let current = element.parentElement;
-  for (let depth = 0; depth < MAX_CHAT_TAB_DEPTH && current && current !== document.body; depth++) {
-    if (containsAny(current, facebookSelectors.chatWidgetProtected)) return false;
+  for (
+    let depth = 0;
+    depth < MAX_CHAT_TAB_DEPTH && current && current !== document.body;
+    depth++
+  ) {
+    if (containsAny(current, facebookSelectors.chatWidgetProtected))
+      return false;
     if (containsAny(current, facebookSelectors.chatWidgetAnchors)) return true;
     current = current.parentElement;
   }

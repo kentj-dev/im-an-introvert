@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import type { UsageStats } from '@/shared/types';
-import { emptyStats, loadStats, watchStats } from '@/storage/stats';
+import { useEffect, useState } from "react";
+import type { UsageStats } from "@/shared/types";
+import { emptyStats, loadStats, watchStats } from "@/storage/stats";
 
 /** Today's local-only counters, kept live while the popup is open. */
 export function useStats(): UsageStats {

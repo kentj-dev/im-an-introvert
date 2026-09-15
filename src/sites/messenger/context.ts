@@ -11,12 +11,12 @@ import {
   type ChatRules,
   type ExtensionSettings,
   type ProtectedChat,
-} from '../../shared/types';
-import { getProtectedChat } from '../../storage/storage';
-import { queryAll } from '../shared/query';
-import { queryFloatingThreadRoots } from './floating';
-import { getMessengerConversationId, isMessengerRoute } from './router';
-import { messengerSelectors } from './selectors';
+} from "../../shared/types";
+import { getProtectedChat } from "../../storage/storage";
+import { queryAll } from "../shared/query";
+import { queryFloatingThreadRoots } from "./floating";
+import { getMessengerConversationId, isMessengerRoute } from "./router";
+import { messengerSelectors } from "./selectors";
 
 export interface MessengerContext {
   settings: ExtensionSettings;
@@ -38,11 +38,16 @@ export function resolveChatRules(
   enabled: boolean,
 ): ChatRules {
   return Object.fromEntries(
-    CHAT_RULE_KEYS.map((key) => [key, enabled && (globals[key] || chat?.[key] === true)]),
+    CHAT_RULE_KEYS.map((key) => [
+      key,
+      enabled && (globals[key] || chat?.[key] === true),
+    ]),
   ) as ChatRules;
 }
 
-export function resolveMessengerContext(settings: ExtensionSettings): MessengerContext {
+export function resolveMessengerContext(
+  settings: ExtensionSettings,
+): MessengerContext {
   // Messenger is its own platform with its own switch, even on facebook.com.
   const enabled = settings.messenger.enabled;
   const conversationId = getMessengerConversationId(location);
@@ -52,7 +57,8 @@ export function resolveMessengerContext(settings: ExtensionSettings): MessengerC
   const threadRoots = new Set<HTMLElement>();
 
   if (onMessengerRoute) {
-    for (const root of queryAll(document, messengerSelectors.threadRoot)) threadRoots.add(root);
+    for (const root of queryAll(document, messengerSelectors.threadRoot))
+      threadRoots.add(root);
   }
   for (const root of queryFloatingThreadRoots()) threadRoots.add(root);
 

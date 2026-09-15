@@ -1,6 +1,6 @@
-import type { LucideIcon } from 'lucide-react';
-import { Switch } from '@/popup/components/ui/switch';
-import { cn } from '@/popup/lib/utils';
+import type { LucideIcon } from "lucide-react";
+import { Switch } from "@/popup/components/ui/switch";
+import { cn } from "@/popup/lib/utils";
 
 interface SettingRowProps {
   icon?: LucideIcon;
@@ -26,12 +26,24 @@ export function SettingRow({
   const note = disabled ? (disabledHint ?? hint) : hint;
 
   return (
-    <div className={cn('flex items-center gap-3 px-3 py-2.5', disabled && 'opacity-60')}>
-      {Icon ? <Icon className="size-[18px] shrink-0 text-muted-foreground" strokeWidth={1.75} /> : null}
+    <div
+      className={cn(
+        "flex items-center gap-3 px-3 py-2.5",
+        disabled && "opacity-60",
+      )}
+    >
+      {Icon ? (
+        <Icon
+          className="size-[18px] shrink-0 text-muted-foreground"
+          strokeWidth={1.75}
+        />
+      ) : null}
       <div className="min-w-0 flex-1">
         <p className="text-[13.5px] leading-tight">{label}</p>
         {note ? (
-          <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">{note}</p>
+          <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">
+            {note}
+          </p>
         ) : null}
       </div>
       <Switch

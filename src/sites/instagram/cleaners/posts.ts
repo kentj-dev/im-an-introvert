@@ -2,19 +2,30 @@
  * Hides Instagram post actions: like, comment, share, save, or the whole
  * action bar. The photo, video, caption and comments are never touched.
  */
-import { RULES, type RuleKey } from '../../../shared/constants';
-import type { ExtensionSettings } from '../../../shared/types';
-import { applyRule } from '../../shared/hider';
-import { ascendUntil, containsAny, queryAll, type SelectorCandidates } from '../../shared/query';
-import { instagramPostActionCandidates, instagramSelectors } from '../selectors';
+import { RULES, type RuleKey } from "../../../shared/constants";
+import type { ExtensionSettings } from "../../../shared/types";
+import { applyRule } from "../../shared/hider";
+import {
+  ascendUntil,
+  containsAny,
+  queryAll,
+  type SelectorCandidates,
+} from "../../shared/query";
+import {
+  instagramPostActionCandidates,
+  instagramSelectors,
+} from "../selectors";
 
-const POST_ROOT_SELECTOR = 'article';
+const POST_ROOT_SELECTOR = "article";
 
 function posts(): HTMLElement[] {
   return queryAll(document, instagramSelectors.postRoot);
 }
 
-function actionsIn(post: HTMLElement, candidates: SelectorCandidates): HTMLElement[] {
+function actionsIn(
+  post: HTMLElement,
+  candidates: SelectorCandidates,
+): HTMLElement[] {
   return queryAll(post, candidates).filter(
     (element) => element.closest(POST_ROOT_SELECTOR) === post,
   );

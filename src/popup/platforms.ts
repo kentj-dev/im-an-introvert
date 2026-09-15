@@ -23,17 +23,17 @@ import {
   Users,
   Video,
   type LucideIcon,
-} from 'lucide-react';
-import facebookIcon from '@/assets/facebook.png';
-import instagramIcon from '@/assets/instagram.png';
-import messengerIcon from '@/assets/messenger.png';
+} from "lucide-react";
+import facebookIcon from "@/assets/facebook.png";
+import instagramIcon from "@/assets/instagram.png";
+import messengerIcon from "@/assets/messenger.png";
 import type {
   ChatRuleKey,
   InstagramPostSettings,
   PlatformId,
-} from '@/shared/types';
+} from "@/shared/types";
 
-export type PlatformTabId = 'general' | 'chatField' | 'posts' | 'other';
+export type PlatformTabId = "general" | "chatField" | "posts" | "other";
 
 export interface PlatformMeta {
   id: PlatformId;
@@ -50,39 +50,39 @@ export interface PlatformMeta {
 
 export const PLATFORMS: readonly PlatformMeta[] = [
   {
-    id: 'facebook',
-    name: 'Facebook',
+    id: "facebook",
+    name: "Facebook",
     available: true,
-    summary: 'Cleaner browsing experience',
-    blurb: 'Customize your Facebook experience.',
+    summary: "Cleaner browsing experience",
+    blurb: "Customize your Facebook experience.",
     icon: facebookIcon,
-    tabs: ['general', 'other'],
+    tabs: ["general", "other"],
   },
   {
-    id: 'messenger',
-    name: 'Messenger',
+    id: "messenger",
+    name: "Messenger",
     available: true,
-    summary: 'Calmer conversations',
-    blurb: 'Customize your Messenger experience.',
+    summary: "Calmer conversations",
+    blurb: "Customize your Messenger experience.",
     icon: messengerIcon,
-    tabs: ['general', 'chatField', 'other'],
+    tabs: ["general", "chatField", "other"],
   },
   {
-    id: 'instagram',
-    name: 'Instagram',
+    id: "instagram",
+    name: "Instagram",
     available: false,
-    summary: 'Support is on the way',
-    blurb: 'Instagram support is coming soon.',
+    summary: "Support is on the way",
+    blurb: "Instagram support is coming soon.",
     icon: instagramIcon,
-    tabs: ['general', 'posts', 'other'],
+    tabs: ["general", "posts", "other"],
   },
 ];
 
 export const TAB_LABELS: Record<PlatformTabId, string> = {
-  general: 'General',
-  chatField: 'Chat Field',
-  posts: 'Posts',
-  other: 'Other',
+  general: "General",
+  chatField: "Chat Field",
+  posts: "Posts",
+  other: "Other",
 };
 
 export function getPlatform(id: PlatformId): PlatformMeta {
@@ -99,38 +99,53 @@ export interface SettingRowMeta<K extends string> {
 
 /** Calls and group actions: the buttons people regret touching. */
 export const MESSENGER_CALL_ROWS: ReadonlyArray<SettingRowMeta<ChatRuleKey>> = [
-  { key: 'hideVoiceCall', label: 'Hide voice call button', icon: Phone },
-  { key: 'hideVideoCall', label: 'Hide video call button', icon: Video },
-  { key: 'hideGroupActions', label: 'Hide group actions', icon: Users },
+  { key: "hideVoiceCall", label: "Hide voice call button", icon: Phone },
+  { key: "hideVideoCall", label: "Hide video call button", icon: Video },
+  { key: "hideGroupActions", label: "Hide group actions", icon: Users },
 ];
 
-export const MESSENGER_FIELD_ROWS: ReadonlyArray<SettingRowMeta<ChatRuleKey>> = [
-  { key: 'hideChatField', label: 'Hide chat field (message input)', icon: Keyboard },
-  { key: 'hideAttachments', label: 'Hide attachment button', icon: Paperclip },
-  { key: 'hideEmojiButton', label: 'Hide emoji button', icon: Smile },
-  { key: 'hideGifButton', label: 'Hide GIF button', icon: Film },
-  { key: 'hideStickerButton', label: 'Hide sticker button', icon: Sticker },
-  { key: 'hideLikeButton', label: 'Hide quick-like button', icon: ThumbsUp },
-];
+export const MESSENGER_FIELD_ROWS: ReadonlyArray<SettingRowMeta<ChatRuleKey>> =
+  [
+    {
+      key: "hideChatField",
+      label: "Hide chat field (message input)",
+      icon: Keyboard,
+    },
+    {
+      key: "hideAttachments",
+      label: "Hide attachment button",
+      icon: Paperclip,
+    },
+    { key: "hideEmojiButton", label: "Hide emoji button", icon: Smile },
+    { key: "hideGifButton", label: "Hide GIF button", icon: Film },
+    { key: "hideStickerButton", label: "Hide sticker button", icon: Sticker },
+    { key: "hideLikeButton", label: "Hide quick-like button", icon: ThumbsUp },
+  ];
 
 export const POST_ACTION_BAR_ROW = {
-  label: 'Hide entire action bar',
+  label: "Hide entire action bar",
   icon: LayoutList,
-  hint: 'The Like, Comment, Share and Send row under each post.',
+  hint: "The Like, Comment, Share and Send row under each post.",
 } as const;
 
-export const INSTAGRAM_POST_ROWS: ReadonlyArray<SettingRowMeta<keyof InstagramPostSettings>> = [
-  { key: 'hideEntireActionBar', label: 'Hide entire action bar', icon: LayoutList },
-  { key: 'hideLike', label: 'Hide Like', icon: Heart },
-  { key: 'hideComment', label: 'Hide Comment', icon: MessageCircle },
-  { key: 'hideShare', label: 'Hide Share', icon: Send },
-  { key: 'hideSave', label: 'Hide Save', icon: Bookmark },
+export const INSTAGRAM_POST_ROWS: ReadonlyArray<
+  SettingRowMeta<keyof InstagramPostSettings>
+> = [
+  {
+    key: "hideEntireActionBar",
+    label: "Hide entire action bar",
+    icon: LayoutList,
+  },
+  { key: "hideLike", label: "Hide Like", icon: Heart },
+  { key: "hideComment", label: "Hide Comment", icon: MessageCircle },
+  { key: "hideShare", label: "Hide Share", icon: Send },
+  { key: "hideSave", label: "Hide Save", icon: Bookmark },
 ];
 
-export const STORY_ROW = { label: 'Hide Story actions', icon: Camera } as const;
+export const STORY_ROW = { label: "Hide Story actions", icon: Camera } as const;
 
 export const CHAT_WIDGETS_ROW = {
-  label: 'Hide chat widgets',
+  label: "Hide chat widgets",
   icon: MessageCircleOff,
-  hint: 'Floating chat windows that pop up in the corner. Full Messenger is unaffected.',
+  hint: "Floating chat windows that pop up in the corner. Full Messenger is unaffected.",
 } as const;

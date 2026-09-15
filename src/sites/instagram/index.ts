@@ -5,13 +5,13 @@
  * settings are its own, and it reuses the shared runtime, hider and observer
  * without changes.
  */
-import { RULES, type RuleKey } from '../../shared/constants';
-import type { ExtensionSettings } from '../../shared/types';
-import { restoreRules } from '../shared/hider';
-import type { SiteModule } from '../shared/runtime';
-import { applyInstagramPostCleanup } from './cleaners/posts';
-import { applyInstagramStoryCleanup } from './cleaners/stories';
-import { instagramObserveRoot } from './observer';
+import { RULES, type RuleKey } from "../../shared/constants";
+import type { ExtensionSettings } from "../../shared/types";
+import { restoreRules } from "../shared/hider";
+import type { SiteModule } from "../shared/runtime";
+import { applyInstagramPostCleanup } from "./cleaners/posts";
+import { applyInstagramStoryCleanup } from "./cleaners/stories";
+import { instagramObserveRoot } from "./observer";
 
 export const INSTAGRAM_RULES: readonly RuleKey[] = [
   RULES.igStoryActions,
@@ -23,7 +23,7 @@ export const INSTAGRAM_RULES: readonly RuleKey[] = [
 ];
 
 export const instagramSite: SiteModule = {
-  name: 'instagram',
+  name: "instagram",
   observeRoot: instagramObserveRoot,
   isActive: (settings) => settings.instagram.enabled,
 

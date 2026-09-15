@@ -8,21 +8,21 @@
  * Pure Node: a minimal PNG decoder, a premultiplied box filter, and the PNG
  * encoder. No image dependencies. Run: npm run assets
  */
-import { deflateSync, inflateSync } from 'node:zlib';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import { deflateSync, inflateSync } from "node:zlib";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const SOURCE = path.join(root, 'images');
-const ASSETS = path.join(root, 'src/assets');
-const ICONS = path.join(root, 'src/icons');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const SOURCE = path.join(root, "images");
+const ASSETS = path.join(root, "src/assets");
+const ICONS = path.join(root, "src/icons");
 
 /* ------------------------------------------------------------------ decode */
 
 /** Reads an 8-bit RGBA, non-interlaced PNG into {width, height, data}. */
 function decodePng(buffer) {
-  if (buffer.readUInt32BE(0) !== 0x89504e47) throw new Error('not a PNG');
+  if (buffer.readUInt32BE(0) !== 0x89504e47) throw new Error("not a PNG");
 
   const width = buffer.readUInt32BE(16);
   const height = buffer.readUInt32BE(20);
@@ -37,9 +37,10 @@ function decodePng(buffer) {
   let offset = 8;
   while (offset < buffer.length) {
     const length = buffer.readUInt32BE(offset);
-    const type = buffer.toString('ascii', offset + 4, offset + 8);
-    if (type === 'IDAT') parts.push(buffer.subarray(offset + 8, offset + 8 + length));
-    if (type === 'IEND') break;
+    const type = buffer.toString("ascii", offset + 4, offset + 8);
+    if (type === "IDAT")
+      parts.push(buffer.subarray(offset + 8, offset + 8 + length));
+    if (type === "IEND") break;
     offset += length + 12;
   }
 
@@ -50,7 +51,10 @@ function decodePng(buffer) {
   // Undo the per-row filters (PNG spec, filter types 0-4).
   for (let y = 0; y < height; y++) {
     const filter = raw[y * (stride + 1)];
-    const line = raw.subarray(y * (stride + 1) + 1, y * (stride + 1) + 1 + stride);
+    const line = raw.subarray(
+      y * (stride + 1) + 1,
+      y * (stride + 1) + 1 + stride,
+    );
     const out = data.subarray(y * stride, (y + 1) * stride);
     const prev = y > 0 ? data.subarray((y - 1) * stride, y * stride) : null;
 
@@ -78,7 +82,8 @@ function decodePng(buffer) {
           const dl = Math.abs(p - left);
           const du = Math.abs(p - up);
           const dul = Math.abs(p - upLeft);
-          value = rawByte + (dl <= du && dl <= dul ? left : du <= dul ? up : upLeft);
+          value =
+            rawByte + (dl <= du && dl <= dul ? left : du <= dul ? up : upLeft);
           break;
         }
         default:
@@ -160,7 +165,7 @@ function crc32(buffer) {
 function chunk(type, body) {
   const length = Buffer.alloc(4);
   length.writeUInt32BE(body.length);
-  const typed = Buffer.concat([Buffer.from(type, 'ascii'), body]);
+  const typed = Buffer.concat([Buffer.from(type, "ascii"), body]);
   const crc = Buffer.alloc(4);
   crc.writeUInt32BE(crc32(typed));
   return Buffer.concat([length, typed, crc]);
@@ -182,9 +187,9 @@ function encodePng(image) {
 
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk('IHDR', ihdr),
-    chunk('IDAT', deflateSync(raw, { level: 9 })),
-    chunk('IEND', Buffer.alloc(0)),
+    chunk("IHDR", ihdr),
+    chunk("IDAT", deflateSync(raw, { level: 9 })),
+    chunk("IEND", Buffer.alloc(0)),
   ]);
 }
 
@@ -201,16 +206,19 @@ mkdirSync(ICONS, { recursive: true });
 
 // Popup artwork at 2x the largest on-screen size (48px rows, 56px platform header).
 for (const [source, name] of [
-  ['fb.png', 'facebook'],
-  ['insta-white.png', 'instagram'],
-  ['logo.png', 'logo'],
+  ["fb.png", "facebook"],
+  ["insta-white.png", "instagram"],
+  ["logo.png", "logo"],
 ]) {
   const image = decodePng(readFileSync(path.join(SOURCE, source)));
   write(path.join(ASSETS, `${name}.png`), resize(image, 128));
 }
 
 // Toolbar and extension icons, all from the brand logo.
-const logo = decodePng(readFileSync(path.join(SOURCE, 'logo.png')));
+const logo = decodePng(readFileSync(path.join(SOURCE, "logo.png")));
 for (const size of [16, 32, 48, 128]) {
-  write(path.join(ICONS, `icon-${size}.png`), size === 128 ? logo : resize(logo, size));
+  write(
+    path.join(ICONS, `icon-${size}.png`),
+    size === 128 ? logo : resize(logo, size),
+  );
 }

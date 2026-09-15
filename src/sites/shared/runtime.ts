@@ -7,15 +7,23 @@
  * SPA navigation, re-run when the popup changes a setting, and report the two
  * Quick Stats counters.
  */
-import { USAGE_FLUSH_MS } from '../../shared/constants';
-import { safely, debug } from '../../shared/debug';
-import { MESSAGES, type ExtensionSettings, type UsageReport } from '../../shared/types';
-import { parseSettings } from '../../storage/schema';
-import { loadSettings, onSettingsExpiry, watchSettings } from '../../storage/storage';
-import { takeHiddenCount } from './hider';
-import { observeStructure } from './observer';
-import { watchRoute } from './route';
-import { createScheduler } from './scheduler';
+import { USAGE_FLUSH_MS } from "../../shared/constants";
+import { safely, debug } from "../../shared/debug";
+import {
+  MESSAGES,
+  type ExtensionSettings,
+  type UsageReport,
+} from "../../shared/types";
+import { parseSettings } from "../../storage/schema";
+import {
+  loadSettings,
+  onSettingsExpiry,
+  watchSettings,
+} from "../../storage/storage";
+import { takeHiddenCount } from "./hider";
+import { observeStructure } from "./observer";
+import { watchRoute } from "./route";
+import { createScheduler } from "./scheduler";
 
 export interface SiteModule {
   /** Used in debug output only. */
@@ -63,7 +71,9 @@ export function startSiteModule(module: SiteModule): void {
 
   const scheduler = createScheduler(() => {
     if (!settings) return;
-    safely(`${module.name}:apply`, () => module.apply(settings as ExtensionSettings));
+    safely(`${module.name}:apply`, () =>
+      module.apply(settings as ExtensionSettings),
+    );
   });
 
   // Leave me alone mode ends on a timer. Re-reading the settings when it does
@@ -90,7 +100,7 @@ export function startSiteModule(module: SiteModule): void {
     const report: UsageReport = { type: MESSAGES.reportUsage, hidden, seconds };
     // Fire and forget. The worker may be asleep or the extension may have been
     // reloaded out from under this page; stats are never worth an exception.
-    safely('usage:send', () => {
+    safely("usage:send", () => {
       void chrome.runtime.sendMessage(report).catch(() => undefined);
     });
   };
@@ -100,14 +110,15 @@ export function startSiteModule(module: SiteModule): void {
     // with two content scripts. Hidden counts are per script and always sent.
     if (module.ownsUsageClock?.() !== false) {
       setInterval(() => {
-        if (document.visibilityState === 'visible' && isActive()) activeSeconds += TICK_MS / 1000;
+        if (document.visibilityState === "visible" && isActive())
+          activeSeconds += TICK_MS / 1000;
       }, TICK_MS);
     }
     setInterval(flushUsage, USAGE_FLUSH_MS);
     // Leaving the page is the last chance to report what this tab accumulated.
-    window.addEventListener('pagehide', flushUsage);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') flushUsage();
+    window.addEventListener("pagehide", flushUsage);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") flushUsage();
     });
   };
 
@@ -137,7 +148,10 @@ export function startSiteModule(module: SiteModule): void {
 
     if (module.maintenanceIntervalMs && module.shouldMaintain) {
       setInterval(() => {
-        if (document.visibilityState === 'visible' && module.shouldMaintain?.()) {
+        if (
+          document.visibilityState === "visible" &&
+          module.shouldMaintain?.()
+        ) {
           scheduler.flush();
         }
       }, module.maintenanceIntervalMs);
@@ -156,6 +170,8 @@ export function startSiteModule(module: SiteModule): void {
   if (document.body) {
     void boot();
   } else {
-    document.addEventListener('DOMContentLoaded', () => void boot(), { once: true });
+    document.addEventListener("DOMContentLoaded", () => void boot(), {
+      once: true,
+    });
   }
 }

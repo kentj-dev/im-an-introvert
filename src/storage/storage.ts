@@ -5,17 +5,21 @@
  * that both the popup and every open tab can react to. Nothing here ever
  * leaves the browser profile.
  */
-import { FREE_LIMITS, STORAGE_KEY } from '../shared/constants';
-import { debug } from '../shared/debug';
-import type { ExtensionSettings, PlatformId, ProtectedChat } from '../shared/types';
+import { FREE_LIMITS, STORAGE_KEY } from "../shared/constants";
+import { debug } from "../shared/debug";
+import type {
+  ExtensionSettings,
+  PlatformId,
+  ProtectedChat,
+} from "../shared/types";
 import {
   DEFAULT_SETTINGS,
   endLeaveMeAlone,
   isLeaveMeAloneMode,
   matchesLeaveMeAlone,
   startLeaveMeAlone,
-} from './defaults';
-import { parseSettings } from './schema';
+} from "./defaults";
+import { parseSettings } from "./schema";
 
 export async function loadSettings(): Promise<ExtensionSettings> {
   try {
@@ -23,7 +27,7 @@ export async function loadSettings(): Promise<ExtensionSettings> {
     return parseSettings(stored[STORAGE_KEY]);
   } catch (error) {
     // Storage can be unavailable while the extension is reloading.
-    debug('loadSettings failed, using defaults', error);
+    debug("loadSettings failed, using defaults", error);
     return structuredClone(DEFAULT_SETTINGS);
   }
 }
@@ -57,12 +61,14 @@ export async function updateSettings(
  * Subscribes to settings changes. Fires for changes made anywhere: the popup,
  * another tab, or another signed-in device via storage sync.
  */
-export function watchSettings(listener: (settings: ExtensionSettings) => void): () => void {
+export function watchSettings(
+  listener: (settings: ExtensionSettings) => void,
+): () => void {
   const handler = (
     changes: Record<string, chrome.storage.StorageChange>,
     area: string,
   ): void => {
-    if (area !== 'sync') return;
+    if (area !== "sync") return;
     const change = changes[STORAGE_KEY];
     if (!change) return;
     listener(parseSettings(change.newValue));
@@ -76,7 +82,10 @@ export function watchSettings(listener: (settings: ExtensionSettings) => void): 
  * open re-reads its settings then instead of at the next storage write.
  * Returns a function that cancels the timer.
  */
-export function onSettingsExpiry(settings: ExtensionSettings, onExpire: () => void): () => void {
+export function onSettingsExpiry(
+  settings: ExtensionSettings,
+  onExpire: () => void,
+): () => void {
   const { until } = settings.leaveMeAlone;
   if (until === null) return () => undefined;
   // A moment late, never early: parseSettings must already see the time as up.
@@ -94,22 +103,32 @@ export function getProtectedChat(
   return settings.protectedChats[conversationId] ?? null;
 }
 
-export function listProtectedChats(settings: ExtensionSettings): ProtectedChat[] {
-  return Object.values(settings.protectedChats).sort((a, b) => a.addedAt - b.addedAt);
+export function listProtectedChats(
+  settings: ExtensionSettings,
+): ProtectedChat[] {
+  return Object.values(settings.protectedChats).sort(
+    (a, b) => a.addedAt - b.addedAt,
+  );
 }
 
 export function canAddProtectedChat(settings: ExtensionSettings): boolean {
-  return Object.keys(settings.protectedChats).length < FREE_LIMITS.protectedChats;
+  return (
+    Object.keys(settings.protectedChats).length < FREE_LIMITS.protectedChats
+  );
 }
 
-export function addProtectedChat(chat: ProtectedChat): Promise<ExtensionSettings> {
+export function addProtectedChat(
+  chat: ProtectedChat,
+): Promise<ExtensionSettings> {
   return updateSettings((draft) => {
     // Keep an existing configuration if the chat is already protected.
     if (draft.protectedChats[chat.id]) return;
     // The popup disables adding at the limit; this catches a second popup or
     // another synced device getting there first.
     if (!canAddProtectedChat(draft)) {
-      throw new Error(`Protected chat limit of ${FREE_LIMITS.protectedChats} reached`);
+      throw new Error(
+        `Protected chat limit of ${FREE_LIMITS.protectedChats} reached`,
+      );
     }
     draft.protectedChats[chat.id] = chat;
   });
@@ -123,7 +142,7 @@ export function removeProtectedChat(id: string): Promise<ExtensionSettings> {
 
 export function patchProtectedChat(
   id: string,
-  patch: Partial<Omit<ProtectedChat, 'id'>>,
+  patch: Partial<Omit<ProtectedChat, "id">>,
 ): Promise<ExtensionSettings> {
   return updateSettings((draft) => {
     const chat = draft.protectedChats[id];
@@ -132,7 +151,9 @@ export function patchProtectedChat(
   });
 }
 
-export function setLeaveMeAloneMode(enabled: boolean): Promise<ExtensionSettings> {
+export function setLeaveMeAloneMode(
+  enabled: boolean,
+): Promise<ExtensionSettings> {
   return updateSettings((draft) => {
     if (enabled) startLeaveMeAlone(draft);
     else endLeaveMeAlone(draft);
@@ -140,16 +161,18 @@ export function setLeaveMeAloneMode(enabled: boolean): Promise<ExtensionSettings
 }
 
 /** Restores one platform's options to their defaults, keeping the rest. */
-export function resetPlatform(platform: PlatformId): Promise<ExtensionSettings> {
+export function resetPlatform(
+  platform: PlatformId,
+): Promise<ExtensionSettings> {
   return updateSettings((draft) => {
     switch (platform) {
-      case 'facebook':
+      case "facebook":
         draft.facebook = structuredClone(DEFAULT_SETTINGS.facebook);
         break;
-      case 'messenger':
+      case "messenger":
         draft.messenger = structuredClone(DEFAULT_SETTINGS.messenger);
         break;
-      case 'instagram':
+      case "instagram":
         draft.instagram = structuredClone(DEFAULT_SETTINGS.instagram);
         break;
     }

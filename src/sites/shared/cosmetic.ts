@@ -29,17 +29,20 @@
  * path stays as a fallback for the rare engine without constructed sheets, and
  * if both fail the marker layer still hides everything one frame later.
  */
-import { debugOnce, safely } from '../../shared/debug';
+import { debugOnce, safely } from "../../shared/debug";
 
-const STYLE_ID = 'introvert-cosmetic';
+const STYLE_ID = "introvert-cosmetic";
 
 let sheet: CSSStyleSheet | null = null;
 let fallbackStyle: HTMLStyleElement | null = null;
-let lastText = '';
+let lastText = "";
 
 /** Constructed sheet, adopted by the document. Re-adopted if it goes missing. */
 function adoptedSheet(): CSSStyleSheet | null {
-  if (typeof CSSStyleSheet === 'undefined' || !('replaceSync' in CSSStyleSheet.prototype)) {
+  if (
+    typeof CSSStyleSheet === "undefined" ||
+    !("replaceSync" in CSSStyleSheet.prototype)
+  ) {
     return null;
   }
   try {
@@ -50,7 +53,7 @@ function adoptedSheet(): CSSStyleSheet | null {
     }
     return sheet;
   } catch (error) {
-    debugOnce('cosmetic:adopted', 'constructed stylesheet unavailable', error);
+    debugOnce("cosmetic:adopted", "constructed stylesheet unavailable", error);
     sheet = null;
     return null;
   }
@@ -64,7 +67,7 @@ function styleFallback(): HTMLStyleElement | null {
   const parent = document.head ?? document.documentElement;
   if (!parent) return null;
 
-  fallbackStyle = document.createElement('style');
+  fallbackStyle = document.createElement("style");
   fallbackStyle.id = STYLE_ID;
   parent.appendChild(fallbackStyle);
   return fallbackStyle;
@@ -76,10 +79,12 @@ function styleFallback(): HTMLStyleElement | null {
  */
 export function applyCosmeticRules(selectors: readonly string[]): void {
   const text =
-    selectors.length > 0 ? `${selectors.join(',\n')} {\n  display: none !important;\n}\n` : '';
+    selectors.length > 0
+      ? `${selectors.join(",\n")} {\n  display: none !important;\n}\n`
+      : "";
   if (text === lastText && sheet !== null) return;
 
-  safely('cosmetic', () => {
+  safely("cosmetic", () => {
     const adopted = adoptedSheet();
     if (adopted) {
       adopted.replaceSync(text);

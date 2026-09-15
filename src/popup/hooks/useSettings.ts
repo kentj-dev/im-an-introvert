@@ -1,10 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { debug } from '@/shared/debug';
-import type { ExtensionSettings } from '@/shared/types';
-import { parseSettings } from '@/storage/schema';
-import { loadSettings, onSettingsExpiry, updateSettings, watchSettings } from '@/storage/storage';
+import { useCallback, useEffect, useState } from "react";
+import { debug } from "@/shared/debug";
+import type { ExtensionSettings } from "@/shared/types";
+import { parseSettings } from "@/storage/schema";
+import {
+  loadSettings,
+  onSettingsExpiry,
+  updateSettings,
+  watchSettings,
+} from "@/storage/storage";
 
-const SAVE_ERROR = 'That change could not be saved. Please try again.';
+const SAVE_ERROR = "That change could not be saved. Please try again.";
 
 export interface UseSettings {
   settings: ExtensionSettings | null;
@@ -52,14 +57,15 @@ export function useSettings(): UseSettings {
         setSaveError(null);
       },
       (error: unknown) => {
-        debug('settings write failed', error);
+        debug("settings write failed", error);
         setSaveError(SAVE_ERROR);
       },
     );
   }, []);
 
   const update = useCallback(
-    (mutate: (draft: ExtensionSettings) => void) => run(() => updateSettings(mutate)),
+    (mutate: (draft: ExtensionSettings) => void) =>
+      run(() => updateSettings(mutate)),
     [run],
   );
 

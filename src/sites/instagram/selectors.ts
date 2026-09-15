@@ -30,10 +30,10 @@ export const instagramSelectors = {
 
   /** TODO: Verify the story viewer container on the current Instagram DOM. */
   storyViewer: [
-    'section:has(textarea[placeholder])',
+    "section:has(textarea[placeholder])",
     'div[role="dialog"]:has(video)',
-    'main section',
-    'main',
+    "main section",
+    "main",
   ],
 
   /**
@@ -44,7 +44,7 @@ export const instagramSelectors = {
     'textarea[placeholder*="Reply" i]',
     'textarea[placeholder*="Send message" i]',
     'div[contenteditable="true"][role="textbox"]',
-    'textarea[placeholder]',
+    "textarea[placeholder]",
   ],
 
   /**
@@ -52,7 +52,7 @@ export const instagramSelectors = {
    * TODO: Verify story action labels.
    */
   storyQuickActions: [
-    ...byIconLabel(['Like', 'Unlike', 'Share', 'Send message', 'Direct']),
+    ...byIconLabel(["Like", "Unlike", "Share", "Send message", "Direct"]),
   ],
 
   /**
@@ -70,28 +70,28 @@ export const instagramSelectors = {
     '[aria-label="Next"]',
     '[aria-label="Go back"]',
     '[aria-label="Close"]',
-    'video',
-    'img[srcset]',
+    "video",
+    "img[srcset]",
     'a[href^="/"][role="link"]',
   ],
 
   /* --------------------------------------------------------------- posts */
 
   /** Feed posts and the post dialog are both `article` elements. */
-  postRoot: ['article'],
+  postRoot: ["article"],
 
   /**
    * Note: these also match the small like button on a comment, which is
    * intentional — it is still a like button. Action-bar detection requires two
    * actions in one container, so a lone comment like never looks like a bar.
    */
-  postLike: [...byIconLabel(['Like', 'Unlike'])],
-  postComment: [...byIconLabel(['Comment'])],
-  postShare: [...byIconLabel(['Share Post', 'Share', 'Direct'])],
-  postSave: [...byIconLabel(['Save', 'Remove'])],
+  postLike: [...byIconLabel(["Like", "Unlike"])],
+  postComment: [...byIconLabel(["Comment"])],
+  postShare: [...byIconLabel(["Share Post", "Share", "Direct"])],
+  postSave: [...byIconLabel(["Save", "Remove"])],
 
   /** Post content that must stay visible; the guard for action-bar ascent. */
-  postContent: ['img[srcset]', 'video', 'article header', 'ul', 'time'],
+  postContent: ["img[srcset]", "video", "article header", "ul", "time"],
 } as const satisfies Record<string, readonly string[]>;
 
 /** Anything that looks like a post action, used to recognise the action bar. */
@@ -103,5 +103,5 @@ export const instagramPostActionCandidates: readonly string[] = [
 ];
 
 export function isInstagramStoryRoute(pathname: string): boolean {
-  return pathname.startsWith('/stories/');
+  return pathname.startsWith("/stories/");
 }

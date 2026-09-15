@@ -6,11 +6,11 @@
  * pane, so those two containers are searched as well. Message rendering is
  * never touched.
  */
-import { RULES } from '../../../shared/constants';
-import { applyRule } from '../../shared/hider';
-import { queryAll } from '../../shared/query';
-import type { MessengerContext } from '../context';
-import { messengerSelectors } from '../selectors';
+import { RULES } from "../../../shared/constants";
+import { applyRule } from "../../shared/hider";
+import { queryAll } from "../../shared/query";
+import type { MessengerContext } from "../context";
+import { messengerSelectors } from "../selectors";
 
 const PORTAL_CONTAINERS = ['[role="menu"]', '[role="dialog"]'];
 

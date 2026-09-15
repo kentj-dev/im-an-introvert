@@ -9,11 +9,11 @@
  * contacts rail or the Story viewer. Full Messenger at /messages is untouched:
  * the Facebook module does not run there.
  */
-import { RULES } from '../../../shared/constants';
-import type { ExtensionSettings } from '../../../shared/types';
-import { applyRule } from '../../shared/hider';
-import { ascendWhileSafe, containsAny, queryAll } from '../../shared/query';
-import { facebookSelectors } from '../selectors';
+import { RULES } from "../../../shared/constants";
+import type { ExtensionSettings } from "../../../shared/types";
+import { applyRule } from "../../shared/hider";
+import { ascendWhileSafe, containsAny, queryAll } from "../../shared/query";
+import { facebookSelectors } from "../selectors";
 
 const MAX_WIDGET_DEPTH = 25;
 
@@ -33,7 +33,11 @@ function themedRootOf(anchor: HTMLElement): HTMLElement | null {
   let current = anchor.parentElement;
   for (let depth = 0; depth < MAX_WIDGET_DEPTH && current; depth++) {
     if (current === document.body || !isSafeWidgetAncestor(current)) break;
-    if (facebookSelectors.chatWidgetRoot.some((selector) => current?.matches(selector))) {
+    if (
+      facebookSelectors.chatWidgetRoot.some((selector) =>
+        current?.matches(selector),
+      )
+    ) {
       root = current;
     }
     current = current.parentElement;
@@ -43,7 +47,10 @@ function themedRootOf(anchor: HTMLElement): HTMLElement | null {
 
 function findChatWidgets(): HTMLElement[] {
   const widgets = new Set<HTMLElement>();
-  for (const anchor of queryAll(document, facebookSelectors.chatWidgetAnchors)) {
+  for (const anchor of queryAll(
+    document,
+    facebookSelectors.chatWidgetAnchors,
+  )) {
     const root = themedRootOf(anchor);
     widgets.add(
       root
@@ -54,9 +61,16 @@ function findChatWidgets(): HTMLElement[] {
 
   // Two tabs can resolve to one shared wrapper; hide only the outermost.
   const found = [...widgets];
-  return found.filter((widget) => !found.some((other) => other !== widget && other.contains(widget)));
+  return found.filter(
+    (widget) =>
+      !found.some((other) => other !== widget && other.contains(widget)),
+  );
 }
 
 export function applyChatWidgetCleanup(settings: ExtensionSettings): void {
-  applyRule(RULES.chatWidgets, settings.facebook.hideChatWidgets, findChatWidgets);
+  applyRule(
+    RULES.chatWidgets,
+    settings.facebook.hideChatWidgets,
+    findChatWidgets,
+  );
 }

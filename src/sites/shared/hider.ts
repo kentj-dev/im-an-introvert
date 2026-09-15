@@ -9,12 +9,12 @@
  * An element can be claimed by more than one rule (e.g. "Hide Like" and "Hide
  * entire action bar"), so markers are reference counted by rule key.
  */
-import { HIDDEN_ATTR, RULES_ATTR, type RuleKey } from '../../shared/constants';
-import { safely } from '../../shared/debug';
+import { HIDDEN_ATTR, RULES_ATTR, type RuleKey } from "../../shared/constants";
+import { safely } from "../../shared/debug";
 
 function rulesOf(element: Element): string[] {
   const raw = element.getAttribute(RULES_ATTR);
-  return raw ? raw.split(' ').filter(Boolean) : [];
+  return raw ? raw.split(" ").filter(Boolean) : [];
 }
 
 function writeRules(element: Element, rules: string[]): void {
@@ -23,8 +23,8 @@ function writeRules(element: Element, rules: string[]): void {
     element.removeAttribute(HIDDEN_ATTR);
     return;
   }
-  element.setAttribute(RULES_ATTR, rules.join(' '));
-  element.setAttribute(HIDDEN_ATTR, 'true');
+  element.setAttribute(RULES_ATTR, rules.join(" "));
+  element.setAttribute(HIDDEN_ATTR, "true");
 }
 
 /**
@@ -60,7 +60,10 @@ export function restoreRule(rule: RuleKey, scope: ParentNode = document): void {
   for (const element of claimedBy(rule, scope)) restoreElement(element, rule);
 }
 
-export function restoreRules(rules: readonly RuleKey[], scope: ParentNode = document): void {
+export function restoreRules(
+  rules: readonly RuleKey[],
+  scope: ParentNode = document,
+): void {
   for (const rule of rules) restoreRule(rule, scope);
 }
 

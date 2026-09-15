@@ -16,18 +16,18 @@
  * composer visible than to guess at a container and hide part of the
  * conversation.
  */
-import { NOTICE_ATTR, RULES, type RuleKey } from '../../../shared/constants';
-import { debugOnce } from '../../../shared/debug';
-import { applyRule } from '../../shared/hider';
+import { NOTICE_ATTR, RULES, type RuleKey } from "../../../shared/constants";
+import { debugOnce } from "../../../shared/debug";
+import { applyRule } from "../../shared/hider";
 import {
   ascendWhileSafe,
   containsAny,
   queryAll,
   type SelectorCandidates,
-} from '../../shared/query';
-import type { MessengerContext } from '../context';
-import { isInsideChatTab } from '../floating';
-import { messengerSelectors } from '../selectors';
+} from "../../shared/query";
+import type { MessengerContext } from "../context";
+import { isInsideChatTab } from "../floating";
+import { messengerSelectors } from "../selectors";
 
 /**
  * The button rows sit a few levels above the text box. The guards in
@@ -37,9 +37,10 @@ import { messengerSelectors } from '../selectors';
 const COMPOSER_ASCENT_DEPTH = 6;
 
 /** Page chrome that never holds a composer. */
-const NON_COMPOSER_CONTAINERS = '[role="navigation"], [role="banner"], [role="search"]';
+const NON_COMPOSER_CONTAINERS =
+  '[role="navigation"], [role="banner"], [role="search"]';
 
-const COMPOSER_REGION = messengerSelectors.composerRegion.join(', ');
+const COMPOSER_REGION = messengerSelectors.composerRegion.join(", ");
 
 function isSafeComposerAncestor(candidate: HTMLElement): boolean {
   return (
@@ -48,7 +49,10 @@ function isSafeComposerAncestor(candidate: HTMLElement): boolean {
   );
 }
 
-function isMessengerComposer(anchor: HTMLElement, context: MessengerContext): boolean {
+function isMessengerComposer(
+  anchor: HTMLElement,
+  context: MessengerContext,
+): boolean {
   if (anchor.closest(NON_COMPOSER_CONTAINERS)) return false;
   return context.onMessengerRoute || isInsideChatTab(anchor);
 }
@@ -58,7 +62,10 @@ function composerFor(anchor: HTMLElement): HTMLElement {
   // Preferred: the composer region itself. Ascending from the text box alone
   // can stop at the wrapper holding the input and strand the buttons.
   const region = anchor.closest(COMPOSER_REGION);
-  if (region instanceof HTMLElement && !containsAny(region, messengerSelectors.messageList)) {
+  if (
+    region instanceof HTMLElement &&
+    !containsAny(region, messengerSelectors.messageList)
+  ) {
     return region;
   }
   return ascendWhileSafe(anchor, isSafeComposerAncestor, COMPOSER_ASCENT_DEPTH);
@@ -72,11 +79,14 @@ function findComposers(context: MessengerContext): HTMLElement[] {
 
   const composers = [...new Set(anchors.map(composerFor))];
   if (composers.length === 0) {
-    debugOnce('messenger:no-composer', 'composer region and textbox not found');
+    debugOnce("messenger:no-composer", "composer region and textbox not found");
   }
   // A region and its own text box can resolve to nested targets.
   return composers.filter(
-    (composer) => !composers.some((other) => other !== composer && other.contains(composer)),
+    (composer) =>
+      !composers.some(
+        (other) => other !== composer && other.contains(composer),
+      ),
   );
 }
 
@@ -86,11 +96,16 @@ function findComposers(context: MessengerContext): HTMLElement[] {
  * than an injected element, which keeps React's child lists untouched.
  */
 function applyNotice(composers: readonly HTMLElement[], show: boolean): void {
-  const targets = new Set(show ? composers.map((composer) => composer.parentElement).filter(Boolean) : []);
+  const targets = new Set(
+    show
+      ? composers.map((composer) => composer.parentElement).filter(Boolean)
+      : [],
+  );
   for (const element of document.querySelectorAll(`[${NOTICE_ATTR}]`)) {
-    if (!targets.has(element as HTMLElement)) element.removeAttribute(NOTICE_ATTR);
+    if (!targets.has(element as HTMLElement))
+      element.removeAttribute(NOTICE_ATTR);
   }
-  for (const target of targets) target?.setAttribute(NOTICE_ATTR, 'true');
+  for (const target of targets) target?.setAttribute(NOTICE_ATTR, "true");
 }
 
 /** Drops the note, used when leaving Messenger entirely. */
@@ -100,19 +115,34 @@ export function clearComposerNotice(): void {
   }
 }
 
-export function applyMessengerChatFieldCleanup(context: MessengerContext): void {
+export function applyMessengerChatFieldCleanup(
+  context: MessengerContext,
+): void {
   const rules = context.rules;
 
   const buttonRules: ReadonlyArray<[RuleKey, boolean, SelectorCandidates]> = [
-    [RULES.messengerAttachments, rules.hideAttachments, messengerSelectors.attachmentButtons],
-    [RULES.messengerEmoji, rules.hideEmojiButton, messengerSelectors.emojiButton],
+    [
+      RULES.messengerAttachments,
+      rules.hideAttachments,
+      messengerSelectors.attachmentButtons,
+    ],
+    [
+      RULES.messengerEmoji,
+      rules.hideEmojiButton,
+      messengerSelectors.emojiButton,
+    ],
     [RULES.messengerGif, rules.hideGifButton, messengerSelectors.gifButton],
-    [RULES.messengerSticker, rules.hideStickerButton, messengerSelectors.stickerButton],
+    [
+      RULES.messengerSticker,
+      rules.hideStickerButton,
+      messengerSelectors.stickerButton,
+    ],
     [RULES.messengerLike, rules.hideLikeButton, messengerSelectors.likeButton],
   ];
 
   // The document-wide search is only worth running when something asks for it.
-  const needed = rules.hideChatField || buttonRules.some(([, enabled]) => enabled);
+  const needed =
+    rules.hideChatField || buttonRules.some(([, enabled]) => enabled);
   const composers = needed ? findComposers(context) : [];
 
   applyRule(RULES.messengerComposer, rules.hideChatField, () => composers);
@@ -121,6 +151,8 @@ export function applyMessengerChatFieldCleanup(context: MessengerContext): void 
   for (const [rule, enabled, candidates] of buttonRules) {
     // Scoped to the composer: the same labels appear on message hover menus
     // and Facebook comment boxes, and those must keep working.
-    applyRule(rule, enabled, () => composers.flatMap((composer) => queryAll(composer, candidates)));
+    applyRule(rule, enabled, () =>
+      composers.flatMap((composer) => queryAll(composer, candidates)),
+    );
   }
 }

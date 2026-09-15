@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
-import { MESSAGES, type ChatInfoResponse, type PlatformId } from '@/shared/types';
+import { useEffect, useState } from "react";
+import {
+  MESSAGES,
+  type ChatInfoResponse,
+  type PlatformId,
+} from "@/shared/types";
 import {
   getMessengerConversationId,
   isFacebookHost,
   isMessengerRoute,
   type MessengerLocation,
-} from '@/sites/messenger/router';
+} from "@/sites/messenger/router";
 
 export interface CurrentTabInfo {
   /** null when the active tab is not a supported site. */
@@ -25,8 +29,8 @@ const NOT_SUPPORTED: CurrentTabInfo = {
 
 /** facebook.com/messages belongs to Messenger, not Facebook. */
 function platformFor(location: MessengerLocation): PlatformId | null {
-  if (isMessengerRoute(location)) return 'messenger';
-  if (isFacebookHost(location.hostname)) return 'facebook';
+  if (isMessengerRoute(location)) return "messenger";
+  if (isFacebookHost(location.hostname)) return "facebook";
   return null;
 }
 
@@ -49,7 +53,11 @@ async function readActiveTab(): Promise<CurrentTabInfo> {
 
   const onMessenger = isMessengerRoute(location);
   const fromUrl = getMessengerConversationId(location);
-  const base: CurrentTabInfo = { platform, onMessenger, conversationId: fromUrl };
+  const base: CurrentTabInfo = {
+    platform,
+    onMessenger,
+    conversationId: fromUrl,
+  };
 
   if (!fromUrl || tab?.id === undefined) return base;
 

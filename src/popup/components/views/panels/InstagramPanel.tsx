@@ -1,17 +1,26 @@
-import { SettingRow } from '@/popup/components/SettingRow';
-import { SettingSection } from '@/popup/components/SettingSection';
-import { MaintenanceSection } from '@/popup/components/views/panels/MaintenanceSection';
-import type { PanelProps } from '@/popup/components/views/PlatformView';
-import { INSTAGRAM_POST_ROWS, STORY_ROW, type PlatformTabId } from '@/popup/platforms';
+import { SettingRow } from "@/popup/components/SettingRow";
+import { SettingSection } from "@/popup/components/SettingSection";
+import { MaintenanceSection } from "@/popup/components/views/panels/MaintenanceSection";
+import type { PanelProps } from "@/popup/components/views/PlatformView";
+import {
+  INSTAGRAM_POST_ROWS,
+  STORY_ROW,
+  type PlatformTabId,
+} from "@/popup/platforms";
 
 interface InstagramPanelProps extends PanelProps {
   tab: PlatformTabId;
 }
 
-export function InstagramPanel({ tab, settings, update, resetPlatform }: InstagramPanelProps) {
+export function InstagramPanel({
+  tab,
+  settings,
+  update,
+  resetPlatform,
+}: InstagramPanelProps) {
   const instagram = settings.instagram;
 
-  if (tab === 'general') {
+  if (tab === "general") {
     return (
       <SettingSection
         title="Stories"
@@ -31,7 +40,7 @@ export function InstagramPanel({ tab, settings, update, resetPlatform }: Instagr
     );
   }
 
-  if (tab === 'posts') {
+  if (tab === "posts") {
     return (
       <SettingSection
         title="Post actions"
@@ -43,7 +52,10 @@ export function InstagramPanel({ tab, settings, update, resetPlatform }: Instagr
             icon={row.icon}
             label={row.label}
             checked={instagram.posts[row.key]}
-            disabled={row.key !== 'hideEntireActionBar' && instagram.posts.hideEntireActionBar}
+            disabled={
+              row.key !== "hideEntireActionBar" &&
+              instagram.posts.hideEntireActionBar
+            }
             disabledHint="The whole action bar is already hidden."
             onChange={(next) =>
               update((draft) => {
@@ -61,8 +73,9 @@ export function InstagramPanel({ tab, settings, update, resetPlatform }: Instagr
       <div className="rounded-md border border-gray-400 bg-card px-3 py-2.5 shadow-none ">
         <p className="text-[13.5px] leading-tight">Not covered yet</p>
         <p className="mt-1 text-[11.5px] leading-snug text-muted-foreground">
-          Instagram direct messages have no options yet. Messenger has its own page for these, and the same
-          per-conversation approach is the plan here.
+          Instagram direct messages have no options yet. Messenger has its own
+          page for these, and the same per-conversation approach is the plan
+          here.
         </p>
       </div>
       <MaintenanceSection platformName="Instagram" onReset={resetPlatform} />

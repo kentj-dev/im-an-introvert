@@ -6,7 +6,7 @@
  * *lists of candidates*. These helpers try every candidate and never throw,
  * which is what lets a stale selector degrade into "do nothing".
  */
-import { debugOnce } from '../../shared/debug';
+import { debugOnce } from "../../shared/debug";
 
 export type SelectorCandidates = readonly string[];
 
@@ -14,7 +14,7 @@ function safeQueryAll(root: ParentNode, selector: string): Element[] {
   try {
     return Array.from(root.querySelectorAll(selector));
   } catch (error) {
-    debugOnce(`bad-selector:${selector}`, 'invalid selector', selector, error);
+    debugOnce(`bad-selector:${selector}`, "invalid selector", selector, error);
     return [];
   }
 }
@@ -32,7 +32,10 @@ export function queryOne(
 }
 
 /** Every element matched by any candidate, de-duplicated and in DOM order. */
-export function queryAll(root: ParentNode, candidates: SelectorCandidates): HTMLElement[] {
+export function queryAll(
+  root: ParentNode,
+  candidates: SelectorCandidates,
+): HTMLElement[] {
   const found = new Set<HTMLElement>();
   for (const selector of candidates) {
     for (const element of safeQueryAll(root, selector)) {
@@ -43,7 +46,10 @@ export function queryAll(root: ParentNode, candidates: SelectorCandidates): HTML
 }
 
 /** True when `root` contains at least one element matching any candidate. */
-export function containsAny(root: ParentNode, candidates: SelectorCandidates): boolean {
+export function containsAny(
+  root: ParentNode,
+  candidates: SelectorCandidates,
+): boolean {
   return queryOne(root, candidates) !== null;
 }
 

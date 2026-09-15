@@ -7,13 +7,14 @@
  * from the context: a global Messenger switch, or this conversation's
  * protected-chat record.
  */
-import { RULES } from '../../../shared/constants';
-import { applyRule } from '../../shared/hider';
-import { queryAll, type SelectorCandidates } from '../../shared/query';
-import type { MessengerContext } from '../context';
-import { messengerSelectors } from '../selectors';
+import { RULES } from "../../../shared/constants";
+import { applyRule } from "../../shared/hider";
+import { queryAll, type SelectorCandidates } from "../../shared/query";
+import type { MessengerContext } from "../context";
+import { messengerSelectors } from "../selectors";
 
-const BUTTON_SELECTOR = 'button, a[role="button"], div[role="button"], [role="button"]';
+const BUTTON_SELECTOR =
+  'button, a[role="button"], div[role="button"], [role="button"]';
 
 function physicalButton(element: HTMLElement): HTMLElement {
   const button = element.closest(BUTTON_SELECTOR);

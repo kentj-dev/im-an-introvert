@@ -1,9 +1,9 @@
-import { PlatformIcon } from '@/popup/components/PlatformIcon';
-import { Badge } from '@/popup/components/ui/badge';
-import { Card } from '@/popup/components/ui/card';
-import { PLATFORMS } from '@/popup/platforms';
-import type { ExtensionSettings, PlatformId } from '@/shared/types';
-import { ChevronRight } from 'lucide-react';
+import { PlatformIcon } from "@/popup/components/PlatformIcon";
+import { Badge } from "@/popup/components/ui/badge";
+import { Card } from "@/popup/components/ui/card";
+import { PLATFORMS } from "@/popup/platforms";
+import type { ExtensionSettings, PlatformId } from "@/shared/types";
+import { ChevronRight } from "lucide-react";
 
 interface PlatformListProps {
   settings: ExtensionSettings;
@@ -12,13 +12,19 @@ interface PlatformListProps {
 
 /** The home view's main list: available sites plus announced future support. */
 export function PlatformList({ settings, onOpen }: PlatformListProps) {
-  const availableCount = PLATFORMS.filter((platform) => platform.available).length;
+  const availableCount = PLATFORMS.filter(
+    (platform) => platform.available,
+  ).length;
 
   return (
     <section className="space-y-1.5">
       <div className="flex items-baseline justify-between px-0.5">
-        <h2 className="text-[15px] leading-tight font-semibold tracking-tight">Supported Social Media</h2>
-        <span className="text-[11.5px] text-muted-foreground">{availableCount} available</span>
+        <h2 className="text-[15px] leading-tight font-semibold tracking-tight">
+          Supported Social Media
+        </h2>
+        <span className="text-[11.5px] text-muted-foreground">
+          {availableCount} available
+        </span>
       </div>
 
       <Card className="gap-0 divide-y divide-border py-0 shadow-none rounded-md border-gray-400">
@@ -34,18 +40,26 @@ export function PlatformList({ settings, onOpen }: PlatformListProps) {
             >
               <PlatformIcon platform={platform} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] leading-tight font-medium">{platform.name}</span>
-                <span className="mt-0.5 block truncate text-[12px] text-muted-foreground">{platform.summary}</span>
+                <span className="block truncate text-[15px] leading-tight font-medium">
+                  {platform.name}
+                </span>
+                <span className="mt-0.5 block truncate text-[12px] text-muted-foreground">
+                  {platform.summary}
+                </span>
               </span>
               <Badge
                 variant="secondary"
                 className={
                   platform.available && enabled
-                    ? 'bg-tint-success! text-tint-success-foreground!'
-                    : 'bg-secondary text-muted-foreground'
+                    ? "bg-tint-success! text-tint-success-foreground!"
+                    : "bg-secondary text-muted-foreground"
                 }
               >
-                {platform.available ? (enabled ? 'Enabled' : 'Off') : 'Coming soon'}
+                {platform.available
+                  ? enabled
+                    ? "Enabled"
+                    : "Off"
+                  : "Coming soon"}
               </Badge>
               {platform.available ? (
                 <ChevronRight
