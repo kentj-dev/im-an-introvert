@@ -19,7 +19,6 @@ const NOT_SUPPORTED: CurrentTabInfo = {
 };
 
 function platformFor(hostname: string): PlatformId | null {
-  if (/(^|\.)instagram\.com$/.test(hostname)) return 'instagram';
   if (/(^|\.)(facebook|messenger)\.com$/.test(hostname)) return 'facebook';
   return null;
 }

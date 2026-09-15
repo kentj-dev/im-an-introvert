@@ -107,6 +107,12 @@
   }
 }
 
+.instagram-gradient {
+  background:
+    radial-gradient(circle at 32% 106%, #fdf497 0 7%, #fd5949 42%, #d6249f 62%, transparent 78%),
+    linear-gradient(135deg, #515bd4 5%, #8134af 48%, #dd2a7b 82%);
+}
+
 /*
  * Deliberately NOT inside @layer.
  *

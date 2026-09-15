@@ -15,7 +15,6 @@ import {
   ascendWhileSafe,
   containsAny,
   queryAll,
-  queryOne,
 } from '../../shared/query';
 import { facebookSelectors, isStoryRoute } from '../selectors';
 
@@ -33,26 +32,24 @@ function isSafeStoryAncestor(candidate: HTMLElement): boolean {
 function findStoryActionTargets(): HTMLElement[] {
   if (!isStoryRoute(location.pathname)) return [];
 
-  const viewer = queryOne(document, facebookSelectors.storyViewer);
-  if (!viewer) {
-    debugOnce('story:no-viewer', 'story viewer not found');
-    return [];
-  }
-
   const targets: HTMLElement[] = [];
 
-  const composer = queryOne(viewer, facebookSelectors.storyReplyComposer);
-  if (composer) {
+  // Facebook keeps adjacent stories mounted and swaps which one is active.
+  // Query every composer on the dedicated story route instead of trusting the
+  // first viewer container, which can point at the story that just closed.
+  const composers = queryAll(document, facebookSelectors.storyReplyComposer);
+  for (const composer of composers) {
     // The reply box sits inside the bottom bar, so the highest safe ancestor
     // is the bar itself — including the emoji row and send button next to it.
     targets.push(ascendWhileSafe(composer, isSafeStoryAncestor, 6));
-  } else {
+  }
+  if (composers.length === 0) {
     debugOnce('story:no-composer', 'story reply composer not found');
   }
 
   // Quick reactions can render outside the composer's subtree, so they are
   // collected separately with a much shorter ascent.
-  for (const action of queryAll(viewer, facebookSelectors.storyQuickActions)) {
+  for (const action of queryAll(document, facebookSelectors.storyQuickActions)) {
     targets.push(ascendWhileSafe(action, isSafeStoryAncestor, 2));
   }
 

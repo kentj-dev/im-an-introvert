@@ -1,7 +1,7 @@
 import { Switch } from '@/popup/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/popup/components/ui/tabs';
+import { PlatformIcon } from '@/popup/components/PlatformIcon';
 import { FacebookPanel } from '@/popup/components/views/panels/FacebookPanel';
-import { InstagramPanel } from '@/popup/components/views/panels/InstagramPanel';
 import { cn } from '@/popup/lib/utils';
 import { TAB_LABELS, getPlatform, type PlatformTabId } from '@/popup/platforms';
 import type { ExtensionSettings, PlatformId } from '@/shared/types';
@@ -23,10 +23,28 @@ export function PlatformView({ platform, ...panel }: PlatformViewProps) {
   const [tab, setTab] = useState<PlatformTabId>('general');
   const enabled = panel.settings[platform].enabled;
 
+  if (!meta.available) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 px-0.5">
+          <PlatformIcon platform={meta} size="header" />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[19px] leading-tight font-semibold tracking-tight">{meta.name}</h2>
+            <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">{meta.blurb}</p>
+          </div>
+        </div>
+        <div className="rounded-md border border-gray-400 bg-card px-3 py-3 text-center shadow-none">
+          <p className="text-[14px] font-medium">Coming soon</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">We’re still working on Instagram support.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3 px-0.5">
-        <img src={meta.icon} alt="" className="size-11 shrink-0 rounded-xl" />
+        <PlatformIcon platform={meta} size="header" />
         <div className="min-w-0 flex-1">
           <h2 className="text-[19px] leading-tight font-semibold tracking-tight">{meta.name}</h2>
           <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">{meta.blurb}</p>
@@ -64,7 +82,7 @@ export function PlatformView({ platform, ...panel }: PlatformViewProps) {
             {/* A platform that is switched off still shows its options, dimmed,
                 so it is obvious why nothing is being hidden. */}
             <div className={cn('space-y-3.5', !enabled && 'pointer-events-none opacity-50')}>
-              {platform === 'facebook' ? <FacebookPanel tab={id} {...panel} /> : <InstagramPanel tab={id} {...panel} />}
+              <FacebookPanel tab={id} {...panel} />
             </div>
           </TabsContent>
         ))}

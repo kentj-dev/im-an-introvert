@@ -2,17 +2,13 @@
   "manifest_version": 3,
   "name": "I'm an Introvert",
   "version": "0.1.0",
-  "description": "Make social media a little less social. Hides the Facebook, Messenger and Instagram controls you never wanted to touch by accident.",
-  "permissions": [
-    "storage"
-  ],
+  "description": "Make social media a little less social. Hides the Facebook and Messenger controls you never wanted to touch by accident.",
+  "permissions": ["storage"],
   "host_permissions": [
     "https://www.facebook.com/*",
     "https://facebook.com/*",
     "https://www.messenger.com/*",
-    "https://messenger.com/*",
-    "https://www.instagram.com/*",
-    "https://instagram.com/*"
+    "https://messenger.com/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -36,16 +32,9 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.facebook.com/*",
-        "https://facebook.com/*"
-      ],
-      "js": [
-        "content/facebook.js"
-      ],
-      "css": [
-        "content/introvert.css"
-      ],
+      "matches": ["https://www.facebook.com/*", "https://facebook.com/*"],
+      "js": ["content/facebook.js"],
+      "css": ["content/introvert.css"],
       "run_at": "document_idle",
       "all_frames": false
     },
@@ -56,26 +45,8 @@
         "https://www.messenger.com/*",
         "https://messenger.com/*"
       ],
-      "js": [
-        "content/messenger.js"
-      ],
-      "css": [
-        "content/introvert.css"
-      ],
-      "run_at": "document_idle",
-      "all_frames": false
-    },
-    {
-      "matches": [
-        "https://www.instagram.com/*",
-        "https://instagram.com/*"
-      ],
-      "js": [
-        "content/instagram.js"
-      ],
-      "css": [
-        "content/introvert.css"
-      ],
+      "js": ["content/messenger.js"],
+      "css": ["content/introvert.css"],
       "run_at": "document_idle",
       "all_frames": false
     }

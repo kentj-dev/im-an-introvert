@@ -12,7 +12,13 @@ export interface ObserverHandle {
   disconnect(): void;
 }
 
-const OBSERVED_ATTRIBUTES = ['aria-label', 'role', 'contenteditable'];
+const OBSERVED_ATTRIBUTES = [
+  'aria-label',
+  'aria-placeholder',
+  'placeholder',
+  'role',
+  'contenteditable',
+];
 
 export function observeStructure(target: Node, scheduler: Scheduler): ObserverHandle {
   const observer = new MutationObserver((mutations) => {

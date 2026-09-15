@@ -72,7 +72,6 @@ const targets = [
   scriptBuild('src/background/index.ts', 'background.js', 'es', 'introvertBackground'),
   scriptBuild('src/content/facebook.ts', 'content/facebook.js', 'iife', 'introvertFacebook'),
   scriptBuild('src/content/messenger.ts', 'content/messenger.js', 'iife', 'introvertMessenger'),
-  scriptBuild('src/content/instagram.ts', 'content/instagram.js', 'iife', 'introvertInstagram'),
 ];
 
 async function copyStatic() {

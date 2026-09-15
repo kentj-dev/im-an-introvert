@@ -10,15 +10,16 @@
 import { RULES, type RuleKey } from '../../../shared/constants';
 import type { ExtensionSettings } from '../../../shared/types';
 import { applyRule } from '../../shared/hider';
-import {
-  ascendUntil,
-  containsAny,
-  queryAll,
-  type SelectorCandidates,
-} from '../../shared/query';
-import { facebookSelectors, postActionCandidates } from '../selectors';
+import { ascendUntil, containsAny, queryAll, type SelectorCandidates } from '../../shared/query';
+import { facebookSelectors, isStoryRoute } from '../selectors';
 
-const POST_ROOT_SELECTOR = 'div[role="article"]';
+const POST_ROOT_SELECTOR = '[aria-posinset], div[role="article"]';
+const BUTTON_SELECTOR = 'button, a[role="button"], div[role="button"], [role="button"]';
+const RENDERED_POST_ACTION_SELECTOR = [
+  '[data-ad-rendering-role="like_button"]',
+  '[data-ad-rendering-role="comment_button"]',
+  '[data-ad-rendering-role="share_button"]',
+] as const;
 
 /** Feed-level posts only; comments are articles nested inside a post. */
 function topLevelPosts(): HTMLElement[] {
@@ -35,37 +36,115 @@ function actionsIn(post: HTMLElement, candidates: SelectorCandidates): HTMLEleme
   return queryAll(post, candidates).filter((element) => belongsToPost(element, post));
 }
 
+/** Resolve nested labels/wrappers to the actual interactive control. */
+function physicalAction(element: HTMLElement): HTMLElement | null {
+  if (element.matches(BUTTON_SELECTOR)) return element;
+
+  const ancestor = element.closest(BUTTON_SELECTOR);
+  if (ancestor instanceof HTMLElement) return ancestor;
+
+  const descendant = element.querySelector(BUTTON_SELECTOR);
+  return descendant instanceof HTMLElement ? descendant : null;
+}
+
+function physicalActionsIn(root: ParentNode, candidates: SelectorCandidates): HTMLElement[] {
+  return [
+    ...new Set(
+      queryAll(root, candidates)
+        .map(physicalAction)
+        .filter((element): element is HTMLElement => element !== null),
+    ),
+  ];
+}
+
+function physicalActionsInPost(post: HTMLElement, candidates: SelectorCandidates): HTMLElement[] {
+  return physicalActionsIn(post, candidates).filter((element) => belongsToPost(element, post));
+}
+
 function findAction(candidates: SelectorCandidates): HTMLElement[] {
   return topLevelPosts().flatMap((post) => actionsIn(post, candidates));
 }
 
+function distinctActionKindsWithin(candidate: HTMLElement, groups: readonly HTMLElement[][]): number {
+  return groups.filter((group) => group.some((action) => candidate.contains(action))).length;
+}
+
+/** Collapse a labelled child and its matching wrapper into one physical control. */
+function outermostActionControls(actions: readonly HTMLElement[]): HTMLElement[] {
+  return actions.filter((action) => !actions.some((other) => other !== action && other.contains(action)));
+}
+
+function hasCompactButtonRow(candidate: HTMLElement): boolean {
+  const controls = outermostActionControls(queryAll(candidate, [BUTTON_SELECTOR]));
+  return controls.length >= 3;
+}
+
+function hasRenderedPostAction(candidate: HTMLElement): boolean {
+  return containsAny(candidate, RENDERED_POST_ACTION_SELECTOR);
+}
+
 /**
  * The action bar is not identifiable on its own, so it is derived: the nearest
- * ancestor of an action button that contains at least two action buttons and
- * none of the post's content. If that cannot be established the individual
- * buttons are hidden instead, which looks the same and cannot over-reach.
+ * ancestor that contains either multiple recognised action kinds or a compact
+ * row around a rendered post-action marker, and none of the post's content.
+ *
+ * Counting raw selector matches is not enough: Facebook commonly gives one
+ * action both a labelled inner button and a data-ad-rendering-role wrapper.
+ * Those two nodes represent one action and previously caused us to stop at the
+ * individual button wrapper instead of reaching the shared action row.
  */
-function findActionBars(): HTMLElement[] {
-  const bars: HTMLElement[] = [];
+function sharedRows(groups: HTMLElement[][], boundary?: HTMLElement): HTMLElement[] {
+  const actions = outermostActionControls([...new Set(groups.flat())]);
+  const candidates = new Set<HTMLElement>();
 
-  for (const post of topLevelPosts()) {
-    const actions = actionsIn(post, postActionCandidates);
-    const anchor = actions[0];
-    if (!anchor) continue;
-
+  for (const action of actions) {
     const bar = ascendUntil(
-      anchor,
+      action,
       (candidate) =>
-        actions.filter((action) => candidate.contains(action)).length >= 2 &&
+        ((actions.filter((control) => candidate.contains(control)).length >= 2 &&
+          distinctActionKindsWithin(candidate, groups) >= 2) ||
+          ((boundary !== undefined || hasRenderedPostAction(candidate)) && hasCompactButtonRow(candidate))) &&
         !containsAny(candidate, facebookSelectors.postContent),
-      6,
+      8,
     );
-
-    if (bar && bar !== post) bars.push(bar);
-    else bars.push(...actions);
+    if (bar && bar !== boundary) candidates.add(bar);
   }
 
-  return bars;
+  // A match from the reaction summary can point at a larger footer. Keep the
+  // deepest shared rows so reaction counts and comment areas remain visible.
+  return [...candidates].filter(
+    (candidate) => ![...candidates].some((other) => other !== candidate && candidate.contains(other)),
+  );
+}
+
+function findActionBars(): HTMLElement[] {
+  // Story controls use several of the same labels. Never let a post rule act
+  // on that dedicated surface.
+  if (isStoryRoute(location.pathname)) return [];
+
+  const globalGroups = [
+    physicalActionsIn(document, facebookSelectors.postLike),
+    physicalActionsIn(document, facebookSelectors.postComment),
+    physicalActionsIn(document, facebookSelectors.postShare),
+    physicalActionsIn(document, facebookSelectors.postSend),
+  ].filter((group) => group.length > 0);
+  const globalRows = sharedRows(globalGroups);
+  if (globalRows.length > 0) return globalRows;
+
+  const posts = topLevelPosts();
+  return posts.flatMap((post) => {
+    const groups = [
+      physicalActionsInPost(post, facebookSelectors.postLike),
+      physicalActionsInPost(post, facebookSelectors.postComment),
+      physicalActionsInPost(post, facebookSelectors.postShare),
+      physicalActionsInPost(post, facebookSelectors.postSend),
+    ].filter((group) => group.length > 0);
+    const rows = sharedRows(groups, post);
+
+    // Fail narrowly on an unusual post layout: hiding the controls is still
+    // useful, but never hide the post when a shared row cannot be proven.
+    return rows.length > 0 ? rows : outermostActionControls(groups.flat());
+  });
 }
 
 /**

@@ -2,16 +2,16 @@
 
 **Make social media a little less social.**
 
-A Chrome extension that removes the Facebook, Messenger and Instagram controls you never
-wanted to touch by accident. It does not block anything, gate anything, or count your
+A Chrome extension that removes the Facebook and Messenger controls you never wanted to
+touch by accident. It does not block anything, gate anything, or count your
 minutes. It just takes the risky buttons out of reach.
 
 > Remove the UI people never wanted to accidentally touch.
 
 ## What it does
 
-Everything is grouped by platform. The popup opens on a list of supported sites, each with
-its own master switch and its own settings page.
+Everything is grouped by platform. The popup opens on the available sites and shows future
+platforms as coming soon.
 
 ### Facebook
 
@@ -28,11 +28,8 @@ left alone.
 
 ### Instagram
 
-| Tab     | Options                                                            |
-| ------- | ------------------------------------------------------------------ |
-| General | Hide Story actions (reply box and quick reactions)                 |
-| Posts   | Like, Comment, Share, Save, or the entire action bar               |
-| Other   | A reset for this platform                                          |
+Coming soon. The extension does not request access to or run a content script on
+instagram.com.
 
 ### Messenger: two layers
 
@@ -51,7 +48,7 @@ scrolling and opening media are untouched.
 
 ### Leave me alone mode
 
-One switch that applies the recommended noise cleanup across every platform: Story actions
+One switch that applies the recommended noise cleanup across every supported platform: Story actions
 and the whole post action bar. It never touches Messenger rules or protected chats, because
 those are about accidental clicks rather than noise.
 
@@ -90,7 +87,7 @@ immediately. The code is [src/storage/stats.ts](src/storage/stats.ts).
 | Permission                                                    | Why                                                                                                                                                        |
 | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `storage`                                                     | Save settings and protected chats in `chrome.storage.sync`, and the daily counters in `chrome.storage.local`.                                                |
-| `host_permissions` for facebook.com, messenger.com, instagram.com | Lets the popup read the active tab's URL so it can tell which site and conversation you are on, and ask that tab's content script for the chat's title. |
+| `host_permissions` for facebook.com and messenger.com        | Lets the popup read the active tab's URL so it can tell which site and conversation you are on, and ask that tab's content script for the chat's title.     |
 | `content_scripts` matches for the same sites                  | The cleaners have to run on the page to hide anything.                                                                                                     |
 
 There is deliberately no `tabs` permission: a host permission is enough to read `tab.url`
@@ -165,7 +162,7 @@ Two Tailwind notes worth knowing before editing the popup:
 
 ### Build process
 
-There is no `vite.config.ts`; [scripts/build.mjs](scripts/build.mjs) runs five small Vite
+There is no `vite.config.ts`; [scripts/build.mjs](scripts/build.mjs) runs four small Vite
 builds, because MV3 wants a different module format per target:
 
 | Target                   | Output                       | Format                                            |
@@ -174,7 +171,6 @@ builds, because MV3 wants a different module format per target:
 | Service worker           | `dist/background.js`         | ES module (`"type": "module"` in the manifest)    |
 | Facebook content script  | `dist/content/facebook.js`   | IIFE — classic content scripts cannot use imports |
 | Messenger content script | `dist/content/messenger.js`  | IIFE                                              |
-| Instagram content script | `dist/content/instagram.js`  | IIFE                                              |
 
 The script also copies `src/manifest.json`, `src/styles/content.css` (as
 `content/introvert.css`) and `src/icons/`. Content scripts are not minified on purpose:
@@ -183,12 +179,12 @@ saves time.
 
 ### Artwork
 
-`images/` holds the source art: `logo.png` (the brand mark) and the Facebook and Instagram
-logos at 980px. `npm run assets` turns those into what ships: 128px copies in `src/assets/`
+`images/` holds the source art: `logo.png` (the brand mark), the Facebook logo and the white
+Instagram glyph. `npm run assets` turns those into what ships: 128px copies in `src/assets/`
 for the popup, and 16/32/48/128 toolbar icons in `src/icons/` derived from the logo.
 [scripts/prepare-assets.mjs](scripts/prepare-assets.mjs) does it with a small PNG decoder,
-a premultiplied box filter and a PNG encoder, so there is no image dependency. It matters
-more than it sounds: the Instagram logo goes from 500 KB to 18 KB.
+a premultiplied box filter and a PNG encoder, so there is no image dependency. The large
+Instagram source glyph becomes a lightweight 3.6 KB popup asset.
 
 ## Project structure
 
@@ -201,7 +197,7 @@ src/
 ├── content/
 │   ├── facebook.ts              Entry: Facebook site module
 │   ├── messenger.ts             Entry: Messenger module + popup chat-info responder
-│   └── instagram.ts             Entry: Instagram site module
+│   └── instagram.ts             Unshipped placeholder for future support
 ├── sites/
 │   ├── shared/                  Reusable machinery, no site knowledge
 │   │   ├── runtime.ts           Lifecycle: settings, observers, routes, stats
@@ -225,7 +221,7 @@ src/
 │   │   ├── chatInfo.ts          Conversation label for the popup
 │   │   ├── observer.ts
 │   │   └── index.ts
-│   └── instagram/
+│   └── instagram/                Unshipped work for future support
 │       ├── cleaners/{stories,posts}.ts
 │       ├── selectors.ts
 │       ├── observer.ts
@@ -357,6 +353,9 @@ interface ExtensionSettings {
 }
 ```
 
+The Instagram branch is reserved for forward compatibility with the unshipped work. It is
+not exposed as settings and has no effect in the current build.
+
 A single key means one `chrome.storage.onChanged` event that the popup and every open tab
 react to. `parseSettings()` in [src/storage/schema.ts](src/storage/schema.ts) validates
 whatever comes back: unknown keys are dropped, missing keys fall back to defaults, and a
@@ -401,7 +400,7 @@ and never throw:
 - `ascendUntil(el, predicate, depth)` — walk up until a positive signal, e.g. "the ancestor
   that contains at least two post action buttons"
 
-Instagram needs one extra trick: its controls are buttons wrapping an `svg` that carries the
+The draft Instagram implementation needs one extra trick: its controls are buttons wrapping an `svg` that carries the
 accessible name, so its selectors reach the button *through* its icon with
 `button:has(svg[aria-label="Like"])`. Hiding the svg alone would leave an invisible but
 clickable button — exactly the accident this extension exists to prevent.
@@ -461,16 +460,15 @@ and rollout. They are honest guesses in a structure designed for them to be wron
 mechanism around them is verified, and a wrong selector costs you a control that stays
 visible, never a broken page.
 
-## How to update a selector when Facebook or Instagram changes
+## How to update a selector when Facebook or Messenger changes
 
 1. Set `DEBUG = true` in [src/shared/debug.ts](src/shared/debug.ts), `npm run build`, reload
    the extension and the tab.
 2. Open DevTools and inspect the control that is no longer hidden. Look for an `aria-label`,
    `role`, `data-*` attribute or `href` shape — not a class name.
 3. Add it to the **front** of the relevant list in
-   [src/sites/facebook/selectors.ts](src/sites/facebook/selectors.ts),
-   [src/sites/messenger/selectors.ts](src/sites/messenger/selectors.ts) or
-   [src/sites/instagram/selectors.ts](src/sites/instagram/selectors.ts). Leave the old
+   [src/sites/facebook/selectors.ts](src/sites/facebook/selectors.ts) or
+   [src/sites/messenger/selectors.ts](src/sites/messenger/selectors.ts). Leave the old
    candidates: they cost nothing and may still be right for other accounts or locales.
 4. Rebuild, reload, confirm. Set `DEBUG` back to `false`.
 
@@ -504,8 +502,8 @@ layer.
 
 ## How to add another supported website
 
-Instagram is the worked example — it reuses the shared runtime, hider and observer without
-changes. For Reddit, YouTube, LinkedIn or X:
+The unshipped Instagram scaffolding is a worked example — it reuses the shared runtime,
+hider and observer without changes. For Reddit, YouTube, LinkedIn or X:
 
 1. **Site folder** — `src/sites/<site>/` with `selectors.ts`, `cleaners/*.ts`, `observer.ts`
    and `index.ts`. Each cleaner calls `applyRule(rule, enabled, find)` and nothing else;
@@ -537,7 +535,7 @@ development, not only type-checked:
 | Content-script behaviour in headless Chrome          | 133/133 |
 
 The browser checks drive the **built** content scripts against a synthetic
-Facebook/Messenger/Instagram DOM and assert on what ends up hidden: story strips hidden
+Facebook/Messenger DOM and assert on what ends up hidden: story strips hidden
 while navigation, media, close and the author link stay; post actions hidden without
 touching post text, counters or comment actions; call buttons hidden in the thread but not
 in the sidebar; composer buttons hidden without affecting message reactions; the composer
@@ -545,7 +543,7 @@ hidden without affecting the message list; global Messenger rules applying with 
 chat while leaving their neighbours alone; a platform master switch restoring everything;
 instant restore when any setting flips; full release when a chat is unprotected; and correct
 behaviour across SPA navigation between a protected and an unprotected conversation, on
-`facebook.com/messages/t/...`, `messenger.com/t/...`, and Instagram's feed and story routes.
+`facebook.com/messages/t/...` and `messenger.com/t/...`.
 
 Some of those assert computed style and box generation rather than the marker attribute,
 which is what proves the pre-paint layer. One scenario navigates first and mounts the

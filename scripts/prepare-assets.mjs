@@ -1,7 +1,7 @@
 /**
  * Turns the source artwork in images/ into the sizes the extension ships.
  *
- * images/fb.png and images/insta.png are 980x980 (insta.png alone is 500 KB),
+ * Source artwork is much larger than its 40px popup presentation,
  * which is wasteful for a 40px popup row, and Chrome's toolbar wants real
  * 16/32/48/128 icons rather than one big logo it has to squash.
  *
@@ -202,7 +202,7 @@ mkdirSync(ICONS, { recursive: true });
 // Popup artwork at 2x the largest on-screen size (48px rows, 56px platform header).
 for (const [source, name] of [
   ['fb.png', 'facebook'],
-  ['insta.png', 'instagram'],
+  ['insta-white.png', 'instagram'],
   ['logo.png', 'logo'],
 ]) {
   const image = decodePng(readFileSync(path.join(SOURCE, source)));

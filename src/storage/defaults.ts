@@ -74,22 +74,15 @@ export function createProtectedChat(
 }
 
 /**
- * "Leave me alone mode": the recommended noise cleanup across every
+ * "Leave me alone mode": the recommended noise cleanup across every supported
  * platform. It never touches Messenger rules or protected chats — those are
  * about accidental clicks, not noise, and stay hand-tuned.
  */
 export function applyLeaveMeAlone(draft: ExtensionSettings, enabled: boolean): void {
   draft.facebook.hideStoryActions = enabled;
   draft.facebook.posts.hideEntireActionBar = enabled;
-  draft.instagram.hideStoryActions = enabled;
-  draft.instagram.posts.hideEntireActionBar = enabled;
 }
 
 export function matchesLeaveMeAlone(settings: ExtensionSettings): boolean {
-  return (
-    settings.facebook.hideStoryActions &&
-    settings.facebook.posts.hideEntireActionBar &&
-    settings.instagram.hideStoryActions &&
-    settings.instagram.posts.hideEntireActionBar
-  );
+  return settings.facebook.hideStoryActions && settings.facebook.posts.hideEntireActionBar;
 }

@@ -38,6 +38,8 @@ export type PlatformTabId = 'general' | 'messenger' | 'posts' | 'other';
 export interface PlatformMeta {
   id: PlatformId;
   name: string;
+  /** Coming-soon platforms are visible in the popup but cannot be opened. */
+  available: boolean;
   /** Shown in the platform list on the home view. */
   summary: string;
   /** Shown under the platform name on its own page. */
@@ -50,6 +52,7 @@ export const PLATFORMS: readonly PlatformMeta[] = [
   {
     id: 'facebook',
     name: 'Facebook',
+    available: true,
     summary: 'Cleaner browsing experience',
     blurb: 'Customize your Facebook experience.',
     icon: facebookIcon,
@@ -58,8 +61,9 @@ export const PLATFORMS: readonly PlatformMeta[] = [
   {
     id: 'instagram',
     name: 'Instagram',
-    summary: 'Less noise, more content',
-    blurb: 'Customize your Instagram experience.',
+    available: false,
+    summary: 'Support is on the way',
+    blurb: 'Instagram support is coming soon.',
     icon: instagramIcon,
     tabs: ['general', 'posts', 'other'],
   },

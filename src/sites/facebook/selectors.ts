@@ -43,6 +43,14 @@ export const facebookSelectors = {
    * TODO: Verify the reply textbox aria-label/placeholder on your account.
    */
   storyReplyComposer: [
+    'input[placeholder*="Send message" i]',
+    'textarea[placeholder*="Send message" i]',
+    '[role="textbox"][aria-placeholder*="Send message" i]',
+    '[contenteditable="true"][aria-placeholder*="Send message" i]',
+    '[contenteditable="true"][role="textbox"]',
+    '[contenteditable="true"][data-lexical-editor="true"]',
+    '[role="textbox"][aria-label*="Message" i]',
+    'input[placeholder*="Reply" i]',
     'div[role="textbox"][aria-label*="Reply" i]',
     'div[contenteditable="true"][aria-label*="Reply" i]',
     'textarea[placeholder*="Reply" i]',
@@ -96,8 +104,11 @@ export const facebookSelectors = {
 
   /* --------------------------------------------------------------- posts */
 
-  /** Feed post container. Comments are nested articles and get filtered out. */
-  postRoot: ['div[role="article"]'],
+  /**
+   * Feed post container. Current feeds use aria-posinset; role="article" is
+   * retained for older layouts and post dialogs.
+   */
+  postRoot: ['[aria-posinset]', 'div[role="article"]'],
 
   postLike: [
     '[data-ad-rendering-role="like_button"]',
@@ -137,17 +148,8 @@ export const facebookSelectors = {
     'div[role="article"] [role="article"]',
     'img[data-visualcompletion="media-vc-image"]',
     'video',
-    'a[role="link"] strong',
   ],
 } as const satisfies Record<string, readonly string[]>;
-
-/** Anything that looks like a post action, used to recognise the action bar. */
-export const postActionCandidates: readonly string[] = [
-  ...facebookSelectors.postLike,
-  ...facebookSelectors.postComment,
-  ...facebookSelectors.postShare,
-  ...facebookSelectors.postSend,
-];
 
 /** Story routes are a dedicated URL, which is cheaper to test than the DOM. */
 export function isStoryRoute(pathname: string): boolean {
