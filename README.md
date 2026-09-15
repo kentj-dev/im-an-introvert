@@ -76,8 +76,9 @@ immediately, with no page reload.
 The extension has no backend, and nothing about your browsing leaves the browser.
 
 - No analytics, no telemetry, no remote logging.
-- No external APIs, no network requests of any kind. There is no code that can make one,
-  and the popup's font is bundled rather than fetched from a CDN.
+- No external APIs and no background network requests, and the popup's font is bundled
+  rather than fetched from a CDN. The only page the extension opens on its own is a
+  one-time thank-you page on apps.hamiken.com right after install; nothing is sent to it.
 - No account, no sign-in, no sync service of our own.
 - Message content is never read or stored. The only text the extension reads is the
   conversation title (for the popup label) and, if present, a strictly count-shaped string

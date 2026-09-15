@@ -16,7 +16,7 @@ import {
   queryAll,
   type SelectorCandidates,
 } from "../../shared/query";
-import { isInsideFloatingChat as isInsideMessengerWidget } from "../../messenger/floating";
+import { createFloatingChatTest } from "../../messenger/floating";
 import { facebookSelectors, isStoryRoute } from "../selectors";
 
 const POST_ROOT_SELECTOR = '[aria-posinset], div[role="article"]';
@@ -63,9 +63,12 @@ function physicalActionsIn(
   ];
 }
 
-function facebookPostActions(candidates: SelectorCandidates): HTMLElement[] {
+function facebookPostActions(
+  candidates: SelectorCandidates,
+  isInsideChat: (element: HTMLElement) => boolean,
+): HTMLElement[] {
   return physicalActionsIn(document, candidates).filter(
-    (element) => !isInsideMessengerWidget(element),
+    (element) => !isInsideChat(element),
   );
 }
 
@@ -164,11 +167,12 @@ function findActionBars(): ActionBars {
   // on that dedicated surface.
   if (isStoryRoute(location.pathname)) return NO_BARS;
 
+  const isInsideChat = createFloatingChatTest();
   const globalGroups = [
-    facebookPostActions(facebookSelectors.postLike),
-    facebookPostActions(facebookSelectors.postComment),
-    facebookPostActions(facebookSelectors.postShare),
-    facebookPostActions(facebookSelectors.postSend),
+    facebookPostActions(facebookSelectors.postLike, isInsideChat),
+    facebookPostActions(facebookSelectors.postComment, isInsideChat),
+    facebookPostActions(facebookSelectors.postShare, isInsideChat),
+    facebookPostActions(facebookSelectors.postSend, isInsideChat),
   ].filter((group) => group.length > 0);
   const globalRows = sharedRows(globalGroups);
   if (globalRows.length > 0) return { rows: globalRows, controls: [] };

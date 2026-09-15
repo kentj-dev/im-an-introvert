@@ -12,7 +12,7 @@ import { debugOnce } from "../../../shared/debug";
 import type { ExtensionSettings } from "../../../shared/types";
 import { applyRule } from "../../shared/hider";
 import { ascendWhileSafe, containsAny, queryAll } from "../../shared/query";
-import { isInsideFloatingChat as isInsideMessengerWidget } from "../../messenger/floating";
+import { createFloatingChatTest } from "../../messenger/floating";
 import { facebookSelectors, isStoryRoute } from "../selectors";
 
 /** Drops targets that are already inside another target. */
@@ -31,6 +31,7 @@ function findStoryActionTargets(): HTMLElement[] {
   if (!isStoryRoute(location.pathname)) return [];
 
   const targets: HTMLElement[] = [];
+  const isInsideChat = createFloatingChatTest();
 
   // The current story composer has no stable attribute of its own. Its
   // sibling reaction tray does: role="dialog" aria-label="Reactions". On the
@@ -39,7 +40,7 @@ function findStoryActionTargets(): HTMLElement[] {
   for (const tray of queryAll(
     document,
     facebookSelectors.storyReactionTray,
-  ).filter((candidate) => !isInsideMessengerWidget(candidate))) {
+  ).filter((candidate) => !isInsideChat(candidate))) {
     targets.push(ascendWhileSafe(tray, isSafeStoryAncestor, 6));
   }
 
@@ -49,7 +50,7 @@ function findStoryActionTargets(): HTMLElement[] {
   const composers = queryAll(
     document,
     facebookSelectors.storyReplyComposer,
-  ).filter((composer) => !isInsideMessengerWidget(composer));
+  ).filter((composer) => !isInsideChat(composer));
   for (const composer of composers) {
     // The reply box sits inside the bottom bar, so the highest safe ancestor
     // is the bar itself — including the emoji row and send button next to it.
@@ -64,7 +65,7 @@ function findStoryActionTargets(): HTMLElement[] {
   for (const action of queryAll(
     document,
     facebookSelectors.storyQuickActions,
-  ).filter((candidate) => !isInsideMessengerWidget(candidate))) {
+  ).filter((candidate) => !isInsideChat(candidate))) {
     targets.push(ascendWhileSafe(action, isSafeStoryAncestor, 2));
   }
 

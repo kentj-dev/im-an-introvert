@@ -55,9 +55,10 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
           strokeWidth={1.9}
         />
         <p className="text-[12px] leading-snug">
-          Everything runs on this device. No accounts, no analytics, no servers,
-          and no network requests of any kind. Your settings and protected chat
-          IDs live in Chrome storage; message content is never read or stored.
+          Everything runs on this device. No accounts, no analytics, and nothing
+          is sent anywhere; the only page it ever opens itself is a one-time
+          thank-you page after install. Your settings and protected chat IDs
+          live in Chrome storage; message content is never read or stored.
         </p>
       </div>
 

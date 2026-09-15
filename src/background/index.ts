@@ -35,8 +35,18 @@ function isUsageReport(message: unknown): message is UsageReport {
   );
 }
 
+/**
+ * addUsage reads, adds and writes back. Two reports arriving together (both
+ * facebook.com content scripts flush when the tab is hidden) would otherwise
+ * read the same totals and one would overwrite the other.
+ */
+let pendingUsage: Promise<void> = Promise.resolve();
+
 chrome.runtime.onMessage.addListener((message: unknown) => {
   if (!isUsageReport(message)) return undefined;
-  void addUsage({ hidden: message.hidden, seconds: message.seconds });
+  const delta = { hidden: message.hidden, seconds: message.seconds };
+  pendingUsage = pendingUsage
+    .then(() => addUsage(delta))
+    .catch((error: unknown) => debug("addUsage failed", error));
   return undefined;
 });

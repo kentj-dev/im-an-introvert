@@ -33,6 +33,13 @@ function writeRules(element: Element, rules: string[]): void {
  */
 let newlyHidden = 0;
 
+/**
+ * Elements already counted. Route changes release every marker and the next
+ * pass re-hides the same nodes, so counting transitions alone would inflate
+ * the total on each navigation. Weak, so removed nodes are not kept alive.
+ */
+const counted = new WeakSet<Element>();
+
 export function takeHiddenCount(): number {
   const count = newlyHidden;
   newlyHidden = 0;
@@ -41,7 +48,10 @@ export function takeHiddenCount(): number {
 
 export function hideElement(element: Element, rule: RuleKey): void {
   const rules = rulesOf(element);
-  if (rules.length === 0) newlyHidden++;
+  if (rules.length === 0 && !counted.has(element)) {
+    counted.add(element);
+    newlyHidden++;
+  }
   if (!rules.includes(rule)) rules.push(rule);
   writeRules(element, rules);
 }

@@ -37,24 +37,37 @@ export async function saveSettings(settings: ExtensionSettings): Promise<void> {
 }
 
 /**
+ * Updates run one at a time. Each is a read-modify-write, so two started
+ * together (a quick second toggle, a rename committed on blur by the click
+ * that removes the chat) would otherwise read the same state and the later
+ * write would silently undo the earlier one.
+ */
+let pendingWrite: Promise<unknown> = Promise.resolve();
+
+/**
  * Read, mutate a copy, write back. This is the single write path: callers pass
  * a mutator instead of each setting needing its own helper.
  */
-export async function updateSettings(
+export function updateSettings(
   mutate: (draft: ExtensionSettings) => void,
 ): Promise<ExtensionSettings> {
-  const current = await loadSettings();
-  const draft = structuredClone(current);
-  mutate(draft);
-  // Switching off one of the preset's settings by hand ends a running session
-  // without restoring anything, so the timer cannot later undo that choice.
-  if (draft.leaveMeAlone.until !== null && !matchesLeaveMeAlone(draft)) {
-    draft.leaveMeAlone = { until: null, previous: null };
-  }
-  // The preset switch reflects its settings rather than storing its own truth.
-  draft.leaveMeAloneMode = isLeaveMeAloneMode(draft);
-  await saveSettings(draft);
-  return draft;
+  const write = pendingWrite.then(async () => {
+    const current = await loadSettings();
+    const draft = structuredClone(current);
+    mutate(draft);
+    // Switching off one of the preset's settings by hand ends a running session
+    // without restoring anything, so the timer cannot later undo that choice.
+    if (draft.leaveMeAlone.until !== null && !matchesLeaveMeAlone(draft)) {
+      draft.leaveMeAlone = { until: null, previous: null };
+    }
+    // The preset switch reflects its settings rather than storing its own truth.
+    draft.leaveMeAloneMode = isLeaveMeAloneMode(draft);
+    await saveSettings(draft);
+    return draft;
+  });
+  // A failed write is reported to its caller and must not block the next one.
+  pendingWrite = write.catch(() => undefined);
+  return write;
 }
 
 /**

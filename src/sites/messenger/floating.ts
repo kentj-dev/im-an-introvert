@@ -25,8 +25,22 @@ export function queryFloatingThreadRoots(): HTMLElement[] {
   return roots.filter((root) => !containsAny(root, STORY_VIEWER_MARKERS));
 }
 
-export function isInsideFloatingChat(element: HTMLElement): boolean {
-  return queryFloatingThreadRoots().some((root) => root.contains(element));
+/**
+ * Returns a test for "is this element inside a floating chat tab?", with the
+ * tabs looked up once. Cleaners check many elements per pass, and looking the
+ * tabs up per element meant a dozen document-wide `:has()` queries each time.
+ *
+ * Stricter than queryFloatingThreadRoots: a dialog counts only when it carries
+ * the tab's own window controls. A post opened in a dialog also holds a
+ * comment textbox, and must stay a post rather than pass for a chat.
+ */
+export function createFloatingChatTest(): (element: HTMLElement) => boolean {
+  const roots = queryFloatingThreadRoots().filter(
+    (root) =>
+      !root.matches('[role="dialog"]') ||
+      containsAny(root, facebookSelectors.chatWidgetAnchors),
+  );
+  return (element) => roots.some((root) => root.contains(element));
 }
 
 const MAX_CHAT_TAB_DEPTH = 25;

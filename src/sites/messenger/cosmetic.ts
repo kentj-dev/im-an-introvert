@@ -13,10 +13,20 @@ import type { MessengerContext } from "./context";
 
 type RuleSelectors = Partial<Record<keyof ChatRules, readonly string[]>>;
 
+/**
+ * Call-history cards in the message list carry the same labels as the header
+ * call buttons. The JS pass preserves the message list (see cleaners/calls.ts);
+ * without this exclusion the stylesheet would still hide those cards.
+ */
+const outsideMessageList = (selectors: readonly string[]): string[] =>
+  selectors.map(
+    (selector) => `${selector}:not([role="grid"] *):not([role="log"] *)`,
+  );
+
 /** Rules whose controls live in the conversation header or its menus. */
 const THREAD_RULES: RuleSelectors = {
-  hideVoiceCall: messengerCosmetic.voiceCall,
-  hideVideoCall: messengerCosmetic.videoCall,
+  hideVoiceCall: outsideMessageList(messengerCosmetic.voiceCall),
+  hideVideoCall: outsideMessageList(messengerCosmetic.videoCall),
   hideGroupActions: messengerCosmetic.groupActions,
 };
 

@@ -74,7 +74,13 @@ export function getMessengerConversationId(
     const raw = match?.[1];
     if (!raw) continue;
 
-    const id = decodeURIComponent(raw);
+    let id: string;
+    try {
+      id = decodeURIComponent(raw);
+    } catch {
+      // A malformed escape such as a stray "%" is never a real conversation.
+      return null;
+    }
     if (RESERVED_IDS.has(id.toLowerCase())) return null;
     if (!ID_PATTERN.test(id)) return null;
     return id;
