@@ -76,6 +76,49 @@ export const facebookSelectors = {
   ],
 
   /**
+   * Stable anchor beside the unlabeled "Send message…" field in the current
+   * story viewer. It is safe only when combined with the /stories/ route gate.
+   */
+  storyReactionTray: [
+    'div[role="dialog"][aria-label="Reactions"]',
+    'div[role="dialog"][aria-label*="Reactions" i]',
+  ],
+
+  /* -------------------------------------------------------- chat widgets */
+
+  /**
+   * Header controls only a floating chat tab carries. "Minimize chat" is
+   * confirmed against a live tab; exact labels keep the right-hand contacts
+   * list and ordinary dialogs out of scope.
+   */
+  chatWidgetAnchors: [
+    'div[role="button"][aria-label="Minimize chat"]',
+    'div[role="button"][aria-label="Close chat"]',
+    '[aria-label="Minimize chat"]',
+    '[aria-label="Close chat"]',
+  ],
+
+  /**
+   * The chat tab's own root. Messenger web sets its theme variables inline on
+   * the tab (confirmed: `--mwp-header-button-color`).
+   * TODO: Verify which element is the outermost `--mwp-` holder.
+   */
+  chatWidgetRoot: ['[style*="--mwp-"]', '[data-pagelet^="ChatTab"]'],
+
+  /** A chat widget never contains these, so its ascent stops below them. */
+  chatWidgetProtected: [
+    '[role="main"]',
+    '[role="banner"]',
+    '[role="navigation"]',
+    '[role="complementary"]',
+    '[role="feed"]',
+    '[aria-posinset]',
+    'div[role="dialog"][aria-label="Reactions"]',
+    '[aria-label="Next card"]',
+    '[aria-label="Previous card"]',
+  ],
+
+  /**
    * Controls that must never be hidden. Every story ascent stops before an
    * ancestor containing one of these, which is what keeps navigation, closing,
    * pausing and the author link working.
@@ -126,17 +169,6 @@ export const facebookSelectors = {
   ],
 
   postSend: [...byAriaLabelButton(['Send', 'Send in Messenger', 'Share in Messenger'])],
-
-  /**
-   * Reaction controls: the hover picker and any inline reaction strip. This is
-   * about the controls, not the reaction counts, which stay visible.
-   * TODO: Verify the reaction picker container on the current UI.
-   */
-  postReactions: [
-    'div[role="dialog"][aria-label*="Reaction" i]',
-    '[aria-label*="Reaction" i][role="toolbar"]',
-    ...byAriaLabel(['Leave a reaction', 'Reactions']),
-  ],
 
   /**
    * Post content that must stay visible. Used as the guard when locating the

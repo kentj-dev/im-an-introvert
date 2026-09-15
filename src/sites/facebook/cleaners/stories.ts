@@ -16,6 +16,7 @@ import {
   containsAny,
   queryAll,
 } from '../../shared/query';
+import { isInsideFloatingChat as isInsideMessengerWidget } from '../../messenger/floating';
 import { facebookSelectors, isStoryRoute } from '../selectors';
 
 /** Drops targets that are already inside another target. */
@@ -34,10 +35,22 @@ function findStoryActionTargets(): HTMLElement[] {
 
   const targets: HTMLElement[] = [];
 
+  // The current story composer has no stable attribute of its own. Its
+  // sibling reaction tray does: role="dialog" aria-label="Reactions". On the
+  // already-verified /stories/ route, climb from that anchor to the highest
+  // safe bottom-strip wrapper so both the tray and message field disappear.
+  for (const tray of queryAll(document, facebookSelectors.storyReactionTray).filter(
+    (candidate) => !isInsideMessengerWidget(candidate),
+  )) {
+    targets.push(ascendWhileSafe(tray, isSafeStoryAncestor, 6));
+  }
+
   // Facebook keeps adjacent stories mounted and swaps which one is active.
   // Query every composer on the dedicated story route instead of trusting the
   // first viewer container, which can point at the story that just closed.
-  const composers = queryAll(document, facebookSelectors.storyReplyComposer);
+  const composers = queryAll(document, facebookSelectors.storyReplyComposer).filter(
+    (composer) => !isInsideMessengerWidget(composer),
+  );
   for (const composer of composers) {
     // The reply box sits inside the bottom bar, so the highest safe ancestor
     // is the bar itself — including the emoji row and send button next to it.
@@ -49,7 +62,9 @@ function findStoryActionTargets(): HTMLElement[] {
 
   // Quick reactions can render outside the composer's subtree, so they are
   // collected separately with a much shorter ascent.
-  for (const action of queryAll(document, facebookSelectors.storyQuickActions)) {
+  for (const action of queryAll(document, facebookSelectors.storyQuickActions).filter(
+    (candidate) => !isInsideMessengerWidget(candidate),
+  )) {
     targets.push(ascendWhileSafe(action, isSafeStoryAncestor, 2));
   }
 

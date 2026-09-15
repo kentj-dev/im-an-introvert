@@ -28,14 +28,14 @@ export function HomeView({
 
   return (
     <div className="space-y-3.5">
-      <LeaveMeAloneCard enabled={settings.leaveMeAloneMode} onChange={onToggleLeaveMeAlone} />
+      {current?.platform && <LeaveMeAloneCard enabled={settings.leaveMeAloneMode} onChange={onToggleLeaveMeAlone} />}
       <CurrentSiteCard
         current={current}
         currentChatProtected={currentChatProtected}
         onOpenPlatform={onOpenPlatform}
         onOpenProtectedChats={onOpenProtectedChats}
       />
-      <PlatformList settings={settings} onOpen={onOpenPlatform} />
+      {current?.platform && <PlatformList settings={settings} onOpen={onOpenPlatform} />}
       <QuickStats stats={stats} />
       <FooterNote />
     </div>

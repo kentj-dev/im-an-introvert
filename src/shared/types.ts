@@ -1,7 +1,7 @@
 /** Shared types for settings, protected chats and extension messaging. */
 
 /** Sites the extension knows how to clean. Add one here and in PLATFORMS. */
-export type PlatformId = 'facebook' | 'instagram';
+export type PlatformId = 'facebook' | 'messenger' | 'instagram';
 
 /**
  * The Messenger rules that exist both globally and per conversation.
@@ -40,6 +40,8 @@ export interface ProtectedChat extends ChatRules {
 }
 
 export interface MessengerSettings extends ChatRules {
+  /** Master switch for Messenger, on messenger.com and facebook.com alike. */
+  enabled: boolean;
   /**
    * Show a small "messaging disabled" line where the composer used to be, so
    * a hidden chat field does not look like a broken page.
@@ -48,11 +50,7 @@ export interface MessengerSettings extends ChatRules {
 }
 
 export interface FacebookPostSettings {
-  hideLike: boolean;
-  hideComment: boolean;
-  hideShare: boolean;
-  hideSend: boolean;
-  hideReactions: boolean;
+  /** The Like, Comment, Share and Send row under each post. */
   hideEntireActionBar: boolean;
 }
 
@@ -60,8 +58,9 @@ export interface FacebookSettings {
   /** Master switch for the whole platform. */
   enabled: boolean;
   hideStoryActions: boolean;
+  /** Floating Messenger chat tabs on facebook.com, not full Messenger. */
+  hideChatWidgets: boolean;
   posts: FacebookPostSettings;
-  messenger: MessengerSettings;
 }
 
 export interface InstagramPostSettings {
@@ -79,8 +78,9 @@ export interface InstagramSettings {
 }
 
 export interface ExtensionSettings {
-  version: 2;
+  version: 3;
   facebook: FacebookSettings;
+  messenger: MessengerSettings;
   instagram: InstagramSettings;
   protectedChats: Record<string, ProtectedChat>;
   leaveMeAloneMode: boolean;

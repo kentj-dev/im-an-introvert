@@ -1,6 +1,6 @@
+import { PlatformIcon } from '@/popup/components/PlatformIcon';
 import { Badge } from '@/popup/components/ui/badge';
 import { Card } from '@/popup/components/ui/card';
-import { PlatformIcon } from '@/popup/components/PlatformIcon';
 import { PLATFORMS } from '@/popup/platforms';
 import type { ExtensionSettings, PlatformId } from '@/shared/types';
 import { ChevronRight } from 'lucide-react';

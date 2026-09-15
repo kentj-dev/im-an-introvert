@@ -1,16 +1,17 @@
 /**
- * Hides Facebook post actions: Like, Comment, Share, Send, the reaction
- * picker, or the whole action bar.
+ * Hides the action bar under Facebook posts: the Like, Comment, Share and Send
+ * row.
  *
  * Only the controls go away — post text, media and reaction counts stay
  * exactly where they were. Comment actions are left alone: nested
- * `role="article"` elements (comments) are filtered out so "Hide Like" does
- * not quietly strip reply controls inside threads.
+ * `role="article"` elements (comments) never count as posts.
  */
-import { RULES, type RuleKey } from '../../../shared/constants';
+import { POST_NOTICE_ATTR, RULES } from '../../../shared/constants';
+import { safely } from '../../../shared/debug';
 import type { ExtensionSettings } from '../../../shared/types';
 import { applyRule } from '../../shared/hider';
 import { ascendUntil, containsAny, queryAll, type SelectorCandidates } from '../../shared/query';
+import { isInsideFloatingChat as isInsideMessengerWidget } from '../../messenger/floating';
 import { facebookSelectors, isStoryRoute } from '../selectors';
 
 const POST_ROOT_SELECTOR = '[aria-posinset], div[role="article"]';
@@ -30,10 +31,6 @@ function topLevelPosts(): HTMLElement[] {
 
 function belongsToPost(element: HTMLElement, post: HTMLElement): boolean {
   return element.closest(POST_ROOT_SELECTOR) === post;
-}
-
-function actionsIn(post: HTMLElement, candidates: SelectorCandidates): HTMLElement[] {
-  return queryAll(post, candidates).filter((element) => belongsToPost(element, post));
 }
 
 /** Resolve nested labels/wrappers to the actual interactive control. */
@@ -57,12 +54,12 @@ function physicalActionsIn(root: ParentNode, candidates: SelectorCandidates): HT
   ];
 }
 
-function physicalActionsInPost(post: HTMLElement, candidates: SelectorCandidates): HTMLElement[] {
-  return physicalActionsIn(post, candidates).filter((element) => belongsToPost(element, post));
+function facebookPostActions(candidates: SelectorCandidates): HTMLElement[] {
+  return physicalActionsIn(document, candidates).filter((element) => !isInsideMessengerWidget(element));
 }
 
-function findAction(candidates: SelectorCandidates): HTMLElement[] {
-  return topLevelPosts().flatMap((post) => actionsIn(post, candidates));
+function physicalActionsInPost(post: HTMLElement, candidates: SelectorCandidates): HTMLElement[] {
+  return physicalActionsIn(post, candidates).filter((element) => belongsToPost(element, post));
 }
 
 function distinctActionKindsWithin(candidate: HTMLElement, groups: readonly HTMLElement[][]): number {
@@ -117,22 +114,31 @@ function sharedRows(groups: HTMLElement[][], boundary?: HTMLElement): HTMLElemen
   );
 }
 
-function findActionBars(): HTMLElement[] {
+interface ActionBars {
+  /** Whole action rows. These show the note in place of their buttons. */
+  rows: HTMLElement[];
+  /** Single controls, hidden when no shared row could be proven. No note. */
+  controls: HTMLElement[];
+}
+
+const NO_BARS: ActionBars = { rows: [], controls: [] };
+
+function findActionBars(): ActionBars {
   // Story controls use several of the same labels. Never let a post rule act
   // on that dedicated surface.
-  if (isStoryRoute(location.pathname)) return [];
+  if (isStoryRoute(location.pathname)) return NO_BARS;
 
   const globalGroups = [
-    physicalActionsIn(document, facebookSelectors.postLike),
-    physicalActionsIn(document, facebookSelectors.postComment),
-    physicalActionsIn(document, facebookSelectors.postShare),
-    physicalActionsIn(document, facebookSelectors.postSend),
+    facebookPostActions(facebookSelectors.postLike),
+    facebookPostActions(facebookSelectors.postComment),
+    facebookPostActions(facebookSelectors.postShare),
+    facebookPostActions(facebookSelectors.postSend),
   ].filter((group) => group.length > 0);
   const globalRows = sharedRows(globalGroups);
-  if (globalRows.length > 0) return globalRows;
+  if (globalRows.length > 0) return { rows: globalRows, controls: [] };
 
-  const posts = topLevelPosts();
-  return posts.flatMap((post) => {
+  const bars: ActionBars = { rows: [], controls: [] };
+  for (const post of topLevelPosts()) {
     const groups = [
       physicalActionsInPost(post, facebookSelectors.postLike),
       physicalActionsInPost(post, facebookSelectors.postComment),
@@ -143,35 +149,34 @@ function findActionBars(): HTMLElement[] {
 
     // Fail narrowly on an unusual post layout: hiding the controls is still
     // useful, but never hide the post when a shared row cannot be proven.
-    return rows.length > 0 ? rows : outermostActionControls(groups.flat());
-  });
+    if (rows.length > 0) bars.rows.push(...rows);
+    else bars.controls.push(...outermostActionControls(groups.flat()));
+  }
+  return bars;
 }
 
 /**
- * The reaction picker mounts in a portal near the end of <body>, not inside
- * the post, so it is looked up document-wide.
+ * Flags hidden action rows so the stylesheet draws the note where the buttons
+ * were. An attribute plus CSS, never an injected node, keeps React's child
+ * lists untouched.
  */
-function findReactionControls(): HTMLElement[] {
-  return queryAll(document, facebookSelectors.postReactions);
+function applyPostNotice(rows: readonly HTMLElement[]): void {
+  const targets = new Set<Element>(rows);
+  for (const element of document.querySelectorAll(`[${POST_NOTICE_ATTR}]`)) {
+    if (!targets.has(element)) element.removeAttribute(POST_NOTICE_ATTR);
+  }
+  for (const row of rows) row.setAttribute(POST_NOTICE_ATTR, 'true');
+}
+
+/** Drops every note, used when Facebook cleanup is released. */
+export function clearPostNotice(): void {
+  applyPostNotice([]);
 }
 
 export function applyPostCleanup(settings: ExtensionSettings): void {
-  const posts = settings.facebook.posts;
+  const enabled = settings.facebook.posts.hideEntireActionBar;
+  const bars = enabled ? (safely(`find:${RULES.postActionBar}`, findActionBars) ?? NO_BARS) : NO_BARS;
 
-  applyRule(RULES.postActionBar, posts.hideEntireActionBar, findActionBars);
-
-  // Individual rules still run while the bar rule is on; markers are reference
-  // counted, so turning the bar rule off leaves the individual ones intact.
-  const individual: ReadonlyArray<[RuleKey, boolean, SelectorCandidates]> = [
-    [RULES.postLike, posts.hideLike, facebookSelectors.postLike],
-    [RULES.postComment, posts.hideComment, facebookSelectors.postComment],
-    [RULES.postShare, posts.hideShare, facebookSelectors.postShare],
-    [RULES.postSend, posts.hideSend, facebookSelectors.postSend],
-  ];
-
-  for (const [rule, enabled, candidates] of individual) {
-    applyRule(rule, enabled, () => findAction(candidates));
-  }
-
-  applyRule(RULES.postReactions, posts.hideReactions, findReactionControls);
+  applyRule(RULES.postActionBar, enabled, () => [...bars.rows, ...bars.controls]);
+  applyPostNotice(bars.rows);
 }

@@ -9,8 +9,8 @@ interface LeaveMeAloneCardProps {
 /**
  * A preset rather than a mode with its own state: switching it on writes the
  * recommended cleanup for every platform, and it reads back on while those
- * settings are in place. Messenger rules and protected chats are untouched,
- * which the copy says out loud.
+ * settings are in place. That includes Messenger's global call, group and chat
+ * field rules; protected chats keep their own records.
  */
 export function LeaveMeAloneCard({ enabled, onChange }: LeaveMeAloneCardProps) {
   return (
@@ -21,7 +21,7 @@ export function LeaveMeAloneCard({ enabled, onChange }: LeaveMeAloneCardProps) {
       <div className="min-w-0 flex-1">
         <p className="text-[14px] leading-tight font-medium">Leave me alone mode</p>
         <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
-          Hide the usual social noise. Protected chats stay as they are.
+          Hide social noise, Messenger calls, group actions, and chat.
         </p>
       </div>
       <Switch checked={enabled} onCheckedChange={onChange} aria-label="Leave me alone mode" />

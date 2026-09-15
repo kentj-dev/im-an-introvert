@@ -15,6 +15,34 @@
  * pseudo-element on the composer's parent so no node is inserted into a
  * React-managed child list.
  */
+/*
+ * The same note in place of a hidden post action bar. Here the bar itself
+ * stays in the layout with only its buttons hidden, so the note sits exactly
+ * where they were rather than at the end of the post, below the comments.
+ * Both attributes are required: a stale note flag on a restored bar does
+ * nothing. The doubled attribute selector outranks the plain hidden rule.
+ */
+[data-introvert-hidden='true'][data-introvert-post-notice='true'] {
+  display: block !important;
+}
+
+[data-introvert-hidden='true'][data-introvert-post-notice='true'] > * {
+  display: none !important;
+}
+
+[data-introvert-hidden='true'][data-introvert-post-notice='true']::after {
+  content: '🛡 Interactions disabled by I’m an Introvert';
+  display: block;
+  padding: 8px 16px;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  color: #6b7280;
+  opacity: 0.85;
+  pointer-events: none;
+  user-select: none;
+}
+
 [data-introvert-notice='true']::after {
   content: '🛡 Messaging disabled by I’m an Introvert';
   display: block;

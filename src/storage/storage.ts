@@ -105,10 +105,16 @@ export function setLeaveMeAloneMode(enabled: boolean): Promise<ExtensionSettings
 /** Restores one platform's options to their defaults, keeping the rest. */
 export function resetPlatform(platform: PlatformId): Promise<ExtensionSettings> {
   return updateSettings((draft) => {
-    if (platform === 'facebook') {
-      draft.facebook = structuredClone(DEFAULT_SETTINGS.facebook);
-    } else {
-      draft.instagram = structuredClone(DEFAULT_SETTINGS.instagram);
+    switch (platform) {
+      case 'facebook':
+        draft.facebook = structuredClone(DEFAULT_SETTINGS.facebook);
+        break;
+      case 'messenger':
+        draft.messenger = structuredClone(DEFAULT_SETTINGS.messenger);
+        break;
+      case 'instagram':
+        draft.instagram = structuredClone(DEFAULT_SETTINGS.instagram);
+        break;
     }
   });
 }

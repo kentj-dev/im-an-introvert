@@ -30,6 +30,17 @@ export interface SiteModule {
    * conversation's rules would linger on the next one.
    */
   onRouteChange?(settings: ExtensionSettings, href: string): void;
+  /**
+   * Optional follow-up passes after an SPA route change. Useful for sites that
+   * update the URL before asynchronously mounting the destination surface.
+   */
+  routeSettleDelays?: readonly number[];
+  /**
+   * Optional low-cost maintenance pass for a highly dynamic surface whose DOM
+   * can be reused or revealed without an observable structural mutation.
+   */
+  maintenanceIntervalMs?: number;
+  shouldMaintain?(): boolean;
   /** False when the platform's master switch is off; stops the usage clock. */
   isActive?(settings: ExtensionSettings): boolean;
   /**
@@ -96,7 +107,23 @@ export function startSiteModule(module: SiteModule): void {
         module.onRouteChange?.(settings as ExtensionSettings, href),
       );
       scheduler.flush();
+
+      // A delayed pass is tied to the exact destination. If another SPA
+      // navigation wins first, the stale callback becomes a no-op.
+      for (const delay of module.routeSettleDelays ?? []) {
+        setTimeout(() => {
+          if (location.href === href) scheduler.flush();
+        }, delay);
+      }
     });
+
+    if (module.maintenanceIntervalMs && module.shouldMaintain) {
+      setInterval(() => {
+        if (document.visibilityState === 'visible' && module.shouldMaintain?.()) {
+          scheduler.flush();
+        }
+      }, module.maintenanceIntervalMs);
+    }
 
     // Live updates: a popup toggle writes to storage, this fires, the pass
     // re-runs, and the element appears or disappears without a reload.

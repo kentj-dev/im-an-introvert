@@ -40,13 +40,25 @@ export const messengerSite: SiteModule = {
   name: 'messenger',
   observeRoot: messengerObserveRoot,
 
-  isActive: (settings) => settings.facebook.enabled,
+  isActive: (settings) => settings.messenger.enabled,
   // On facebook.com the Facebook module counts page time; on messenger.com
   // this is the only content script, so it counts instead.
   ownsUsageClock: () => !isFacebookHost(location.hostname),
 
   apply(settings: ExtensionSettings) {
     if (!isMessengerRoute(location)) {
+      if (isFacebookHost(location.hostname)) {
+        const context = resolveMessengerContext(settings);
+        // Floating chat tabs have no conversation id in the page URL, so only
+        // global Messenger rules apply. Marker-based cleanup is used here;
+        // the full-page cosmetic selectors must not be scoped to Facebook's
+        // ordinary feed main.
+        clearCosmeticRules();
+        applyMessengerCallCleanup(context);
+        applyMessengerGroupCleanup(context);
+        applyMessengerChatFieldCleanup(context);
+        return;
+      }
       reset();
       return;
     }

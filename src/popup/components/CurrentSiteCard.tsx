@@ -37,7 +37,7 @@ export function CurrentSiteCard({
       ) : current.conversationId ? (
         <NavCard
           tone="site"
-          image={getPlatform('facebook').icon}
+          image={getPlatform('messenger').icon}
           title={current.chatName ?? "You're on Messenger"}
           description={
             currentChatProtected

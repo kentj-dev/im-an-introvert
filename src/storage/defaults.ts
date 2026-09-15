@@ -1,4 +1,10 @@
-import { CHAT_RULE_KEYS, type ChatRules, type ExtensionSettings, type ProtectedChat } from '../shared/types';
+import {
+  CHAT_RULE_KEYS,
+  type ChatRuleKey,
+  type ChatRules,
+  type ExtensionSettings,
+  type ProtectedChat,
+} from '../shared/types';
 
 const chatRules = (value: boolean): ChatRules =>
   Object.fromEntries(CHAT_RULE_KEYS.map((key) => [key, value])) as ChatRules;
@@ -27,22 +33,19 @@ export const DEFAULT_CHAT_RULES: ChatRules = {
 };
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
-  version: 2,
+  version: 3,
   facebook: {
     enabled: true,
     hideStoryActions: true,
+    hideChatWidgets: false,
     posts: {
-      hideLike: false,
-      hideComment: false,
-      hideShare: false,
-      hideSend: false,
-      hideReactions: false,
       hideEntireActionBar: false,
     },
-    messenger: {
-      ...NO_CHAT_RULES,
-      showDisabledNotice: true,
-    },
+  },
+  messenger: {
+    enabled: true,
+    ...NO_CHAT_RULES,
+    showDisabledNotice: true,
   },
   instagram: {
     enabled: true,
@@ -73,16 +76,33 @@ export function createProtectedChat(
   return chat;
 }
 
+/** Global Messenger rules the preset switches: calls, group actions, the field. */
+const LEAVE_ME_ALONE_MESSENGER_RULES: readonly ChatRuleKey[] = [
+  'hideVoiceCall',
+  'hideVideoCall',
+  'hideGroupActions',
+  'hideChatField',
+];
+
 /**
- * "Leave me alone mode": the recommended noise cleanup across every supported
- * platform. It never touches Messenger rules or protected chats — those are
- * about accidental clicks, not noise, and stay hand-tuned.
+ * "Leave me alone mode": the recommended cleanup across every supported
+ * platform — Facebook's Story actions, post action bar and floating chat
+ * widgets, plus Messenger's global call, group action and chat field rules.
+ * Protected chats keep their own records; the global rules simply apply on top
+ * of them.
  */
 export function applyLeaveMeAlone(draft: ExtensionSettings, enabled: boolean): void {
   draft.facebook.hideStoryActions = enabled;
   draft.facebook.posts.hideEntireActionBar = enabled;
+  draft.facebook.hideChatWidgets = enabled;
+  for (const key of LEAVE_ME_ALONE_MESSENGER_RULES) draft.messenger[key] = enabled;
 }
 
 export function matchesLeaveMeAlone(settings: ExtensionSettings): boolean {
-  return settings.facebook.hideStoryActions && settings.facebook.posts.hideEntireActionBar;
+  return (
+    settings.facebook.hideStoryActions &&
+    settings.facebook.posts.hideEntireActionBar &&
+    settings.facebook.hideChatWidgets &&
+    LEAVE_ME_ALONE_MESSENGER_RULES.every((key) => settings.messenger[key])
+  );
 }

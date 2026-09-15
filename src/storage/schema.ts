@@ -4,9 +4,14 @@ import {
   type ExtensionSettings,
   type ProtectedChat,
 } from '../shared/types';
-import { DEFAULT_CHAT_RULES, DEFAULT_SETTINGS, NO_CHAT_RULES } from './defaults';
+import {
+  DEFAULT_CHAT_RULES,
+  DEFAULT_SETTINGS,
+  NO_CHAT_RULES,
+  matchesLeaveMeAlone,
+} from './defaults';
 
-export const CURRENT_VERSION = 2 as const;
+export const CURRENT_VERSION = 3 as const;
 
 const bool = (value: unknown, fallback: boolean): boolean =>
   typeof value === 'boolean' ? value : fallback;
@@ -39,21 +44,38 @@ function normaliseChat(id: string, raw: unknown): ProtectedChat | null {
 /**
  * Version 1 kept Messenger's only global under a top-level `messenger` key and
  * had no platforms. Moving it under `facebook.messenger` is the whole
- * migration; every other v1 field already sits where v2 expects it, and the
- * normaliser below fills in what v1 never had.
+ * migration to version 2; the v2 step below then lifts it back out.
  */
 function migrateV1(source: Record<string, unknown>): Record<string, unknown> {
   const facebook = record(source.facebook);
   const legacyMessenger = record(source.messenger);
   return {
     ...source,
-    version: CURRENT_VERSION,
+    version: 2,
     facebook: {
       ...facebook,
       messenger: {
         ...record(facebook.messenger),
         showDisabledNotice: bool(legacyMessenger.showDisabledNotice, true),
       },
+    },
+  };
+}
+
+/**
+ * Version 2 kept Messenger inside Facebook: its rules under
+ * `facebook.messenger`, switched on and off by Facebook's master switch.
+ * Version 3 makes Messenger a platform of its own, so its rules move to the
+ * top level and its new switch starts from whatever Facebook's was.
+ */
+function migrateV2(source: Record<string, unknown>): Record<string, unknown> {
+  const facebook = record(source.facebook);
+  return {
+    ...source,
+    version: CURRENT_VERSION,
+    messenger: {
+      ...record(facebook.messenger),
+      enabled: bool(facebook.enabled, DEFAULT_SETTINGS.messenger.enabled),
     },
   };
 }
@@ -69,12 +91,13 @@ function migrateV1(source: Record<string, unknown>): Record<string, unknown> {
 export function parseSettings(raw: unknown): ExtensionSettings {
   let source = record(raw);
   if (source.version === 1) source = migrateV1(source);
+  if (source.version === 2) source = migrateV2(source);
 
   const defaults = DEFAULT_SETTINGS;
 
   const facebook = record(source.facebook);
   const facebookPosts = record(facebook.posts);
-  const messenger = record(facebook.messenger);
+  const messenger = record(source.messenger);
 
   const instagram = record(source.instagram);
   const instagramPosts = record(instagram.posts);
@@ -85,29 +108,25 @@ export function parseSettings(raw: unknown): ExtensionSettings {
     if (chat) protectedChats[id] = chat;
   }
 
-  return {
+  const settings: ExtensionSettings = {
     version: CURRENT_VERSION,
     facebook: {
       enabled: bool(facebook.enabled, defaults.facebook.enabled),
       hideStoryActions: bool(facebook.hideStoryActions, defaults.facebook.hideStoryActions),
+      hideChatWidgets: bool(facebook.hideChatWidgets, defaults.facebook.hideChatWidgets),
+      // The individual Like/Comment/Share/Send/reaction switches were removed;
+      // their stored keys are dropped here like any other unknown key.
       posts: {
-        hideLike: bool(facebookPosts.hideLike, defaults.facebook.posts.hideLike),
-        hideComment: bool(facebookPosts.hideComment, defaults.facebook.posts.hideComment),
-        hideShare: bool(facebookPosts.hideShare, defaults.facebook.posts.hideShare),
-        hideSend: bool(facebookPosts.hideSend, defaults.facebook.posts.hideSend),
-        hideReactions: bool(facebookPosts.hideReactions, defaults.facebook.posts.hideReactions),
         hideEntireActionBar: bool(
           facebookPosts.hideEntireActionBar,
           defaults.facebook.posts.hideEntireActionBar,
         ),
       },
-      messenger: {
-        ...readChatRules(messenger, NO_CHAT_RULES),
-        showDisabledNotice: bool(
-          messenger.showDisabledNotice,
-          defaults.facebook.messenger.showDisabledNotice,
-        ),
-      },
+    },
+    messenger: {
+      enabled: bool(messenger.enabled, defaults.messenger.enabled),
+      ...readChatRules(messenger, NO_CHAT_RULES),
+      showDisabledNotice: bool(messenger.showDisabledNotice, defaults.messenger.showDisabledNotice),
     },
     instagram: {
       enabled: bool(instagram.enabled, defaults.instagram.enabled),
@@ -124,6 +143,11 @@ export function parseSettings(raw: unknown): ExtensionSettings {
       },
     },
     protectedChats,
-    leaveMeAloneMode: bool(source.leaveMeAloneMode, defaults.leaveMeAloneMode),
+    leaveMeAloneMode: false,
   };
+
+  // Derived, never trusted from storage: when the preset gains a setting, a
+  // stored "on" would otherwise claim settings that are not actually in place.
+  settings.leaveMeAloneMode = matchesLeaveMeAlone(settings);
+  return settings;
 }

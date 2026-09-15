@@ -11,23 +11,34 @@ import { queryAll, type SelectorCandidates } from '../../shared/query';
 import type { MessengerContext } from '../context';
 import { messengerSelectors } from '../selectors';
 
-function findCallButtons(
-  context: MessengerContext,
-  candidates: SelectorCandidates,
-): HTMLElement[] {
-  const scope = context.threadRoot;
-  if (!scope) return [];
-  // An in-progress call renders in a dialog; leave its controls alone so the
-  // user can always hang up.
-  return queryAll(scope, candidates).filter((button) => !button.closest('[role="dialog"]'));
+const BUTTON_SELECTOR = 'button, a[role="button"], div[role="button"], [role="button"]';
+
+function physicalButton(element: HTMLElement): HTMLElement {
+  const button = element.closest(BUTTON_SELECTOR);
+  return button instanceof HTMLElement ? button : element;
+}
+
+function findCallButtons(candidates: SelectorCandidates): HTMLElement[] {
+  const found = new Set<HTMLElement>();
+  const messageLists = queryAll(document, messengerSelectors.messageList);
+
+  // Exact call labels are sufficiently specific to scan document-wide. This
+  // also covers floating widgets whose outer wrapper changes or has no role.
+  for (const match of queryAll(document, candidates)) {
+    const button = physicalButton(match);
+    // Call-history cards can contain labels such as "Audio call". Preserve
+    // everything in the message list; only call controls are in scope.
+    if (!messageLists.some((list) => list.contains(button))) found.add(button);
+  }
+  return [...found];
 }
 
 export function applyMessengerCallCleanup(context: MessengerContext): void {
   applyRule(RULES.messengerVoiceCall, context.rules.hideVoiceCall, () =>
-    findCallButtons(context, messengerSelectors.voiceCallButton),
+    findCallButtons(messengerSelectors.voiceCallButton),
   );
 
   applyRule(RULES.messengerVideoCall, context.rules.hideVideoCall, () =>
-    findCallButtons(context, messengerSelectors.videoCallButton),
+    findCallButtons(messengerSelectors.videoCallButton),
   );
 }

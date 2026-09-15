@@ -2,6 +2,8 @@ import { Switch } from '@/popup/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/popup/components/ui/tabs';
 import { PlatformIcon } from '@/popup/components/PlatformIcon';
 import { FacebookPanel } from '@/popup/components/views/panels/FacebookPanel';
+import { InstagramPanel } from '@/popup/components/views/panels/InstagramPanel';
+import { MessengerPanel } from '@/popup/components/views/panels/MessengerPanel';
 import { cn } from '@/popup/lib/utils';
 import { TAB_LABELS, getPlatform, type PlatformTabId } from '@/popup/platforms';
 import type { ExtensionSettings, PlatformId } from '@/shared/types';
@@ -16,6 +18,18 @@ export interface PanelProps {
 
 interface PlatformViewProps extends PanelProps {
   platform: PlatformId;
+}
+
+function PlatformPanel({ platform, ...panel }: PlatformViewProps & { tab: PlatformTabId }) {
+  switch (platform) {
+    case 'messenger':
+      return <MessengerPanel {...panel} />;
+    case 'instagram':
+      return <InstagramPanel {...panel} />;
+    case 'facebook':
+    default:
+      return <FacebookPanel {...panel} />;
+  }
 }
 
 export function PlatformView({ platform, ...panel }: PlatformViewProps) {
@@ -82,7 +96,7 @@ export function PlatformView({ platform, ...panel }: PlatformViewProps) {
             {/* A platform that is switched off still shows its options, dimmed,
                 so it is obvious why nothing is being hidden. */}
             <div className={cn('space-y-3.5', !enabled && 'pointer-events-none opacity-50')}>
-              <FacebookPanel tab={id} {...panel} />
+              <PlatformPanel platform={platform} tab={id} {...panel} />
             </div>
           </TabsContent>
         ))}

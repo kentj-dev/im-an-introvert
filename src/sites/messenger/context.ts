@@ -13,8 +13,9 @@ import {
   type ProtectedChat,
 } from '../../shared/types';
 import { getProtectedChat } from '../../storage/storage';
-import { queryOne } from '../shared/query';
-import { getMessengerConversationId } from './router';
+import { queryAll } from '../shared/query';
+import { queryFloatingThreadRoots } from './floating';
+import { getMessengerConversationId, isMessengerRoute } from './router';
 import { messengerSelectors } from './selectors';
 
 export interface MessengerContext {
@@ -25,8 +26,10 @@ export interface MessengerContext {
   /** The effective rules: global OR per-chat, and all off if Facebook is off. */
   rules: ChatRules;
   showNotice: boolean;
-  /** The conversation pane; queries are scoped here, never document-wide. */
-  threadRoot: HTMLElement | null;
+  /** Full-page conversation panes and Facebook's floating chat widgets. */
+  threadRoots: HTMLElement[];
+  /** True on messenger.com or a facebook.com/messages route. */
+  onMessengerRoute: boolean;
 }
 
 export function resolveChatRules(
@@ -40,11 +43,18 @@ export function resolveChatRules(
 }
 
 export function resolveMessengerContext(settings: ExtensionSettings): MessengerContext {
-  // Messenger lives inside the Facebook platform, so it follows that switch.
-  const enabled = settings.facebook.enabled;
+  // Messenger is its own platform with its own switch, even on facebook.com.
+  const enabled = settings.messenger.enabled;
   const conversationId = getMessengerConversationId(location);
   const chat = getProtectedChat(settings, conversationId);
-  const globals = settings.facebook.messenger;
+  const globals = settings.messenger;
+  const onMessengerRoute = isMessengerRoute(location);
+  const threadRoots = new Set<HTMLElement>();
+
+  if (onMessengerRoute) {
+    for (const root of queryAll(document, messengerSelectors.threadRoot)) threadRoots.add(root);
+  }
+  for (const root of queryFloatingThreadRoots()) threadRoots.add(root);
 
   return {
     settings,
@@ -52,6 +62,7 @@ export function resolveMessengerContext(settings: ExtensionSettings): MessengerC
     chat,
     rules: resolveChatRules(globals, chat, enabled),
     showNotice: enabled && globals.showDisabledNotice,
-    threadRoot: queryOne(document, messengerSelectors.threadRoot),
+    threadRoots: [...threadRoots],
+    onMessengerRoute,
   };
 }

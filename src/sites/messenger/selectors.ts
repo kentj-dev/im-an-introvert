@@ -16,6 +16,21 @@ export const messengerSelectors = {
    */
   threadRoot: ['div[role="main"]', 'div[role="main"][aria-label]'],
 
+  /** Floating Facebook chat tabs, which live outside the main Messenger pane. */
+  floatingThreadRoot: [
+    '[style*="--mwp-message-list"]',
+    '[style*="--mwp-primary-theme-color"]',
+    '[data-pagelet^="ChatTab"]',
+    'div[role="dialog"]:has([aria-label*="Close chat" i])',
+    'div[role="dialog"]:has([aria-label*="Minimize chat" i])',
+    'div[role="dialog"]:has([aria-label*="voice call" i])',
+    'div[role="dialog"]:has([aria-label*="audio call" i])',
+    'div[role="dialog"]:has([aria-label*="video call" i])',
+    'div[role="dialog"]:has(div[role="grid"])',
+    'div[role="dialog"]:has(div[role="log"])',
+    'div[role="dialog"]:has([contenteditable="true"][role="textbox"])',
+  ],
+
   /**
    * Never hide these: the message list and history.
    * TODO: Verify the message list role on the current Messenger build.
@@ -36,6 +51,7 @@ export const messengerSelectors = {
       'Start voice call',
       'Voice call',
       'Audio call',
+      'Start a call',
     ]),
     // Note: a bare "Call" is deliberately not listed. As a substring it also
     // matches "Video call", which would hide the video button when only the
@@ -110,6 +126,26 @@ export const messengerSelectors = {
     'div[contenteditable="true"][aria-label*="Message" i]',
     'div[role="textbox"][contenteditable="true"]',
     'div[contenteditable="true"][role="textbox"]',
+  ],
+
+  /**
+   * Things a composer row never contains. The ascent from the text box stops
+   * below any ancestor holding one: the conversation header and its call
+   * buttons, a chat tab's window controls, message rows, or the whole pane.
+   */
+  composerStops: [
+    'h1',
+    'h2',
+    '[role="heading"]',
+    '[role="row"]',
+    '[role="gridcell"]',
+    '[role="article"]',
+    '[role="main"]',
+    '[aria-label="Minimize chat"]',
+    '[aria-label="Close chat"]',
+    '[aria-label*="voice call" i]',
+    '[aria-label*="audio call" i]',
+    '[aria-label*="video call" i]',
   ],
 
   /** TODO: Verify attachment / photo / file button labels. */

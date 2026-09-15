@@ -15,16 +15,25 @@ platforms as coming soon.
 
 ### Facebook
 
-| Tab       | Options                                                                             |
-| --------- | ----------------------------------------------------------------------------------- |
-| General   | Hide Story actions (reply box, emoji reactions, share and send)                      |
-| Messenger | Protected Chats, plus global rules for calls, group actions and the composer         |
-| Posts     | Like, Comment, Share, Send, the reaction picker, or the entire action bar            |
-| Other     | The "messaging disabled" note, and a reset for this platform                         |
+| Tab     | Options                                                                                   |
+| ------- | ----------------------------------------------------------------------------------------- |
+| General | Hide Story actions, hide the entire post action bar (Like, Comment, Share, Send), hide chat widgets |
+| Other   | A reset for this platform                                                                 |
 
 Stories stay watchable: navigation, playback, closing and the author link are never
 hidden. Posts keep their text, media and reaction counts, and actions inside comments are
 left alone.
+
+### Messenger
+
+Its own platform with its own master switch, covering messenger.com, facebook.com/messages
+and the floating chat tabs on facebook.com.
+
+| Tab        | Options                                                                  |
+| ---------- | ------------------------------------------------------------------------ |
+| General    | Protected Chats, plus global rules for calls and group actions           |
+| Chat Field | The whole composer, or its attachment, emoji, GIF, sticker and like buttons |
+| Other      | The "messaging disabled" note, and a reset for this platform             |
 
 ### Instagram
 
@@ -48,9 +57,13 @@ scrolling and opening media are untouched.
 
 ### Leave me alone mode
 
-One switch that applies the recommended noise cleanup across every supported platform: Story actions
-and the whole post action bar. It never touches Messenger rules or protected chats, because
-those are about accidental clicks rather than noise.
+One switch that applies the recommended cleanup across every supported platform: Facebook's
+Story actions, whole post action bar and floating chat widgets, plus Messenger's global voice
+call, video call, group action and "Hide chat field" rules. Protected chats keep their own records, though the
+global rules it turns on apply to every conversation.
+
+Switching it off turns those same settings off, and it reads as on only while all of them
+are on.
 
 Everything is hidden, never deleted. Turn a setting off and the control is back
 immediately, with no page reload.
@@ -323,19 +336,18 @@ One `chrome.storage.sync` key, `introvertSettings`:
 
 ```ts
 interface ExtensionSettings {
-  version: 2;
+  version: 3;
   facebook: {
     enabled: boolean;              // the platform master switch
     hideStoryActions: boolean;
+    hideChatWidgets: boolean;      // floating chat tabs, not full Messenger
     posts: {
-      hideLike: boolean;
-      hideComment: boolean;
-      hideShare: boolean;
-      hideSend: boolean;
-      hideReactions: boolean;
-      hideEntireActionBar: boolean;
+      hideEntireActionBar: boolean; // the Like, Comment, Share and Send row
     };
-    messenger: ChatRules & { showDisabledNotice: boolean };
+  };
+  messenger: ChatRules & {
+    enabled: boolean;              // Messenger's own master switch
+    showDisabledNotice: boolean;
   };
   instagram: {
     enabled: boolean;
@@ -361,10 +373,12 @@ react to. `parseSettings()` in [src/storage/schema.ts](src/storage/schema.ts) va
 whatever comes back: unknown keys are dropped, missing keys fall back to defaults, and a
 malformed object can never crash a cleaner.
 
-**Migrations** happen in that same function, which is what version 2 already does: version
-1 kept Messenger's only global at the top level and had no platforms, so `migrateV1()`
-moves it under `facebook.messenger` and the normaliser fills in the rest. To add a version
-3, upgrade the shape there before normalising.
+**Migrations** happen in that same function, one version step at a time. Version 1 kept
+Messenger's only global at the top level and had no platforms, so `migrateV1()` moves it
+under `facebook.messenger`. Version 2 then made Messenger follow Facebook's switch, so
+`migrateV2()` lifts those rules to the top-level `messenger` and starts its new `enabled`
+switch from Facebook's. The normaliser fills in the rest. To add a version 4, add a step
+there before normalising.
 
 Note the sync quota: about 8 KB per key, which is roughly 30 to 40 protected chats. Far more
 than the handful of work group chats this is built for, but worth knowing.

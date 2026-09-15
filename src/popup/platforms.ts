@@ -13,10 +13,10 @@ import {
   Keyboard,
   LayoutList,
   MessageCircle,
+  MessageCircleOff,
   Paperclip,
   Phone,
   Send,
-  Share,
   Smile,
   Sticker,
   ThumbsUp,
@@ -26,14 +26,14 @@ import {
 } from 'lucide-react';
 import facebookIcon from '@/assets/facebook.png';
 import instagramIcon from '@/assets/instagram.png';
+import messengerIcon from '@/assets/messenger.png';
 import type {
   ChatRuleKey,
-  FacebookPostSettings,
   InstagramPostSettings,
   PlatformId,
 } from '@/shared/types';
 
-export type PlatformTabId = 'general' | 'messenger' | 'posts' | 'other';
+export type PlatformTabId = 'general' | 'chatField' | 'posts' | 'other';
 
 export interface PlatformMeta {
   id: PlatformId;
@@ -56,7 +56,16 @@ export const PLATFORMS: readonly PlatformMeta[] = [
     summary: 'Cleaner browsing experience',
     blurb: 'Customize your Facebook experience.',
     icon: facebookIcon,
-    tabs: ['general', 'messenger', 'posts', 'other'],
+    tabs: ['general', 'other'],
+  },
+  {
+    id: 'messenger',
+    name: 'Messenger',
+    available: true,
+    summary: 'Calmer conversations',
+    blurb: 'Customize your Messenger experience.',
+    icon: messengerIcon,
+    tabs: ['general', 'chatField', 'other'],
   },
   {
     id: 'instagram',
@@ -71,7 +80,7 @@ export const PLATFORMS: readonly PlatformMeta[] = [
 
 export const TAB_LABELS: Record<PlatformTabId, string> = {
   general: 'General',
-  messenger: 'Messenger',
+  chatField: 'Chat Field',
   posts: 'Posts',
   other: 'Other',
 };
@@ -104,19 +113,11 @@ export const MESSENGER_FIELD_ROWS: ReadonlyArray<SettingRowMeta<ChatRuleKey>> = 
   { key: 'hideLikeButton', label: 'Hide quick-like button', icon: ThumbsUp },
 ];
 
-export const FACEBOOK_POST_ROWS: ReadonlyArray<SettingRowMeta<keyof FacebookPostSettings>> = [
-  { key: 'hideEntireActionBar', label: 'Hide entire action bar', icon: LayoutList },
-  { key: 'hideLike', label: 'Hide Like', icon: ThumbsUp },
-  { key: 'hideComment', label: 'Hide Comment', icon: MessageCircle },
-  { key: 'hideShare', label: 'Hide Share', icon: Share },
-  { key: 'hideSend', label: 'Hide Send', icon: Send },
-  {
-    key: 'hideReactions',
-    label: 'Hide reactions',
-    icon: Smile,
-    hint: 'The reaction picker, not the reaction counts.',
-  },
-];
+export const POST_ACTION_BAR_ROW = {
+  label: 'Hide entire action bar',
+  icon: LayoutList,
+  hint: 'The Like, Comment, Share and Send row under each post.',
+} as const;
 
 export const INSTAGRAM_POST_ROWS: ReadonlyArray<SettingRowMeta<keyof InstagramPostSettings>> = [
   { key: 'hideEntireActionBar', label: 'Hide entire action bar', icon: LayoutList },
@@ -127,3 +128,9 @@ export const INSTAGRAM_POST_ROWS: ReadonlyArray<SettingRowMeta<keyof InstagramPo
 ];
 
 export const STORY_ROW = { label: 'Hide Story actions', icon: Camera } as const;
+
+export const CHAT_WIDGETS_ROW = {
+  label: 'Hide chat widgets',
+  icon: MessageCircleOff,
+  hint: 'Floating chat windows that pop up in the corner. Full Messenger is unaffected.',
+} as const;

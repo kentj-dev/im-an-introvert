@@ -15,10 +15,11 @@ import { messengerSelectors } from '../selectors';
 const PORTAL_CONTAINERS = ['[role="menu"]', '[role="dialog"]'];
 
 function findGroupActions(context: MessengerContext): HTMLElement[] {
-  const scopes: ParentNode[] = [];
-  if (context.threadRoot) scopes.push(context.threadRoot);
-  for (const selector of PORTAL_CONTAINERS) {
-    scopes.push(...Array.from(document.querySelectorAll(selector)));
+  const scopes: ParentNode[] = [...context.threadRoots];
+  if (context.onMessengerRoute) {
+    for (const selector of PORTAL_CONTAINERS) {
+      scopes.push(...Array.from(document.querySelectorAll(selector)));
+    }
   }
 
   const found = new Set<HTMLElement>();

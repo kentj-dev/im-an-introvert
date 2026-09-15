@@ -61,7 +61,7 @@ export function InstagramPanel({ tab, settings, update, resetPlatform }: Instagr
       <div className="rounded-md border border-gray-400 bg-card px-3 py-2.5 shadow-none ">
         <p className="text-[13.5px] leading-tight">Not covered yet</p>
         <p className="mt-1 text-[11.5px] leading-snug text-muted-foreground">
-          Instagram direct messages have no options yet. The Messenger equivalents live under Facebook, and the same
+          Instagram direct messages have no options yet. Messenger has its own page for these, and the same
           per-conversation approach is the plan here.
         </p>
       </div>

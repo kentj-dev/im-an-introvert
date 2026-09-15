@@ -1,8 +1,10 @@
+import hamikenLogo from '@/assets/hamiken.png';
 import { SettingSection } from '@/popup/components/SettingSection';
 import { Button } from '@/popup/components/ui/button';
+import { MAKER_URL } from '@/shared/constants';
 import type { UsageStats } from '@/shared/types';
 import { formatDuration } from '@/storage/stats';
-import { Lock } from 'lucide-react';
+import { ExternalLink, Lock } from 'lucide-react';
 import { useState } from 'react';
 
 interface AboutViewProps {
@@ -88,6 +90,23 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
             )
           }
         />
+      </SettingSection>
+
+      <SettingSection title="Maker">
+        {/* The logo ships with the extension; only clicking opens the site. */}
+        <a
+          href={MAKER_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        >
+          <img src={hamikenLogo} alt="" className="size-9 shrink-0 object-contain" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[13.5px] leading-tight font-medium">Hamiken</p>
+            <p className="mt-0.5 text-[11.5px] leading-snug text-muted-foreground">apps.hamiken.com</p>
+          </div>
+          <ExternalLink className="size-4 shrink-0 text-muted-foreground" strokeWidth={2} />
+        </a>
       </SettingSection>
     </div>
   );

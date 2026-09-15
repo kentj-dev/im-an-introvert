@@ -120,7 +120,7 @@ export function App() {
         return (
           <ChatDetailView
             chat={chat}
-            globals={settings.facebook.messenger}
+            globals={settings.messenger}
             onPatch={(patch) => patchChat(chat.id, patch)}
             onRemove={() => {
               run(() => removeProtectedChat(chat.id));

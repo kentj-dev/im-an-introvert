@@ -6,6 +6,9 @@
  */
 export const REPO_URL = 'https://github.com/kentj-dev/im-an-introvert';
 
+/** The maker's site, linked from the popup's About view. */
+export const MAKER_URL = 'https://apps.hamiken.com';
+
 /** Single `chrome.storage.sync` key holding the whole settings object. */
 export const STORAGE_KEY = 'introvertSettings';
 
@@ -34,17 +37,19 @@ export const RULES_ATTR = 'data-introvert-rules';
 export const NOTICE_ATTR = 'data-introvert-notice';
 
 /**
+ * Marks a hidden post action bar that should show its "interactions disabled"
+ * note in place of the buttons. Only has an effect alongside HIDDEN_ATTR.
+ */
+export const POST_NOTICE_ATTR = 'data-introvert-post-notice';
+
+/**
  * Rule keys. Kept in one place so the values that end up in the DOM are
  * stable and easy to grep for while debugging a live page.
  */
 export const RULES = {
   storyActions: 'story-actions',
   postActionBar: 'post-bar',
-  postLike: 'post-like',
-  postComment: 'post-comment',
-  postShare: 'post-share',
-  postSend: 'post-send',
-  postReactions: 'post-reactions',
+  chatWidgets: 'chat-widgets',
 
   messengerVoiceCall: 'mx-voice',
   messengerVideoCall: 'mx-video',
