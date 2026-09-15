@@ -70,7 +70,7 @@ export function InstagramPanel({
 
   return (
     <>
-      <div className="rounded-md border border-gray-400 bg-card px-3 py-2.5 shadow-none ">
+      <div className="rounded-md border border-edge bg-card px-3 py-2.5 shadow-none ">
         <p className="text-[13.5px] leading-tight">Not covered yet</p>
         <p className="mt-1 text-[11.5px] leading-snug text-muted-foreground">
           Instagram direct messages have no options yet. Messenger has its own

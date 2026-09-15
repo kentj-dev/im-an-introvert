@@ -13,7 +13,7 @@ function StatCard({
   label: string;
 }) {
   return (
-    <Card className="flex-1 gap-0 px-3 py-3 shadow-none border rounded-md border-gray-400">
+    <Card className="flex-1 gap-0 px-3 py-3 shadow-none border rounded-md border-edge">
       <span className="flex size-7 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
         <Icon className="size-[15px]" strokeWidth={1.9} />
       </span>

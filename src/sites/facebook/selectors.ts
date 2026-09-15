@@ -145,6 +145,20 @@ export const facebookSelectors = {
     'a[role="link"][href^="/"]:has(image)',
   ],
 
+  /* --------------------------------------------------------------- focus */
+
+  /** The page's centre column. Side columns are found as its siblings. */
+  focusMain: ['div[role="main"]'],
+
+  /**
+   * Side columns beside the centre column. Confirmed live on the home feed:
+   * `[role="navigation"][aria-label="Shortcuts"]` on the left and
+   * `[role="complementary"]#right_rail_container` on the right, both direct
+   * siblings of main. Requiring a sibling keeps the header's own navigation
+   * and anything inside a dialog out of scope.
+   */
+  focusSidebars: ['[role="navigation"]', '[role="complementary"]'],
+
   /* --------------------------------------------------------------- posts */
 
   /**

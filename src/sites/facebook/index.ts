@@ -10,6 +10,7 @@ import { restoreRules } from "../shared/hider";
 import type { SiteModule } from "../shared/runtime";
 import { isMessengerRoute } from "../messenger/router";
 import { applyChatWidgetCleanup } from "./cleaners/chatWidgets";
+import { applyFocusCleanup, clearFocus } from "./cleaners/focus";
 import { applyPostCleanup, clearPostNotice } from "./cleaners/posts";
 import { applyStoryCleanup } from "./cleaners/stories";
 import { facebookObserveRoot } from "./observer";
@@ -48,11 +49,13 @@ export const facebookSite: SiteModule = {
     if (!settings.facebook.enabled || isMessengerRoute(location)) {
       restoreRules(FACEBOOK_RULES);
       clearPostNotice();
+      clearFocus();
       return;
     }
     applyStoryCleanup(settings);
     applyPostCleanup(settings);
     applyChatWidgetCleanup(settings);
+    applyFocusCleanup(settings);
   },
 
   onRouteChange() {

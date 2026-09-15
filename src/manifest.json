@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "minimum_chrome_version": "114",
   "description": "Make social media a little less social. Hides the Facebook and Messenger controls you never wanted to touch by accident.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "contextMenus", "alarms"],
   "host_permissions": [
     "https://www.facebook.com/*",
     "https://facebook.com/*",

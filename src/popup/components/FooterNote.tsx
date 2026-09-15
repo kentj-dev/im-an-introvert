@@ -11,7 +11,7 @@ function version(): string {
 
 export function FooterNote() {
   return (
-    <div className="flex items-center gap-2 rounded-md border border-gray-400 bg-card px-3 py-2.5 shadow-none">
+    <div className="flex items-center gap-2 rounded-md border border-edge bg-card px-3 py-2.5 shadow-none">
       <Heart
         className="size-3.75 shrink-0 text-muted-foreground"
         strokeWidth={1.9}

@@ -1,17 +1,38 @@
 import hamikenLogo from "@/assets/hamiken.png";
 import { SettingSection } from "@/popup/components/SettingSection";
 import { Button } from "@/popup/components/ui/button";
+import type { ThemePreference } from "@/popup/lib/theme";
+import { cn } from "@/popup/lib/utils";
 import { MAKER_URL } from "@/shared/constants";
 import type { UsageStats } from "@/shared/types";
 import { formatDuration } from "@/storage/stats";
-import { ExternalLink, Lock } from "lucide-react";
+import {
+  ExternalLink,
+  Lock,
+  Monitor,
+  Moon,
+  Sun,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
 
 interface AboutViewProps {
   stats: UsageStats;
+  theme: ThemePreference;
+  onThemeChange: (next: ThemePreference) => void;
   onResetStats: () => void;
   onResetAll: () => void;
 }
+
+const THEME_OPTIONS: ReadonlyArray<{
+  value: ThemePreference;
+  label: string;
+  icon: LucideIcon;
+}> = [
+  { value: "system", label: "System", icon: Monitor },
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+];
 
 function ActionRow({
   title,
@@ -35,7 +56,13 @@ function ActionRow({
   );
 }
 
-export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
+export function AboutView({
+  stats,
+  theme,
+  onThemeChange,
+  onResetStats,
+  onResetAll,
+}: AboutViewProps) {
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -49,7 +76,7 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
         </p>
       </div>
 
-      <div className="flex gap-3 rounded-sm shadow-none border border-gray-400 bg-tint-night px-3 py-3">
+      <div className="flex gap-3 rounded-sm shadow-none border border-edge bg-tint-night px-3 py-3">
         <Lock
           className="mt-0.5 size-[16px] shrink-0 text-tint-night-foreground"
           strokeWidth={1.9}
@@ -61,6 +88,39 @@ export function AboutView({ stats, onResetStats, onResetAll }: AboutViewProps) {
           live in Chrome storage; message content is never read or stored.
         </p>
       </div>
+
+      <SettingSection
+        title="Appearance"
+        description="System follows your device's light or dark setting."
+      >
+        <div
+          role="radiogroup"
+          aria-label="Theme"
+          className="grid grid-cols-3 gap-1.5 px-3 py-2.5"
+        >
+          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => {
+            const selected = theme === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => onThemeChange(value)}
+                className={cn(
+                  "flex cursor-pointer items-center justify-center gap-1.5 rounded-full border border-edge px-2 py-1.5 text-[12.5px] transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+                  selected
+                    ? "bg-tint-site font-medium text-tint-site-foreground"
+                    : "bg-secondary text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Icon className="size-3.5" strokeWidth={2} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </SettingSection>
 
       <SettingSection
         title="Quick Stats"

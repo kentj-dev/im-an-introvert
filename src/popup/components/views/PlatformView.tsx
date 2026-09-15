@@ -59,7 +59,7 @@ export function PlatformView({ platform, ...panel }: PlatformViewProps) {
             </p>
           </div>
         </div>
-        <div className="rounded-md border border-gray-400 bg-card px-3 py-3 text-center shadow-none">
+        <div className="rounded-md border border-edge bg-card px-3 py-3 text-center shadow-none">
           <p className="text-[14px] font-medium">Coming soon</p>
           <p className="mt-1 text-[12px] text-muted-foreground">
             We’re still working on Instagram support.
@@ -107,7 +107,7 @@ export function PlatformView({ platform, ...panel }: PlatformViewProps) {
             <TabsTrigger
               key={id}
               value={id}
-              className="h-auto cursor-pointer rounded-full bg-secondary px-2 py-1.5 text-[12.5px] text-muted-foreground data-[state=active]:bg-tint-site! data-[state=active]:font-medium data-[state=active]:text-tint-site-foreground! shadow-none! border border-gray-400"
+              className="h-auto cursor-pointer rounded-full bg-secondary px-2 py-1.5 text-[12.5px] text-muted-foreground data-[state=active]:bg-tint-site! data-[state=active]:font-medium data-[state=active]:text-tint-site-foreground! shadow-none! border border-edge"
             >
               {TAB_LABELS[id]}
             </TabsTrigger>

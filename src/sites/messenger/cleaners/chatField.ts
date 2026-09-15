@@ -27,7 +27,32 @@ import {
 } from "../../shared/query";
 import type { MessengerContext } from "../context";
 import { isInsideChatTab } from "../floating";
-import { messengerSelectors } from "../selectors";
+import { QUICK_REACTION_LABEL, messengerSelectors } from "../selectors";
+
+/** Finds one kind of button inside a composer. */
+type ComposerFinder = (composer: HTMLElement) => HTMLElement[];
+
+const inComposer =
+  (candidates: SelectorCandidates): ComposerFinder =>
+  (composer) =>
+    queryAll(composer, candidates);
+
+/**
+ * The quick-like button: "Send a like" by default, or "Send a <emoji>" when
+ * the chat has a custom quick reaction. The emoji form is matched by shape.
+ */
+function quickLikeButtons(composer: HTMLElement): HTMLElement[] {
+  const customReactions = queryAll(
+    composer,
+    messengerSelectors.quickReactionButton,
+  ).filter((button) =>
+    QUICK_REACTION_LABEL.test(button.getAttribute("aria-label")?.trim() ?? ""),
+  );
+  return [
+    ...queryAll(composer, messengerSelectors.likeButton),
+    ...customReactions,
+  ];
+}
 
 /**
  * The button rows sit a few levels above the text box. The guards in
@@ -120,24 +145,28 @@ export function applyMessengerChatFieldCleanup(
 ): void {
   const rules = context.rules;
 
-  const buttonRules: ReadonlyArray<[RuleKey, boolean, SelectorCandidates]> = [
+  const buttonRules: ReadonlyArray<[RuleKey, boolean, ComposerFinder]> = [
     [
       RULES.messengerAttachments,
       rules.hideAttachments,
-      messengerSelectors.attachmentButtons,
+      inComposer(messengerSelectors.attachmentButtons),
     ],
     [
       RULES.messengerEmoji,
       rules.hideEmojiButton,
-      messengerSelectors.emojiButton,
+      inComposer(messengerSelectors.emojiButton),
     ],
-    [RULES.messengerGif, rules.hideGifButton, messengerSelectors.gifButton],
+    [
+      RULES.messengerGif,
+      rules.hideGifButton,
+      inComposer(messengerSelectors.gifButton),
+    ],
     [
       RULES.messengerSticker,
       rules.hideStickerButton,
-      messengerSelectors.stickerButton,
+      inComposer(messengerSelectors.stickerButton),
     ],
-    [RULES.messengerLike, rules.hideLikeButton, messengerSelectors.likeButton],
+    [RULES.messengerLike, rules.hideLikeButton, quickLikeButtons],
   ];
 
   // The document-wide search is only worth running when something asks for it.
@@ -148,11 +177,11 @@ export function applyMessengerChatFieldCleanup(
   applyRule(RULES.messengerComposer, rules.hideChatField, () => composers);
   applyNotice(composers, rules.hideChatField && context.showNotice);
 
-  for (const [rule, enabled, candidates] of buttonRules) {
+  for (const [rule, enabled, find] of buttonRules) {
     // Scoped to the composer: the same labels appear on message hover menus
     // and Facebook comment boxes, and those must keep working.
     applyRule(rule, enabled, () =>
-      composers.flatMap((composer) => queryAll(composer, candidates)),
+      composers.flatMap((composer) => find(composer)),
     );
   }
 }

@@ -47,6 +47,14 @@ export const NOTICE_ATTR = "data-introvert-notice";
 export const POST_NOTICE_ATTR = "data-introvert-post-notice";
 
 /**
+ * Marks a side column that sits behind focus mode's frosted glass. The value
+ * is the column's side of the main column in DOM order, "start" or "end", so
+ * the blur can deepen away from the feed. The glass is drawn with CSS
+ * pseudo-elements, so no node is ever inserted.
+ */
+export const FOCUS_ATTR = "data-introvert-focus";
+
+/**
  * Rule keys. Kept in one place so the values that end up in the DOM are
  * stable and easy to grep for while debugging a live page.
  */

@@ -39,6 +39,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     enabled: true,
     hideStoryActions: true,
     hideChatWidgets: false,
+    blurSidebars: false,
     posts: {
       hideEntireActionBar: false,
     },
@@ -82,8 +83,9 @@ export function createProtectedChat(
 
 /*
  * "Leave me alone mode": the recommended cleanup across every supported
- * platform — Facebook's Story actions, post action bar and floating chat
- * widgets, plus Messenger's global call, group action and chat field rules.
+ * platform — Facebook's Story actions, post action bar, floating chat widgets
+ * and blurred side columns, plus Messenger's global call, group action and
+ * chat field rules.
  * Protected chats keep their own records; the global rules simply apply on top
  * of them.
  *
@@ -97,6 +99,7 @@ function readLeaveMeAlone(settings: ExtensionSettings): LeaveMeAloneSnapshot {
     hideStoryActions: settings.facebook.hideStoryActions,
     hideEntireActionBar: settings.facebook.posts.hideEntireActionBar,
     hideChatWidgets: settings.facebook.hideChatWidgets,
+    blurSidebars: settings.facebook.blurSidebars,
     hideVoiceCall: settings.messenger.hideVoiceCall,
     hideVideoCall: settings.messenger.hideVideoCall,
     hideGroupActions: settings.messenger.hideGroupActions,
@@ -111,6 +114,7 @@ function writeLeaveMeAlone(
   draft.facebook.hideStoryActions = values.hideStoryActions;
   draft.facebook.posts.hideEntireActionBar = values.hideEntireActionBar;
   draft.facebook.hideChatWidgets = values.hideChatWidgets;
+  draft.facebook.blurSidebars = values.blurSidebars;
   draft.messenger.hideVoiceCall = values.hideVoiceCall;
   draft.messenger.hideVideoCall = values.hideVideoCall;
   draft.messenger.hideGroupActions = values.hideGroupActions;
@@ -121,6 +125,7 @@ const ALL_ON: LeaveMeAloneSnapshot = {
   hideStoryActions: true,
   hideEntireActionBar: true,
   hideChatWidgets: true,
+  blurSidebars: true,
   hideVoiceCall: true,
   hideVideoCall: true,
   hideGroupActions: true,

@@ -69,6 +69,7 @@ function readSnapshot(raw: unknown): LeaveMeAloneSnapshot | null {
     hideStoryActions: bool(source.hideStoryActions, false),
     hideEntireActionBar: bool(source.hideEntireActionBar, false),
     hideChatWidgets: bool(source.hideChatWidgets, false),
+    blurSidebars: bool(source.blurSidebars, false),
     hideVoiceCall: bool(source.hideVoiceCall, false),
     hideVideoCall: bool(source.hideVideoCall, false),
     hideGroupActions: bool(source.hideGroupActions, false),
@@ -159,6 +160,7 @@ export function parseSettings(raw: unknown): ExtensionSettings {
         facebook.hideChatWidgets,
         defaults.facebook.hideChatWidgets,
       ),
+      blurSidebars: bool(facebook.blurSidebars, defaults.facebook.blurSidebars),
       // The individual Like/Comment/Share/Send/reaction switches were removed;
       // their stored keys are dropped here like any other unknown key.
       posts: {

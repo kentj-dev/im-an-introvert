@@ -37,10 +37,165 @@
   font-size: 12px;
   line-height: 1.4;
   text-align: center;
-  color: #6b7280;
+  /* Facebook's own secondary text colour, so the note follows its dark mode. */
+  color: var(--secondary-text, #6b7280);
   opacity: 0.85;
   pointer-events: none;
   user-select: none;
+}
+
+/*
+ * Focus mode: frosted "liquid" glass over each side column beside Facebook's
+ * main column. The content underneath is blurred, never removed. Hovering a
+ * column, or tabbing into it with the keyboard, clears the glass so its links
+ * can be used; leaving it brings the glass back after a short pause. Only
+ * keyboard focus counts: a link clicked with the mouse keeps focus after
+ * Facebook navigates, and must not leave the glass off.
+ *
+ * The blur is progressive: lightest right beside the feed, deepening smoothly
+ * toward the column's outer edge. Two layers make that:
+ *   ::before  a light, even blur edge to edge, so nothing is ever sharp
+ *   ::after   the rounded glass pane: a heavy blur plus tint, rim and
+ *             highlight, faded out toward the feed by a gradient mask
+ *
+ * The marker's value says which side of the feed the column is on ("start"
+ * or "end" in DOM order), which sets the direction of the ramp.
+ */
+
+/*
+ * The panes are positioned against the column. Facebook's columns are
+ * usually sticky or fixed already; this fallback only matters for one with no
+ * position at all. :where() gives it zero specificity, so any position
+ * Facebook sets, including one whose stylesheet loads after the column has
+ * been marked, always wins. Forcing it would pull a pinned column out of place.
+ */
+:where([data-introvert-focus]) {
+  position: relative;
+}
+
+[data-introvert-focus] {
+  /* Tuning: the blur beside the feed, and at the outer edge. */
+  --introvert-focus-blur-min: 3px;
+  --introvert-focus-blur-max: 24px;
+  /* From the outer edge toward the feed. */
+  --introvert-focus-inward: to right;
+  /* Eased, so the blur thins gradually rather than in a straight line. */
+  --introvert-focus-ramp: linear-gradient(
+    var(--introvert-focus-inward),
+    #000 0%,
+    #000 18%,
+    rgb(0 0 0 / 0.9) 32%,
+    rgb(0 0 0 / 0.7) 48%,
+    rgb(0 0 0 / 0.45) 64%,
+    rgb(0 0 0 / 0.2) 80%,
+    rgb(0 0 0 / 0.06) 92%,
+    transparent 100%
+  );
+}
+
+[data-introvert-focus="end"] {
+  --introvert-focus-inward: to left;
+}
+
+/* Right-to-left pages put the first column on the right. */
+html[dir="rtl"] [data-introvert-focus="start"] {
+  --introvert-focus-inward: to left;
+}
+
+html[dir="rtl"] [data-introvert-focus="end"] {
+  --introvert-focus-inward: to right;
+}
+
+[data-introvert-focus]::before,
+[data-introvert-focus]::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 0.35s ease 0.25s;
+}
+
+[data-introvert-focus]::before {
+  inset: 0;
+  -webkit-backdrop-filter: blur(var(--introvert-focus-blur-min)) saturate(130%);
+  backdrop-filter: blur(var(--introvert-focus-blur-min)) saturate(130%);
+  background: rgb(255 255 255 / 0.06);
+}
+
+[data-introvert-focus]::after {
+  inset: 6px;
+  border-radius: 24px;
+  -webkit-backdrop-filter: blur(var(--introvert-focus-blur-max)) saturate(170%)
+    brightness(1.04);
+  backdrop-filter: blur(var(--introvert-focus-blur-max)) saturate(170%)
+    brightness(1.04);
+  background:
+    radial-gradient(
+      120% 55% at 50% 0%,
+      rgb(255 255 255 / 0.36),
+      rgb(255 255 255 / 0) 60%
+    ),
+    linear-gradient(
+      var(--introvert-focus-inward),
+      rgb(255 255 255 / 0.22) 0%,
+      rgb(255 255 255 / 0.08) 55%,
+      rgb(255 255 255 / 0.02) 100%
+    );
+  border: 1px solid rgb(255 255 255 / 0.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(255 255 255 / 0.3),
+    inset 0 0 24px rgb(255 255 255 / 0.12);
+  -webkit-mask-image: var(--introvert-focus-ramp);
+  mask-image: var(--introvert-focus-ramp);
+}
+
+[data-introvert-focus]:hover::before,
+[data-introvert-focus]:hover::after,
+[data-introvert-focus]:has(:focus-visible)::before,
+[data-introvert-focus]:has(:focus-visible)::after {
+  opacity: 0;
+  transition-delay: 0.12s;
+}
+
+/* Facebook's dark theme: the same glass, tinted for a dark page. */
+.__fb-dark-mode [data-introvert-focus]::before {
+  -webkit-backdrop-filter: blur(var(--introvert-focus-blur-min)) saturate(120%)
+    brightness(0.96);
+  backdrop-filter: blur(var(--introvert-focus-blur-min)) saturate(120%)
+    brightness(0.96);
+  background: rgb(24 25 26 / 0.08);
+}
+
+.__fb-dark-mode [data-introvert-focus]::after {
+  -webkit-backdrop-filter: blur(var(--introvert-focus-blur-max)) saturate(150%)
+    brightness(0.9);
+  backdrop-filter: blur(var(--introvert-focus-blur-max)) saturate(150%)
+    brightness(0.9);
+  background:
+    radial-gradient(
+      120% 55% at 50% 0%,
+      rgb(255 255 255 / 0.14),
+      rgb(255 255 255 / 0) 60%
+    ),
+    linear-gradient(
+      var(--introvert-focus-inward),
+      rgb(255 255 255 / 0.09) 0%,
+      rgb(255 255 255 / 0.03) 55%,
+      rgb(255 255 255 / 0) 100%
+    );
+  border-color: rgb(255 255 255 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 -1px 0 rgb(255 255 255 / 0.06),
+    inset 0 0 24px rgb(255 255 255 / 0.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-introvert-focus]::before,
+  [data-introvert-focus]::after {
+    transition: none;
+  }
 }
 
 [data-introvert-notice="true"]::after {
@@ -50,7 +205,7 @@
   font-size: 12px;
   line-height: 1.4;
   text-align: center;
-  color: #6b7280;
+  color: var(--secondary-text, #6b7280);
   opacity: 0.85;
   pointer-events: none;
   user-select: none;

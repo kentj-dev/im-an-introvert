@@ -67,7 +67,7 @@ export function ProtectedChatsView({
           <h3 className="px-0.5 text-[14.5px] leading-tight font-semibold tracking-tight">
             Current chat
           </h3>
-          <Card className="gap-0 px-3 py-3 shadow-none border-gray-400 rounded-md">
+          <Card className="gap-0 px-3 py-3 shadow-none border-edge rounded-md">
             <div className="flex items-center gap-2">
               <p className="min-w-0 flex-1 truncate text-[14px] font-medium">
                 {currentChat?.name ?? current?.chatName ?? "Messenger chat"}
@@ -120,7 +120,7 @@ export function ProtectedChatsView({
         </div>
 
         {chats.length === 0 ? (
-          <Card className="gap-0 px-3 py-4 text-center shadow-none border-gray-400">
+          <Card className="gap-0 px-3 py-4 text-center shadow-none border-edge">
             <p className="text-[13px] font-medium">No protected chats</p>
             <p className="mx-auto mt-1 max-w-[17rem] text-[11.5px] leading-snug text-muted-foreground">
               Open a Messenger conversation and protect it to hide its call and
@@ -128,7 +128,7 @@ export function ProtectedChatsView({
             </p>
           </Card>
         ) : (
-          <Card className="gap-0 py-0 shadow-none rounded-md border-gray-400">
+          <Card className="gap-0 py-0 shadow-none rounded-md border-edge">
             {chats.map((chat) => (
               <button
                 key={chat.id}

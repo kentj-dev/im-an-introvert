@@ -9,6 +9,7 @@ import {
   Bookmark,
   Camera,
   Film,
+  Focus,
   Heart,
   Keyboard,
   LayoutList,
@@ -148,4 +149,10 @@ export const CHAT_WIDGETS_ROW = {
   label: "Hide chat widgets",
   icon: MessageCircleOff,
   hint: "Floating chat windows that pop up in the corner. Full Messenger is unaffected.",
+} as const;
+
+export const FOCUS_ROW = {
+  label: "Blur side panels",
+  icon: Focus,
+  hint: "Frosted glass over the menus beside the feed. Hover a side to peek.",
 } as const;

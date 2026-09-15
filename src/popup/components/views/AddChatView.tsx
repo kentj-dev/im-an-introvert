@@ -70,7 +70,7 @@ export function AddChatView({
                 setError(undefined);
               }}
               onKeyDown={submitOnEnter}
-              className="border-gray-400"
+              className="border-edge"
             />
             <p className="text-[11px] leading-snug text-muted-foreground">
               {error ??
@@ -92,7 +92,7 @@ export function AddChatView({
               maxLength={60}
               onChange={(event) => setName(event.target.value)}
               onKeyDown={submitOnEnter}
-              className="border-gray-400"
+              className="border-edge"
             />
           </div>
 

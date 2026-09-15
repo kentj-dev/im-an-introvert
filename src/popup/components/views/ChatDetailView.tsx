@@ -116,7 +116,7 @@ export function ChatDetailView({
               onKeyDown={(event) => {
                 if (event.key === "Enter") commitName();
               }}
-              className="border-gray-400"
+              className="border-edge"
             />
             <p className="text-[11px] leading-snug text-muted-foreground">
               Just a label for this popup. The conversation ID below is the real

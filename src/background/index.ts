@@ -5,15 +5,20 @@
  * calls and does no background polling. Content scripts read settings straight
  * from chrome.storage.sync and react to storage events.
  *
- * The worker does two small things: seed defaults on install, and act as the
+ * The worker does three small things: seed defaults on install, act as the
  * single writer for the local Quick Stats counters so reports from several
- * tabs cannot clobber each other.
+ * tabs cannot clobber each other, and own the "Leave me alone mode" item in
+ * Chrome's right-click menus (see ./contextMenu.ts).
  */
+import { registerLeaveMeAloneMenu } from "./contextMenu";
 import { debug } from "../shared/debug";
 import { THANK_YOU_URL } from "../shared/constants";
 import { MESSAGES, type UsageReport } from "../shared/types";
 import { addUsage } from "../storage/stats";
 import { loadSettings, saveSettings } from "../storage/storage";
+
+// Listeners must be registered synchronously so events can wake the worker.
+registerLeaveMeAloneMenu();
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   // parseSettings() fills in anything missing and upgrades older versions, so

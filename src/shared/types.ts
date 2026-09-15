@@ -60,6 +60,11 @@ export interface FacebookSettings {
   hideStoryActions: boolean;
   /** Floating Messenger chat tabs on facebook.com, not full Messenger. */
   hideChatWidgets: boolean;
+  /**
+   * Frosted glass over the side columns beside the main column, so the middle
+   * of the page holds the attention. Nothing is hidden or removed.
+   */
+  blurSidebars: boolean;
   posts: FacebookPostSettings;
 }
 
@@ -82,6 +87,7 @@ export interface LeaveMeAloneSnapshot {
   hideStoryActions: boolean;
   hideEntireActionBar: boolean;
   hideChatWidgets: boolean;
+  blurSidebars: boolean;
   hideVoiceCall: boolean;
   hideVideoCall: boolean;
   hideGroupActions: boolean;

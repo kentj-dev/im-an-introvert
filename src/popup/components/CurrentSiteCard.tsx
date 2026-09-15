@@ -34,7 +34,7 @@ export function CurrentSiteCard({
           icon={Globe}
           title="No supported site open"
           description="Open Facebook or Messenger."
-          className="rounded-md border-gray-400 shadow-none"
+          className="rounded-md border-edge shadow-none"
         />
       ) : current.conversationId ? (
         <NavCard

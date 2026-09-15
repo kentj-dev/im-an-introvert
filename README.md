@@ -15,14 +15,22 @@ platforms as coming soon.
 
 ### Facebook
 
-| Tab     | Options                                                                                             |
-| ------- | --------------------------------------------------------------------------------------------------- |
-| General | Hide Story actions, hide the entire post action bar (Like, Comment, Share, Send), hide chat widgets |
-| Other   | A reset for this platform                                                                           |
+| Tab     | Options                                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------------------------------- |
+| General | Hide Story actions, hide the entire post action bar (Like, Comment, Share, Send), hide chat widgets, blur side panels |
+| Other   | A reset for this platform                                                                                             |
 
 Stories stay watchable: navigation, playback, closing and the author link are never
 hidden. Posts keep their text, media and reaction counts, and actions inside comments are
 left alone.
+
+"Blur side panels" puts a pane of frosted glass over the columns beside the feed (the
+shortcuts on the left, sponsored items, birthdays and contacts on the right) so the middle
+of the page holds your attention. The blur is progressive: lightest right beside the feed,
+deepening smoothly toward each column's outer edge. Nothing is removed: hover a side, or tab into it, and
+the glass clears so its links still work. Side columns are found as landmarks that sit
+directly beside the main column, so the top navigation bar is never touched, and the Story
+viewer is left alone because its side list is how you move between stories.
 
 ### Messenger
 
@@ -58,7 +66,7 @@ scrolling and opening media are untouched.
 ### Leave me alone mode
 
 One switch that applies the recommended cleanup across every supported platform: Facebook's
-Story actions, whole post action bar and floating chat widgets, plus Messenger's global voice
+Story actions, whole post action bar, floating chat widgets and side-panel blur, plus Messenger's global voice
 call, video call, group action and "Hide chat field" rules. Protected chats keep their own records, though the
 global rules it turns on apply to every conversation.
 
@@ -66,7 +74,13 @@ Each activation lasts 1 hour, and the popup shows the time left. When it ends, w
 hour runs out or you switch it off, those settings go back to what they were before you turned
 it on. Switching one of them off by hand ends the session early and keeps your choice. The end
 time is stored with the settings and checked on every read, so the mode ends on time even with
-the popup closed, and no extra permission is needed.
+the popup closed.
+
+It can also be switched from Chrome's right-click menu: right-click the toolbar icon, or
+anywhere on a Facebook or Messenger page, and tick **Leave me alone mode**. The checkmark
+follows the popup and your other devices, and while a session runs the item shows when it
+ends. The service worker is usually asleep when the hour is up, so a single alarm wakes it
+then just to untick the menu.
 
 Everything is hidden, never deleted. Turn a setting off and the control is back
 immediately, with no page reload.
@@ -86,6 +100,10 @@ The extension has no backend, and nothing about your browsing leaves the browser
 - Settings and protected chat IDs live in `chrome.storage.sync`: your own Chrome profile
   and, with Chrome sync on, your own Google account. Nothing else.
 - Debug logging is off by default and never logs page text.
+- The popup remembers which of its own pages was open, in the popup's `localStorage`, so
+  reopening it within 10 minutes picks up where you left off. After that it opens on the
+  home page. The same storage holds your appearance choice (System, Light or Dark). Both
+  are popup state only, never anything read from a site.
 
 ### The one thing that is recorded: Quick Stats
 
@@ -106,10 +124,12 @@ immediately. The code is [src/storage/stats.ts](src/storage/stats.ts).
 | `storage`                                             | Save settings and protected chats in `chrome.storage.sync`, and the daily counters in `chrome.storage.local`.                                           |
 | `host_permissions` for facebook.com and messenger.com | Lets the popup read the active tab's URL so it can tell which site and conversation you are on, and ask that tab's content script for the chat's title. |
 | `content_scripts` matches for the same sites          | The cleaners have to run on the page to hide anything.                                                                                                  |
+| `contextMenus`                                        | The **Leave me alone mode** checkbox in the right-click menu, on the toolbar icon and on Facebook and Messenger pages.                                  |
+| `alarms`                                              | Wakes the service worker when a Leave me alone session ends, so the right-click menu's checkmark is cleared on time.                                    |
 
-There is deliberately no `tabs` permission: a host permission is enough to read `tab.url`
-for those sites and nothing else. No `activeTab`, no `scripting`, no `webNavigation`, no
-optional permissions.
+Neither `contextMenus` nor `alarms` shows a warning at install. There is deliberately no
+`tabs` permission: a host permission is enough to read `tab.url` for those sites and
+nothing else. No `activeTab`, no `scripting`, no `webNavigation`, no optional permissions.
 
 ## Requirements
 
@@ -349,6 +369,7 @@ interface ExtensionSettings {
     enabled: boolean; // the platform master switch
     hideStoryActions: boolean;
     hideChatWidgets: boolean; // floating chat tabs, not full Messenger
+    blurSidebars: boolean; // frosted glass over the columns beside the feed
     posts: {
       hideEntireActionBar: boolean; // the Like, Comment, Share and Send row
     };

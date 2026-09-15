@@ -4,6 +4,7 @@ import { MaintenanceSection } from "@/popup/components/views/panels/MaintenanceS
 import type { PanelProps } from "@/popup/components/views/PlatformView";
 import {
   CHAT_WIDGETS_ROW,
+  FOCUS_ROW,
   POST_ACTION_BAR_ROW,
   STORY_ROW,
   type PlatformTabId,
@@ -69,6 +70,23 @@ export function FacebookPanel({
             onChange={(next) =>
               update((draft) => {
                 draft.facebook.hideChatWidgets = next;
+              })
+            }
+          />
+        </SettingSection>
+
+        <SettingSection
+          title="Focus"
+          description="Keep your eyes on the middle of the page. The side menus stay, just out of focus."
+        >
+          <SettingRow
+            icon={FOCUS_ROW.icon}
+            label={FOCUS_ROW.label}
+            hint={FOCUS_ROW.hint}
+            checked={facebook.blurSidebars}
+            onChange={(next) =>
+              update((draft) => {
+                draft.facebook.blurSidebars = next;
               })
             }
           />

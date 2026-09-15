@@ -48,8 +48,8 @@ export function LeaveMeAloneCard({
   }, [running, endsAt]);
 
   return (
-    <div className="flex items-center gap-3 rounded-md bg-[#f2f1fd] border border-gray-400 shadow-none px-3 py-3">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-tint-night-foreground">
+    <div className="flex items-center gap-3 rounded-md bg-[#f2f1fd] dark:bg-tint-night border border-edge shadow-none px-3 py-3">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/70 dark:bg-white/10 text-tint-night-foreground">
         <Moon className="size-[18px]" strokeWidth={1.9} />
       </span>
       <div className="min-w-0 flex-1">
@@ -59,7 +59,7 @@ export function LeaveMeAloneCard({
         <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
           {running
             ? timeLeft(endsAt, now)
-            : `Hide social noise, Messenger calls, group actions, and chat for ${sessionLength()}.`}
+            : `Blur side panels and hide social noise, Messenger calls, group actions, and chat for ${sessionLength()}.`}
         </p>
       </div>
       <Switch

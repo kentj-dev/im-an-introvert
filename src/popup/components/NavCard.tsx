@@ -39,7 +39,7 @@ export function NavCard({
           className={cn(
             "flex size-10 shrink-0 items-center justify-center rounded-full",
             tone === "site"
-              ? "bg-white/70 text-tint-site-foreground"
+              ? "bg-white/70 text-tint-site-foreground dark:bg-white/10"
               : "bg-tint-site text-tint-site-foreground",
           )}
         >
@@ -69,7 +69,7 @@ export function NavCard({
   );
 
   const shell = cn(
-    "group flex w-full items-center gap-3 rounded-md border border-gray-400! px-3 py-2.5 shadow-none transition-colors",
+    "group flex w-full items-center gap-3 rounded-md border border-edge! px-3 py-2.5 shadow-none transition-colors",
     tone === "site" ? "bg-tint-site" : "bg-card",
     onClick && (tone === "site" ? "hover:bg-tint-site/70" : "hover:bg-accent"),
     onClick &&

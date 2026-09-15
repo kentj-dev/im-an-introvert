@@ -189,6 +189,17 @@ export const messengerSelectors = {
     ]),
   ],
 
+  /**
+   * A chat with a custom quick reaction labels the button with its emoji
+   * instead (confirmed live: aria-label="Send a 💋"). The emoji differs per
+   * chat, so this prefix is only a pre-filter; QUICK_REACTION_LABEL decides.
+   */
+  quickReactionButton: [
+    'div[role="button"][aria-label^="Send a" i]',
+    '[role="button"][aria-label^="Send a" i]',
+    'button[aria-label^="Send a" i]',
+  ],
+
   /* -------------------------------------------------------------- labels */
 
   /**
@@ -202,6 +213,13 @@ export const messengerSelectors = {
     'div[role="main"] [role="heading"]',
   ],
 } as const satisfies Record<string, readonly string[]>;
+
+/**
+ * "Send a" followed by an emoji and nothing else. No letters are allowed after
+ * the prefix, so a label such as "Send a voice clip" never qualifies; emoji
+ * sequences (skin tones, ZWJ joins, variation selectors) contain no letters.
+ */
+export const QUICK_REACTION_LABEL = /^send an?\s+\P{L}+$/iu;
 
 /** Scopes the cosmetic rules below; both are stable landmarks. */
 export const messengerScopes = {

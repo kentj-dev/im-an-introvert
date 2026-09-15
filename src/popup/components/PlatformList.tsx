@@ -27,7 +27,7 @@ export function PlatformList({ settings, onOpen }: PlatformListProps) {
         </span>
       </div>
 
-      <Card className="gap-0 divide-y divide-border py-0 shadow-none rounded-md border-gray-400">
+      <Card className="gap-0 divide-y divide-border py-0 shadow-none rounded-md border-edge">
         {PLATFORMS.map((platform) => {
           const enabled = settings[platform.id].enabled;
           return (

@@ -8,7 +8,9 @@ import { ProtectedChatsView } from "@/popup/components/views/ProtectedChatsView"
 import { useCurrentTab } from "@/popup/hooks/useCurrentTab";
 import { useSettings } from "@/popup/hooks/useSettings";
 import { useStats } from "@/popup/hooks/useStats";
-import type { PlatformId, ProtectedChat } from "@/shared/types";
+import { useTheme } from "@/popup/hooks/useTheme";
+import { useViewStack, type View } from "@/popup/hooks/useViewStack";
+import type { ProtectedChat } from "@/shared/types";
 import { createProtectedChat } from "@/storage/defaults";
 import { resetStats } from "@/storage/stats";
 import {
@@ -21,15 +23,6 @@ import {
   resetPlatform,
   setLeaveMeAloneMode,
 } from "@/storage/storage";
-import { useState } from "react";
-
-type View =
-  | { kind: "home" }
-  | { kind: "platform"; platform: PlatformId }
-  | { kind: "chats" }
-  | { kind: "chat"; id: string }
-  | { kind: "add" }
-  | { kind: "about" };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -45,7 +38,9 @@ export function App() {
   const current = useCurrentTab();
   // A stack rather than a single value, so Back always returns where you came
   // from: a chat opened from Protected Chats goes back there, not home.
-  const [stack, setStack] = useState<View[]>([{ kind: "home" }]);
+  // Reopening the popup soon after closing it restores the same stack.
+  const [stack, setStack] = useViewStack();
+  const [theme, setTheme] = useTheme();
 
   const view = stack[stack.length - 1] ?? { kind: "home" };
   const push = (next: View): void => setStack((current) => [...current, next]);
@@ -166,6 +161,8 @@ export function App() {
         return (
           <AboutView
             stats={stats}
+            theme={theme}
+            onThemeChange={setTheme}
             onResetStats={() => void resetStats()}
             onResetAll={() => {
               run(resetAllSettings);
