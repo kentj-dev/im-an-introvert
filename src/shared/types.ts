@@ -77,12 +77,33 @@ export interface InstagramSettings {
   posts: InstagramPostSettings;
 }
 
+/** The settings Leave me alone mode turns on, as they were before it did. */
+export interface LeaveMeAloneSnapshot {
+  hideStoryActions: boolean;
+  hideEntireActionBar: boolean;
+  hideChatWidgets: boolean;
+  hideVoiceCall: boolean;
+  hideVideoCall: boolean;
+  hideGroupActions: boolean;
+  hideChatField: boolean;
+}
+
+/** A running Leave me alone session. Both fields are null when it is off. */
+export interface LeaveMeAloneSession {
+  /** Epoch ms at which the mode switches itself off. */
+  until: number | null;
+  /** Put back when the session ends, by the timer or by hand. */
+  previous: LeaveMeAloneSnapshot | null;
+}
+
 export interface ExtensionSettings {
   version: 3;
   facebook: FacebookSettings;
   messenger: MessengerSettings;
   instagram: InstagramSettings;
   protectedChats: Record<string, ProtectedChat>;
+  leaveMeAlone: LeaveMeAloneSession;
+  /** Derived: a session is running and all of its settings are still on. */
   leaveMeAloneMode: boolean;
 }
 

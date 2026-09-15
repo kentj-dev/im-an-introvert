@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "Make social media a little less social. Hides distracting and accidentally-clickable UI on Facebook and Messenger.",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",

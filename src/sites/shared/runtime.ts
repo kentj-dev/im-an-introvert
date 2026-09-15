@@ -10,7 +10,8 @@
 import { USAGE_FLUSH_MS } from '../../shared/constants';
 import { safely, debug } from '../../shared/debug';
 import { MESSAGES, type ExtensionSettings, type UsageReport } from '../../shared/types';
-import { loadSettings, watchSettings } from '../../storage/storage';
+import { parseSettings } from '../../storage/schema';
+import { loadSettings, onSettingsExpiry, watchSettings } from '../../storage/storage';
 import { takeHiddenCount } from './hider';
 import { observeStructure } from './observer';
 import { watchRoute } from './route';
@@ -45,7 +46,8 @@ export interface SiteModule {
   isActive?(settings: ExtensionSettings): boolean;
   /**
    * Whether this module counts page time on this host. Facebook loads two
-   * content scripts, so exactly one of them must own the clock.
+   * content scripts, so exactly one of them must own the clock. Hidden-element
+   * counts are reported by every module either way.
    */
   ownsUsageClock?(): boolean;
   /** Element to observe. Defaults to document.body. */
@@ -57,11 +59,24 @@ const TICK_MS = 5_000;
 export function startSiteModule(module: SiteModule): void {
   let settings: ExtensionSettings | null = null;
   let activeSeconds = 0;
+  let cancelExpiry = (): void => undefined;
 
   const scheduler = createScheduler(() => {
     if (!settings) return;
     safely(`${module.name}:apply`, () => module.apply(settings as ExtensionSettings));
   });
+
+  // Leave me alone mode ends on a timer. Re-reading the settings when it does
+  // restores the page even though nothing writes to storage at that moment.
+  const setSettings = (next: ExtensionSettings): void => {
+    settings = next;
+    cancelExpiry();
+    cancelExpiry = onSettingsExpiry(next, () => {
+      if (!settings) return;
+      setSettings(parseSettings(settings));
+      scheduler.flush();
+    });
+  };
 
   const isActive = (): boolean =>
     settings !== null && (module.isActive?.(settings) ?? true);
@@ -80,11 +95,14 @@ export function startSiteModule(module: SiteModule): void {
     });
   };
 
-  const startUsageClock = (): void => {
-    if (module.ownsUsageClock?.() === false) return;
-    setInterval(() => {
-      if (document.visibilityState === 'visible' && isActive()) activeSeconds += TICK_MS / 1000;
-    }, TICK_MS);
+  const startUsageReporting = (): void => {
+    // Only the clock owner counts time, so it is not counted twice on a host
+    // with two content scripts. Hidden counts are per script and always sent.
+    if (module.ownsUsageClock?.() !== false) {
+      setInterval(() => {
+        if (document.visibilityState === 'visible' && isActive()) activeSeconds += TICK_MS / 1000;
+      }, TICK_MS);
+    }
     setInterval(flushUsage, USAGE_FLUSH_MS);
     // Leaving the page is the last chance to report what this tab accumulated.
     window.addEventListener('pagehide', flushUsage);
@@ -94,7 +112,7 @@ export function startSiteModule(module: SiteModule): void {
   };
 
   const boot = async (): Promise<void> => {
-    settings = await loadSettings();
+    setSettings(await loadSettings());
     debug(`${module.name} started`);
     scheduler.flush();
 
@@ -128,11 +146,11 @@ export function startSiteModule(module: SiteModule): void {
     // Live updates: a popup toggle writes to storage, this fires, the pass
     // re-runs, and the element appears or disappears without a reload.
     watchSettings((next) => {
-      settings = next;
+      setSettings(next);
       scheduler.flush();
     });
 
-    startUsageClock();
+    startUsageReporting();
   };
 
   if (document.body) {

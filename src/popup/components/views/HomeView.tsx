@@ -28,7 +28,13 @@ export function HomeView({
 
   return (
     <div className="space-y-3.5">
-      {current?.platform && <LeaveMeAloneCard enabled={settings.leaveMeAloneMode} onChange={onToggleLeaveMeAlone} />}
+      {current?.platform && (
+        <LeaveMeAloneCard
+          enabled={settings.leaveMeAloneMode}
+          endsAt={settings.leaveMeAlone.until}
+          onChange={onToggleLeaveMeAlone}
+        />
+      )}
       <CurrentSiteCard
         current={current}
         currentChatProtected={currentChatProtected}

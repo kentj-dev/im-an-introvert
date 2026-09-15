@@ -1,9 +1,11 @@
 /**
  * Hides the voice and video call buttons.
  *
- * Scoped to the conversation pane so the chat list and other surfaces keep
- * their buttons. Whether a rule is on comes from the context: a global
- * Messenger switch, or this conversation's protected-chat record.
+ * Call labels are specific enough to search the whole page, which also covers
+ * Facebook's floating chat tabs. The message list is the one exclusion:
+ * call-history cards there carry the same labels. Whether a rule is on comes
+ * from the context: a global Messenger switch, or this conversation's
+ * protected-chat record.
  */
 import { RULES } from '../../../shared/constants';
 import { applyRule } from '../../shared/hider';

@@ -1,8 +1,9 @@
+import { FREE_LIMITS } from '../shared/constants';
 import {
   CHAT_RULE_KEYS,
-  type ChatRuleKey,
   type ChatRules,
   type ExtensionSettings,
+  type LeaveMeAloneSnapshot,
   type ProtectedChat,
 } from '../shared/types';
 
@@ -59,6 +60,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     },
   },
   protectedChats: {},
+  leaveMeAlone: { until: null, previous: null },
   leaveMeAloneMode: false,
 };
 
@@ -76,33 +78,89 @@ export function createProtectedChat(
   return chat;
 }
 
-/** Global Messenger rules the preset switches: calls, group actions, the field. */
-const LEAVE_ME_ALONE_MESSENGER_RULES: readonly ChatRuleKey[] = [
-  'hideVoiceCall',
-  'hideVideoCall',
-  'hideGroupActions',
-  'hideChatField',
-];
+/* ------------------------------------------------------ leave me alone */
 
-/**
+/*
  * "Leave me alone mode": the recommended cleanup across every supported
  * platform — Facebook's Story actions, post action bar and floating chat
  * widgets, plus Messenger's global call, group action and chat field rules.
  * Protected chats keep their own records; the global rules simply apply on top
  * of them.
+ *
+ * Each activation lasts FREE_LIMITS.leaveMeAloneMs. The values it replaces are
+ * kept, and put back when the session ends, whether the timer or the user
+ * ends it.
  */
-export function applyLeaveMeAlone(draft: ExtensionSettings, enabled: boolean): void {
-  draft.facebook.hideStoryActions = enabled;
-  draft.facebook.posts.hideEntireActionBar = enabled;
-  draft.facebook.hideChatWidgets = enabled;
-  for (const key of LEAVE_ME_ALONE_MESSENGER_RULES) draft.messenger[key] = enabled;
+
+function readLeaveMeAlone(settings: ExtensionSettings): LeaveMeAloneSnapshot {
+  return {
+    hideStoryActions: settings.facebook.hideStoryActions,
+    hideEntireActionBar: settings.facebook.posts.hideEntireActionBar,
+    hideChatWidgets: settings.facebook.hideChatWidgets,
+    hideVoiceCall: settings.messenger.hideVoiceCall,
+    hideVideoCall: settings.messenger.hideVideoCall,
+    hideGroupActions: settings.messenger.hideGroupActions,
+    hideChatField: settings.messenger.hideChatField,
+  };
 }
 
+function writeLeaveMeAlone(draft: ExtensionSettings, values: LeaveMeAloneSnapshot): void {
+  draft.facebook.hideStoryActions = values.hideStoryActions;
+  draft.facebook.posts.hideEntireActionBar = values.hideEntireActionBar;
+  draft.facebook.hideChatWidgets = values.hideChatWidgets;
+  draft.messenger.hideVoiceCall = values.hideVoiceCall;
+  draft.messenger.hideVideoCall = values.hideVideoCall;
+  draft.messenger.hideGroupActions = values.hideGroupActions;
+  draft.messenger.hideChatField = values.hideChatField;
+}
+
+const ALL_ON: LeaveMeAloneSnapshot = {
+  hideStoryActions: true,
+  hideEntireActionBar: true,
+  hideChatWidgets: true,
+  hideVoiceCall: true,
+  hideVideoCall: true,
+  hideGroupActions: true,
+  hideChatField: true,
+};
+
 export function matchesLeaveMeAlone(settings: ExtensionSettings): boolean {
-  return (
-    settings.facebook.hideStoryActions &&
-    settings.facebook.posts.hideEntireActionBar &&
-    settings.facebook.hideChatWidgets &&
-    LEAVE_ME_ALONE_MESSENGER_RULES.every((key) => settings.messenger[key])
-  );
+  return Object.values(readLeaveMeAlone(settings)).every(Boolean);
+}
+
+export function isLeaveMeAloneRunning(settings: ExtensionSettings, now = Date.now()): boolean {
+  const { until } = settings.leaveMeAlone;
+  return until !== null && until > now;
+}
+
+/** What the popup switch shows: a running session whose settings are all on. */
+export function isLeaveMeAloneMode(settings: ExtensionSettings, now = Date.now()): boolean {
+  return isLeaveMeAloneRunning(settings, now) && matchesLeaveMeAlone(settings);
+}
+
+export function startLeaveMeAlone(draft: ExtensionSettings, now = Date.now()): void {
+  // Already on: keep the original snapshot and the original end time.
+  if (isLeaveMeAloneRunning(draft, now)) return;
+  draft.leaveMeAlone = {
+    until: now + FREE_LIMITS.leaveMeAloneMs,
+    previous: readLeaveMeAlone(draft),
+  };
+  writeLeaveMeAlone(draft, ALL_ON);
+}
+
+/** Ends a session and puts back what the user had before it started. */
+export function endLeaveMeAlone(draft: ExtensionSettings): void {
+  if (draft.leaveMeAlone.until === null) return;
+  const previous = draft.leaveMeAlone.previous;
+  if (previous) writeLeaveMeAlone(draft, previous);
+  draft.leaveMeAlone = { until: null, previous: null };
+}
+
+/**
+ * Ends a session whose time is up. Runs on every settings read, so the mode
+ * switches off even if nothing was open when the hour ran out.
+ */
+export function expireLeaveMeAlone(settings: ExtensionSettings, now = Date.now()): void {
+  const { until } = settings.leaveMeAlone;
+  if (until !== null && until <= now) endLeaveMeAlone(settings);
 }

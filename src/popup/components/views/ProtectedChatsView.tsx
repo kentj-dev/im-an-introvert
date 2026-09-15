@@ -2,8 +2,9 @@ import { Badge } from '@/popup/components/ui/badge';
 import { Button } from '@/popup/components/ui/button';
 import { Card } from '@/popup/components/ui/card';
 import type { CurrentTabInfo } from '@/popup/hooks/useCurrentTab';
+import { FREE_LIMITS } from '@/shared/constants';
 import type { ExtensionSettings, ProtectedChat } from '@/shared/types';
-import { listProtectedChats } from '@/storage/storage';
+import { canAddProtectedChat, listProtectedChats } from '@/storage/storage';
 import { ChevronRight, Plus, Shield, ShieldCheck } from 'lucide-react';
 
 interface ProtectedChatsViewProps {
@@ -46,6 +47,7 @@ export function ProtectedChatsView({
   const chats = listProtectedChats(settings);
   const conversationId = current?.conversationId ?? null;
   const currentChat = conversationId ? settings.protectedChats[conversationId] : undefined;
+  const atLimit = !canAddProtectedChat(settings);
 
   return (
     <div className="space-y-3.5">
@@ -79,7 +81,7 @@ export function ProtectedChatsView({
                 Open its settings
               </Button>
             ) : (
-              <Button size="sm" className="mt-2.5 w-full" onClick={onProtectCurrent}>
+              <Button size="sm" className="mt-2.5 w-full" disabled={atLimit} onClick={onProtectCurrent}>
                 <Shield />
                 Protect this chat
               </Button>
@@ -89,7 +91,12 @@ export function ProtectedChatsView({
       ) : null}
 
       <section className="space-y-1.5">
-        <h3 className="px-0.5 text-[14.5px] leading-tight font-semibold tracking-tight">All protected chats</h3>
+        <div className="flex items-baseline justify-between px-0.5">
+          <h3 className="text-[14.5px] leading-tight font-semibold tracking-tight">All protected chats</h3>
+          <span className="text-[11.5px] text-muted-foreground">
+            {chats.length} of {FREE_LIMITS.protectedChats}
+          </span>
+        </div>
 
         {chats.length === 0 ? (
           <Card className="gap-0 px-3 py-4 text-center shadow-none border-gray-400">
@@ -124,10 +131,22 @@ export function ProtectedChatsView({
           </Card>
         )}
 
-        <Button variant="ghost" size="sm" className="w-full cursor-pointer justify-start" onClick={onAddManually}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full cursor-pointer justify-start"
+          disabled={atLimit}
+          onClick={onAddManually}
+        >
           <Plus />
           Add chat manually
         </Button>
+
+        {atLimit ? (
+          <p className="px-0.5 text-[11.5px] leading-snug text-muted-foreground">
+            You can protect up to {FREE_LIMITS.protectedChats} chats. Remove one to add another.
+          </p>
+        ) : null}
       </section>
     </div>
   );

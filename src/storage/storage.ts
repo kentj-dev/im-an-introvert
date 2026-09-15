@@ -5,10 +5,16 @@
  * that both the popup and every open tab can react to. Nothing here ever
  * leaves the browser profile.
  */
-import { STORAGE_KEY } from '../shared/constants';
+import { FREE_LIMITS, STORAGE_KEY } from '../shared/constants';
 import { debug } from '../shared/debug';
 import type { ExtensionSettings, PlatformId, ProtectedChat } from '../shared/types';
-import { DEFAULT_SETTINGS, applyLeaveMeAlone, matchesLeaveMeAlone } from './defaults';
+import {
+  DEFAULT_SETTINGS,
+  endLeaveMeAlone,
+  isLeaveMeAloneMode,
+  matchesLeaveMeAlone,
+  startLeaveMeAlone,
+} from './defaults';
 import { parseSettings } from './schema';
 
 export async function loadSettings(): Promise<ExtensionSettings> {
@@ -36,8 +42,13 @@ export async function updateSettings(
   const current = await loadSettings();
   const draft = structuredClone(current);
   mutate(draft);
+  // Switching off one of the preset's settings by hand ends a running session
+  // without restoring anything, so the timer cannot later undo that choice.
+  if (draft.leaveMeAlone.until !== null && !matchesLeaveMeAlone(draft)) {
+    draft.leaveMeAlone = { until: null, previous: null };
+  }
   // The preset switch reflects its settings rather than storing its own truth.
-  draft.leaveMeAloneMode = matchesLeaveMeAlone(draft);
+  draft.leaveMeAloneMode = isLeaveMeAloneMode(draft);
   await saveSettings(draft);
   return draft;
 }
@@ -60,6 +71,19 @@ export function watchSettings(listener: (settings: ExtensionSettings) => void): 
   return () => chrome.storage.onChanged.removeListener(handler);
 }
 
+/**
+ * Calls `onExpire` once a time-limited setting runs out, so a page that stays
+ * open re-reads its settings then instead of at the next storage write.
+ * Returns a function that cancels the timer.
+ */
+export function onSettingsExpiry(settings: ExtensionSettings, onExpire: () => void): () => void {
+  const { until } = settings.leaveMeAlone;
+  if (until === null) return () => undefined;
+  // A moment late, never early: parseSettings must already see the time as up.
+  const timer = setTimeout(onExpire, Math.max(0, until - Date.now()) + 1_000);
+  return () => clearTimeout(timer);
+}
+
 /* ---------------------------------------------------------------- helpers */
 
 export function getProtectedChat(
@@ -74,10 +98,20 @@ export function listProtectedChats(settings: ExtensionSettings): ProtectedChat[]
   return Object.values(settings.protectedChats).sort((a, b) => a.addedAt - b.addedAt);
 }
 
+export function canAddProtectedChat(settings: ExtensionSettings): boolean {
+  return Object.keys(settings.protectedChats).length < FREE_LIMITS.protectedChats;
+}
+
 export function addProtectedChat(chat: ProtectedChat): Promise<ExtensionSettings> {
   return updateSettings((draft) => {
     // Keep an existing configuration if the chat is already protected.
-    draft.protectedChats[chat.id] = draft.protectedChats[chat.id] ?? chat;
+    if (draft.protectedChats[chat.id]) return;
+    // The popup disables adding at the limit; this catches a second popup or
+    // another synced device getting there first.
+    if (!canAddProtectedChat(draft)) {
+      throw new Error(`Protected chat limit of ${FREE_LIMITS.protectedChats} reached`);
+    }
+    draft.protectedChats[chat.id] = chat;
   });
 }
 
@@ -99,7 +133,10 @@ export function patchProtectedChat(
 }
 
 export function setLeaveMeAloneMode(enabled: boolean): Promise<ExtensionSettings> {
-  return updateSettings((draft) => applyLeaveMeAlone(draft, enabled));
+  return updateSettings((draft) => {
+    if (enabled) startLeaveMeAlone(draft);
+    else endLeaveMeAlone(draft);
+  });
 }
 
 /** Restores one platform's options to their defaults, keeping the rest. */

@@ -79,3 +79,14 @@ export const ROUTE_POLL_MS = 500;
 
 /** How often a content script folds its counters into today's stats. */
 export const USAGE_FLUSH_MS = 20_000;
+
+/**
+ * Limits of the free version. Kept in one place so a premium plan can lift
+ * them without hunting through the popup and storage code.
+ */
+export const FREE_LIMITS = {
+  /** How many conversations can be protected. */
+  protectedChats: 10,
+  /** How long Leave me alone mode stays on before it switches itself off. */
+  leaveMeAloneMs: 60 * 60 * 1000,
+} as const;

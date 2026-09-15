@@ -13,6 +13,7 @@ import { createProtectedChat } from '@/storage/defaults';
 import { resetStats } from '@/storage/stats';
 import {
   addProtectedChat,
+  canAddProtectedChat,
   listProtectedChats,
   patchProtectedChat,
   removeProtectedChat,
@@ -35,7 +36,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 export function App() {
-  const { settings, update, run } = useSettings();
+  const { settings, update, run, saveError } = useSettings();
   const stats = useStats();
   const current = useCurrentTab();
   // A stack rather than a single value, so Back always returns where you came
@@ -65,12 +66,13 @@ export function App() {
 
   const protectCurrentChat = (): void => {
     const id = current?.conversationId;
-    if (!id) return;
+    if (!id || !canAddProtectedChat(settings)) return;
     run(() => addProtectedChat(createProtectedChat(id, { name: current?.chatName, subtitle: current?.chatSubtitle })));
     push({ kind: 'chat', id });
   };
 
   const addManually = (id: string, name?: string): void => {
+    if (!canAddProtectedChat(settings)) return;
     run(() => addProtectedChat(createProtectedChat(id, { name })));
     setStack((current) => [...current.slice(0, -1), { kind: 'chat', id }]);
   };
@@ -169,6 +171,14 @@ export function App() {
   return (
     <Shell>
       {header}
+      {saveError ? (
+        <p
+          role="alert"
+          className="mb-3 rounded-md border border-destructive/40 bg-card px-3 py-2 text-[12px] leading-snug text-destructive"
+        >
+          {saveError}
+        </p>
+      ) : null}
       {body}
     </Shell>
   );

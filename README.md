@@ -62,8 +62,11 @@ Story actions, whole post action bar and floating chat widgets, plus Messenger's
 call, video call, group action and "Hide chat field" rules. Protected chats keep their own records, though the
 global rules it turns on apply to every conversation.
 
-Switching it off turns those same settings off, and it reads as on only while all of them
-are on.
+Each activation lasts 1 hour, and the popup shows the time left. When it ends, whether the
+hour runs out or you switch it off, those settings go back to what they were before you turned
+it on. Switching one of them off by hand ends the session early and keeps your choice. The end
+time is stored with the settings and checked on every read, so the mode ends on time even with
+the popup closed, and no extra permission is needed.
 
 Everything is hidden, never deleted. Turn a setting off and the control is back
 immediately, with no page reload.
@@ -139,7 +142,7 @@ npm run assets     # regenerate icons and popup artwork from images/
 npm run clean      # delete dist/
 ```
 
-`npm run dev` watches all five build targets. Chrome does not hot-reload extensions, so
+`npm run dev` watches all four build targets. Chrome does not hot-reload extensions, so
 after a rebuild:
 
 - **Popup change** — close and reopen the popup.
@@ -221,7 +224,7 @@ src/
 │   │   ├── scheduler.ts         Leading edge, trailing debounce, ceiling
 │   │   └── route.ts             SPA route detection
 │   ├── facebook/
-│   │   ├── cleaners/{stories,posts}.ts
+│   │   ├── cleaners/{stories,posts,chatWidgets}.ts
 │   │   ├── selectors.ts         All Facebook selectors
 │   │   ├── observer.ts          Which node to observe, and why
 │   │   └── index.ts             The Facebook site module
@@ -232,6 +235,7 @@ src/
 │   │   ├── context.ts           Conversation + effective rules (global | per-chat)
 │   │   ├── cosmetic.ts          Builds that stylesheet for the current chat
 │   │   ├── chatInfo.ts          Conversation label for the popup
+│   │   ├── floating.ts          Finds Facebook's floating chat tabs
 │   │   ├── observer.ts
 │   │   └── index.ts
 │   └── instagram/                Unshipped work for future support
@@ -293,6 +297,9 @@ Site** card points straight at Protected Chats with **Protect this chat**. It st
 the recommended profile (calls and group actions hidden, chat field usable), which you then
 adjust. **Add chat manually** exists for a conversation you are not currently looking at;
 it accepts a bare ID, a path, or a full Messenger URL.
+
+Up to 10 chats can be protected. At the limit, **Protect this chat** and **Add chat manually**
+are disabled until one is removed.
 
 Renaming only changes the popup label. Two chats with the same name are still two different
 conversations, because the ID is what everything keys off.
@@ -361,6 +368,10 @@ interface ExtensionSettings {
     };
   };
   protectedChats: Record<string, ProtectedChat>;
+  leaveMeAlone: {
+    until: number | null;          // when the running session ends, epoch ms
+    previous: LeaveMeAloneSnapshot | null; // the preset's settings before it started
+  };
   leaveMeAloneMode: boolean;
 }
 ```
@@ -380,11 +391,14 @@ under `facebook.messenger`. Version 2 then made Messenger follow Facebook's swit
 switch from Facebook's. The normaliser fills in the rest. To add a version 4, add a step
 there before normalising.
 
-Note the sync quota: about 8 KB per key, which is roughly 30 to 40 protected chats. Far more
-than the handful of work group chats this is built for, but worth knowing.
+Note the sync quota: 8 KB for this one key. The base settings take about 0.6 KB and each
+protected chat about 0.3 KB, so the key would fill up at around 23 chats. The 10-chat limit
+keeps it well under that, and if a write does fail the popup says so instead of silently
+dropping the change.
 
-`leaveMeAloneMode` is derived rather than authoritative: it reads as on exactly when the
-preset's settings are in place, so switching one of them off by hand is reflected honestly.
+`leaveMeAloneMode` is derived rather than authoritative: it reads as on only while a session
+is running (`leaveMeAlone.until` is in the future) and all of the preset's settings are still
+on. Both limits live in `FREE_LIMITS` in [src/shared/constants.ts](src/shared/constants.ts).
 
 ## How selectors work
 
@@ -540,35 +554,25 @@ hider and observer without changes. For Reddit, YouTube, LinkedIn or X:
 
 ## Verification
 
-The URL parser and the cleaners were exercised against a real Chromium engine during
-development, not only type-checked:
+There are no automated tests in this repository yet. `npm run typecheck` and `npm run build`
+catch type and bundling errors; behaviour on the live sites has to be checked by hand.
 
-| Check                                                | Result |
-| ---------------------------------------------------- | ------ |
-| URL parser cases                                     | 21/21  |
-| Content-script behaviour in headless Chrome          | 133/133 |
+Before a release, load the built `dist/` folder and check each of these on a real account:
 
-The browser checks drive the **built** content scripts against a synthetic
-Facebook/Messenger DOM and assert on what ends up hidden: story strips hidden
-while navigation, media, close and the author link stay; post actions hidden without
-touching post text, counters or comment actions; call buttons hidden in the thread but not
-in the sidebar; composer buttons hidden without affecting message reactions; the composer
-hidden without affecting the message list; global Messenger rules applying with no protected
-chat while leaving their neighbours alone; a platform master switch restoring everything;
-instant restore when any setting flips; full release when a chat is unprotected; and correct
-behaviour across SPA navigation between a protected and an unprotected conversation, on
-`facebook.com/messages/t/...` and `messenger.com/t/...`.
+- Facebook: Story actions hidden while navigation, playback, closing and the author link keep
+  working; the post action bar hidden with post text, media, counts and comments intact;
+  floating chat widgets hidden.
+- Messenger, on both `messenger.com/t/...` and `facebook.com/messages/t/...`: each call, group
+  action and chat field rule, both globally and for a protected chat, and switching between a
+  protected and an unprotected conversation.
+- Every setting brings its controls back immediately when switched off, with no reload.
+- Leave me alone mode puts the previous settings back when switched off and when its hour
+  runs out.
+- Protected chats stop accepting new entries at 10.
 
-Some of those assert computed style and box generation rather than the marker attribute,
-which is what proves the pre-paint layer. One scenario navigates first and mounts the
-conversation afterwards, exactly as Messenger does, then checks in the same tick as the
-insertion that the call buttons and composer generate no boxes at all: no observer callback
-or debounce can have run by then, so only the stylesheet can be responsible.
-
-Those checks validate the mechanism against a stand-in DOM. They cannot validate that a
-given `aria-label` is what your account actually renders — that is what the selector-update
-procedure above is for.
+Selectors can only be confirmed this way: an `aria-label` that matches one account or locale
+may not match another. The selector-update procedure above covers what to do when one misses.
 
 ## License
 
-MIT. Add a `LICENSE` file with your own name and year before publishing.
+MIT. See [LICENSE](LICENSE).
