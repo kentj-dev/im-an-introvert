@@ -10,6 +10,7 @@
  * tabs cannot clobber each other.
  */
 import { debug } from "../shared/debug";
+import { THANK_YOU_URL } from "../shared/constants";
 import { MESSAGES, type UsageReport } from "../shared/types";
 import { addUsage } from "../storage/stats";
 import { loadSettings, saveSettings } from "../storage/storage";
@@ -20,6 +21,10 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   const settings = await loadSettings();
   await saveSettings(settings);
   debug("installed", details.reason, settings.version);
+
+  if (details.reason === "install") {
+    await chrome.tabs.create({ url: THANK_YOU_URL });
+  }
 });
 
 function isUsageReport(message: unknown): message is UsageReport {

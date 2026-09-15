@@ -9,6 +9,10 @@ export const REPO_URL = "https://github.com/kentj-dev/im-an-introvert";
 /** The maker's site, linked from the popup's About view. */
 export const MAKER_URL = "https://apps.hamiken.com";
 
+/** Shown once after a fresh extension install. */
+export const THANK_YOU_URL =
+  "https://apps.hamiken.com/apps/im-an-introvert/thank-you";
+
 /** Single `chrome.storage.sync` key holding the whole settings object. */
 export const STORAGE_KEY = "introvertSettings";
 
