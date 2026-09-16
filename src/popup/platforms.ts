@@ -152,7 +152,7 @@ export const CHAT_WIDGETS_ROW = {
 } as const;
 
 export const FOCUS_ROW = {
-  label: "Blur side panels",
+  label: "Blur Panels",
   icon: Focus,
-  hint: "Frosted glass over the menus beside the feed. Hover a side to peek.",
+  hint: "Frosted glass over the top bar and the menus beside the feed. Hover one to peek.",
 } as const;

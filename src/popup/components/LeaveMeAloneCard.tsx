@@ -59,7 +59,7 @@ export function LeaveMeAloneCard({
         <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
           {running
             ? timeLeft(endsAt, now)
-            : `Blur side panels and hide social noise, Messenger calls, group actions, and chat for ${sessionLength()}.`}
+            : `Blur panels and hide social noise, Messenger calls, group actions, and chat for ${sessionLength()}.`}
         </p>
       </div>
       <Switch

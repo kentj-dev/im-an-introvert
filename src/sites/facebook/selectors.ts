@@ -159,6 +159,14 @@ export const facebookSelectors = {
    */
   focusSidebars: ['[role="navigation"]', '[role="complementary"]'],
 
+  /**
+   * The top bar. Confirmed live on the home feed: a single `[role="banner"]`
+   * wrapping the whole blue header. It is never a sibling of main, so it is
+   * matched on its own rather than by the sidebar search; a banner inside a
+   * dialog belongs to that dialog and is skipped by the cleaner.
+   */
+  focusHeader: ['[role="banner"]'],
+
   /* --------------------------------------------------------------- posts */
 
   /**

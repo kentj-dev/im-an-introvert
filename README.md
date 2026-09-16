@@ -17,20 +17,21 @@ platforms as coming soon.
 
 | Tab     | Options                                                                                                               |
 | ------- | --------------------------------------------------------------------------------------------------------------------- |
-| General | Hide Story actions, hide the entire post action bar (Like, Comment, Share, Send), hide chat widgets, blur side panels |
+| General | Hide Story actions, hide the entire post action bar (Like, Comment, Share, Send), hide chat widgets, blur panels |
 | Other   | A reset for this platform                                                                                             |
 
 Stories stay watchable: navigation, playback, closing and the author link are never
 hidden. Posts keep their text, media and reaction counts, and actions inside comments are
 left alone.
 
-"Blur side panels" puts a pane of frosted glass over the columns beside the feed (the
-shortcuts on the left, sponsored items, birthdays and contacts on the right) so the middle
-of the page holds your attention. The blur is progressive: lightest right beside the feed,
-deepening smoothly toward each column's outer edge. Nothing is removed: hover a side, or tab into it, and
-the glass clears so its links still work. Side columns are found as landmarks that sit
-directly beside the main column, so the top navigation bar is never touched, and the Story
-viewer is left alone because its side list is how you move between stories.
+"Blur Panels" puts a pane of frosted glass over the panels around the feed: the columns
+beside it (the shortcuts on the left, sponsored items, birthdays and contacts on the right)
+and the top bar, so the middle of the page holds your attention. The blur is progressive:
+lightest right beside the feed, deepening smoothly toward each panel's outer edge. Nothing
+is removed: hover a panel, or tab into it, and the glass clears so its links still work.
+Panels are found as landmarks — side columns as the ones sitting directly beside the main
+column, the top bar as the page's banner — and the Story viewer is left alone because its
+side list is how you move between stories.
 
 ### Messenger
 
@@ -369,7 +370,7 @@ interface ExtensionSettings {
     enabled: boolean; // the platform master switch
     hideStoryActions: boolean;
     hideChatWidgets: boolean; // floating chat tabs, not full Messenger
-    blurSidebars: boolean; // frosted glass over the columns beside the feed
+    blurSidebars: boolean; // frosted glass over the top bar and side columns
     posts: {
       hideEntireActionBar: boolean; // the Like, Comment, Share and Send row
     };
